@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
 import { ASSETS } from '../config/assets.config';
 import { FOODS, FOOD_IDS, FURNITURE, FURNITURE_IDS, OPTIONAL_SLOTS, SLOT_IDS, SLOT_LABEL, type FoodId, type SlotId } from '../data/catalog';
 import { ArtBox } from '../art/AssetImage';
@@ -71,12 +71,27 @@ export function RoomScreen({ mode }: { mode: Mode }) {
 function useDrawerClose() {
   const [closing, setClosing] = useState(false);
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
   const close = useCallback(() => {
     if (closing) return;
     setClosing(true);
     window.setTimeout(() => goBack('/room'), reduce ? 0 : 220);
   }, [closing, reduce]);
-  return { closing, close };
+  // 引き出しの高さを部屋に伝えて 部屋の床を引き出しのすぐ上にそろえる
+  useLayoutEffect(() => {
+    const el = ref.current;
+    const screen = el?.closest<HTMLElement>('.room-screen');
+    if (!el || !screen) return;
+    const sync = () => screen.style.setProperty('--drawer-h', `${el.offsetHeight}px`);
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      screen.style.removeProperty('--drawer-h');
+    };
+  }, []);
+  return { closing, close, ref };
 }
 
 /* ============================================================ ごはんかご */
@@ -99,7 +114,7 @@ function FoodDrawer({ petRef, eating }: { petRef: React.RefObject<HTMLButtonElem
   const [hint, setHint] = useState<{ food: FoodId; from: DOMRect; to: DOMRect; key: number } | null>(null);
   const start = useRef<{ food: FoodId; x: number; y: number; moved: boolean } | null>(null);
   const sel = selected && foods[selected] > 0 ? selected : null;
-  const { closing, close } = useDrawerClose();
+  const { closing, close, ref: drawerRef } = useDrawerClose();
 
   useEffect(() => {
     if (!hint) return;
@@ -150,7 +165,7 @@ function FoodDrawer({ petRef, eating }: { petRef: React.RefObject<HTMLButtonElem
   };
 
   return (
-    <section className={`drawer ${closing ? 'is-closing' : ''}`} aria-labelledby="drawer-title">
+    <section ref={drawerRef} className={`drawer ${closing ? 'is-closing' : ''}`} aria-labelledby="drawer-title">
       <div className="drawer__head">
         <h2 className="h2 grow" id="drawer-title">
           ごはんかご
@@ -248,7 +263,7 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
   const room = useGame((s) => s.room);
   const items = useMemo(() => FURNITURE_IDS.filter((id) => FURNITURE[id].slot === slot), [slot]);
   const initial = useRef(room).current;
-  const { closing, close } = useDrawerClose();
+  const { closing, close, ref: drawerRef } = useDrawerClose();
 
   // もどる：開いたときの部屋に戻してから閉じる（できた は今の部屋のまま閉じる）
   const cancel = () => {
@@ -264,7 +279,7 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
   };
 
   return (
-    <section className={`drawer drawer--decor ${closing ? 'is-closing' : ''}`} aria-labelledby="decor-title">
+    <section ref={drawerRef} className={`drawer drawer--decor ${closing ? 'is-closing' : ''}`} aria-labelledby="decor-title">
       <div className="drawer__head">
         <button type="button" className="icon-btn drawer__back" onClick={cancel} aria-label="もどる（変えたところを元に戻す）">
           <Icon name="back" />

@@ -39,6 +39,10 @@
   --tag-read: #fda3ac;
   --tag-write: #ffdd6a;
   --tag-meaning: #c4dff3;
+  /* 難しさの色：やさしい→ふつう→むずかしい の順に同じ青が濃くなる */
+  --level-easy: #a8dcec;
+  --level-normal: #38aacf;
+  --level-hard: #1b6f8e;
   --ok: #2f7f50;
   --warn-ink: #a23f22;
 
@@ -65,6 +69,10 @@
   --pad-h: clamp(192px, calc(100dvh - 540px), 360px);
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
+  /* 上の余白：ステータスバーの下から20px */
+  --top-gap: calc(var(--safe-t) + 20px);
+  /* 下の余白：ホームバーのある機種はホームバーの少し上（約8px）に ない機種は画面の下から16px */
+  --bottom-gap: max(16px, calc(var(--safe-b) - 12px));
 
   /* 動き */
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);

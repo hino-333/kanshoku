@@ -15,6 +15,22 @@ body {
   height: 100%;
 }
 
+/* 外枠は動かさない
+   iOS は中身が収まっていても body ごと引っぱれる（はね返る）ので body を画面に固定し
+   スクロールは各画面の中の決まった場所（.screen__body など）だけで行う */
+html {
+  overflow: hidden;
+  overscroll-behavior: none;
+  /* ピンチとダブルタップでの拡大を止める（パンだけ許す） */
+  touch-action: pan-x pan-y;
+}
+body {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   font-family: var(--font);
   font-size: 16px;

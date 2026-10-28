@@ -35,7 +35,7 @@ export function PocketScreen() {
 
   return (
     <div className="screen pocket-screen">
-      <Header title="あつめた漢字" sub={entries.length ? undefined : '相棒と見つけた漢字の置き場所'} />
+      <Header title="あつめた漢字" />
       <div className="screen__body stack">
         {entries.length === 0 ? (
           <EmptyState

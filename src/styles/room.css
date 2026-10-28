@@ -10,8 +10,10 @@
   container-type: size;
 }
 /* 部屋は画面いっぱい。3:4 の部屋（.stage）を下にそろえ
-   上の余りは壁の色 下の余り（ナビの下）は床の色でつなぐ */
+   上の余りは壁の色 下の余り（ナビや引き出しの下）は床の色でつなぐ
+   引き出しの開け閉めに合わせて 床の位置（--room-floor-gap）がなめらかに動く */
 .stage-frame {
+  --floor-move: 320ms var(--ease-out);
   position: absolute;
   inset: 0;
   display: flex;
@@ -19,8 +21,25 @@
   justify-content: flex-end;
   padding-bottom: var(--room-floor-gap, 0px);
   overflow: hidden;
-  background: linear-gradient(to top, var(--floor-fill, #f3e7cf) var(--room-floor-gap, 0px), var(--stage-fill, #ddf2f9) var(--room-floor-gap, 0px));
+  background: var(--stage-fill, #ddf2f9);
   isolation: isolate;
+  transition: padding-bottom var(--floor-move);
+}
+/* 部屋の下の余りを埋める床（部屋の絵と同じ速さで伸び縮みする） */
+.stage-frame::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  height: calc(var(--room-floor-gap, 0px) + 4px);
+  background: var(--floor-fill, #f3e7cf);
+  transition: height var(--floor-move);
+}
+/* 閉じるときは 引き出しが下へすべるのと同じ速さ */
+.room-screen:has(.drawer.is-closing) .stage-frame {
+  --floor-move: 220ms cubic-bezier(0.4, 0, 1, 1);
 }
 .stage {
   position: relative;

@@ -43,7 +43,7 @@ export function PlayScreen() {
 
   return (
     <div className="screen play-screen">
-      <Header title="あそぶ" sub="ひとくち分あそぶ？" />
+      <Header title="あそぶ" />
       <div className="screen__body stack">
         {active && (
           <section className="resume-card card card--pad stack stack--s rise-in" aria-labelledby="resume-title">
@@ -84,7 +84,7 @@ export function PlayScreen() {
             <div>
               <div className="seg" role="radiogroup" aria-label="難しさ">
                 {(['easy', 'normal', 'hard'] as Difficulty[]).map((d) => (
-                  <button key={d} type="button" role="radio" aria-checked={diff === d} className="seg__item" onClick={() => setDiff(d)}>
+                  <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} onClick={() => setDiff(d)}>
                     {DIFF_INFO[d].label}
                   </button>
                 ))}
@@ -104,7 +104,7 @@ export function PlayScreen() {
           </div>
         )}
 
-        <section className={`recipe-hero card recipe-hero--${game}`} aria-labelledby="hero-title">
+        <section className={`recipe-hero card recipe-hero--${diff}`} aria-labelledby="hero-title">
           <p className="eyebrow">{focusWord ? 'このことばで' : game === rec.game ? 'おすすめ' : 'えらんだ遊び'}</p>
           <div className="recipe-hero__main">
             <Icon name={info.icon} className="recipe-hero__icon" />

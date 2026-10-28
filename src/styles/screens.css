@@ -34,13 +34,19 @@
 .room-screen {
   --room-floor-gap: var(--nav-space);
 }
+/* 引き出しは部屋の上に重ねる（部屋は常に画面いっぱい）
+   部屋の床の位置だけを 引き出しの高さ（--drawer-h）に合わせて動かすので
+   開くときも閉じるときも 引き出しの後ろに背景のクリーム色が出ない */
 .room-screen--food,
 .room-screen--decor {
-  --room-floor-gap: 0px;
+  --room-floor-gap: max(0px, calc(var(--drawer-h, 0px) - var(--r-l)));
+}
+.room-screen:has(.drawer.is-closing) {
+  --room-floor-gap: var(--nav-space);
 }
 .room-top {
   position: absolute;
-  top: calc(var(--safe-t) + 12px);
+  top: var(--top-gap);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 25;
@@ -80,7 +86,7 @@
 }
 .name-tag {
   position: absolute;
-  top: calc(var(--safe-t) + 76px);
+  top: calc(var(--top-gap) + 64px);
   left: 12px;
   z-index: 20;
   display: inline-flex;
@@ -127,7 +133,7 @@
 }
 .room-tools {
   position: absolute;
-  top: calc(var(--safe-t) + 76px);
+  top: calc(var(--top-gap) + 64px);
   right: 12px;
   z-index: 20;
   display: flex;
@@ -176,19 +182,21 @@
 /* 下から開く引き出し（ごはんかご・模様替え）
    角丸のすきまから下地のクリーム色が見えないよう 角丸の分だけ部屋に重ねる */
 .drawer {
-  position: relative;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 26;
-  flex: none;
-  margin-top: calc(-1 * var(--r-l));
   max-height: 58%;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px var(--gutter) calc(16px + var(--safe-b));
+  padding: 16px var(--gutter) var(--bottom-gap);
   border-radius: var(--r-l) var(--r-l) 0 0;
   background: var(--surface);
   animation: sheet-up 320ms var(--ease-out);
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 /* 閉じるときも 下へすべって消える */
 .drawer.is-closing {
@@ -222,6 +230,7 @@
   overflow-x: auto;
   padding: 8px 2px 4px;
   scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
   /* スクロールバーの線は出さない（横にスワイプできる） */
   scrollbar-width: none;
 }
@@ -352,6 +361,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   padding: 2px 2px 4px;
   scrollbar-width: none;
 }
@@ -818,14 +828,14 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: calc(var(--safe-t) + 60px) var(--gutter) calc(var(--safe-b) + 32px);
+  padding: calc(var(--top-gap) + 48px) var(--gutter) calc(var(--bottom-gap) + 16px);
   background: var(--surface);
   container-type: size;
   animation: fade-in var(--t-mid);
 }
 .bigview__close {
   position: absolute;
-  top: calc(var(--safe-t) + 12px);
+  top: var(--top-gap);
   right: var(--gutter);
   background: var(--surface-warm);
 }
@@ -859,6 +869,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   /* 影が切れないよう 上下左右に少しゆとりをとる */
   margin: -8px calc(-1 * var(--gutter));
   padding: 8px var(--gutter) 12px;
@@ -931,16 +942,28 @@
   flex-direction: column;
   gap: 16px;
   border-radius: var(--r-m);
-  background: var(--tag-write);
   box-shadow: none;
   overflow: hidden;
+  transition: background-color var(--t-mid);
 }
-.recipe-hero--match {
-  background: var(--primary);
+/* カードの色も 選んだ難しさと同じ3段階で濃くなる
+   いちばん薄い青の上は濃い青の文字 それより濃い青の上はクリーム色の文字 */
+.recipe-hero--easy {
+  --hero-ink: var(--primary-deep);
+  background: var(--level-easy);
 }
-.recipe-hero--match .eyebrow,
-.recipe-hero--match .caption {
-  color: var(--primary-ink);
+.recipe-hero--normal {
+  --hero-ink: var(--primary-ink);
+  background: var(--level-normal);
+}
+.recipe-hero--hard {
+  --hero-ink: var(--primary-ink);
+  background: var(--level-hard);
+}
+.recipe-hero .eyebrow,
+.recipe-hero .caption,
+.recipe-hero .h1 {
+  color: var(--hero-ink);
 }
 .recipe-hero > * {
   position: relative;
@@ -948,10 +971,6 @@
 }
 .recipe-hero .eyebrow {
   margin: 0;
-  color: #6b4a00;
-}
-.recipe-hero .caption {
-  color: #5a4630;
 }
 .recipe-hero .btn--primary {
   --btn-bg: var(--surface);
@@ -1229,7 +1248,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px var(--gutter) calc(16px + var(--safe-b));
+  padding: 16px var(--gutter) var(--bottom-gap);
   border-radius: var(--r-l) var(--r-l) 0 0;
   background: var(--coral-tint);
 }
@@ -1526,7 +1545,7 @@
 }
 .reward-body {
   position: relative;
-  padding-top: calc(var(--safe-t) + 36px);
+  padding-top: calc(var(--top-gap) + 20px);
   text-align: center;
 }
 .reward-heading {
@@ -1791,7 +1810,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: calc(var(--safe-t) + 16px) var(--gutter) calc(var(--safe-b) + 16px);
+  padding: var(--top-gap) var(--gutter) var(--bottom-gap);
   background: var(--bg);
   overflow-y: auto;
 }
@@ -1939,7 +1958,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px var(--gutter) calc(20px + var(--safe-b));
+  padding: 16px var(--gutter) var(--bottom-gap);
 }
 .shutter {
   width: 76px;
@@ -2063,14 +2082,4 @@
   }
 }
 
-/* ことばあわせ（青いカード）の文字と飾りの色 */
-.recipe-hero.recipe-hero--match .eyebrow,
-.recipe-hero.recipe-hero--match .caption,
-.recipe-hero.recipe-hero--match .h1 {
-  color: var(--primary-ink);
-}
-.recipe-hero.recipe-hero--match .recipe-hero__reason,
-.recipe-hero.recipe-hero--match .recipe-hero__facts li {
-  background: var(--primary-ink);
-}
 

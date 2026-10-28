@@ -94,7 +94,7 @@ export function SearchScreen() {
 
   return (
     <div className="screen search-screen">
-      <Header title="しらべる" sub="漢字・ひらがな・熟語で" pet={{ motion: petMotion, key: `${status}-${q}` }} />
+      <Header title="しらべる" pet={{ motion: petMotion, key: `${status}-${q}` }} />
       <div className="screen__body stack">
         <form
           className="search-form"
