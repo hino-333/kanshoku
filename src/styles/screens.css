@@ -268,11 +268,13 @@
   top: 8px;
   right: 8px;
   min-width: 32px;
+  height: 24px;
   padding: 0 8px;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-s);
   background: var(--surface);
   font-size: 12px;
   font-weight: 700;
+  line-height: 24px;
 }
 .drag-ghost {
   position: fixed;
@@ -434,8 +436,8 @@
   right: 8px;
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--primary-ink);
   color: var(--primary);
