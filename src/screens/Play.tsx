@@ -65,10 +65,8 @@ export function PlayScreen() {
 
         <details className="card more-card play-options">
           <summary className="more-card__summary">
-            <span className="h3">遊び方・難しさを変える</span>
-            <span className="caption more-card__value">
-              {info.name}・{DIFF_INFO[diff].label}
-            </span>
+            <span className="h3">遊び方を変える</span>
+            <span className="caption more-card__value">{info.name}</span>
             <Icon name="down" className="more-card__chev" />
           </summary>
           <div className="stack play-options__body">
@@ -80,16 +78,6 @@ export function PlayScreen() {
                   <span className="caption">{GAME_INFO[g].verb}</span>
                 </button>
               ))}
-            </div>
-            <div>
-              <div className="seg" role="radiogroup" aria-label="難しさ">
-                {(['easy', 'normal', 'hard'] as Difficulty[]).map((d) => (
-                  <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} onClick={() => setDiff(d)}>
-                    {DIFF_INFO[d].label}
-                  </button>
-                ))}
-              </div>
-              <p className="caption seg__desc">{DIFF_INFO[diff].desc}</p>
             </div>
           </div>
         </details>
@@ -105,6 +93,17 @@ export function PlayScreen() {
         )}
 
         <section className={`recipe-hero card recipe-hero--${diff}`} aria-labelledby="hero-title">
+          {/* 難しさはカードのいちばん上で選ぶ（選ぶとカードの色も同じ濃さに変わる） */}
+          <div className="recipe-hero__level">
+            <div className="seg seg--level" role="radiogroup" aria-label="難しさ">
+              {(['easy', 'normal', 'hard'] as Difficulty[]).map((d) => (
+                <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} onClick={() => setDiff(d)}>
+                  {DIFF_INFO[d].label}
+                </button>
+              ))}
+            </div>
+            <p className="caption seg__desc">{DIFF_INFO[diff].desc}</p>
+          </div>
           <p className="eyebrow">{focusWord ? 'このことばで' : game === rec.game ? 'おすすめ' : 'えらんだ遊び'}</p>
           <div className="recipe-hero__main">
             <Icon name={info.icon} className="recipe-hero__icon" />
@@ -118,7 +117,6 @@ export function PlayScreen() {
           <ul className="recipe-hero__facts">
             <li>3問</li>
             <li>時間制限なし</li>
-            <li>{DIFF_INFO[diff].label}</li>
             <li>おわるとごはん</li>
           </ul>
           {!focusWord && game === rec.game && (

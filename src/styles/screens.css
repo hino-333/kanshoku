@@ -1061,8 +1061,23 @@
   font-weight: 700;
   color: var(--ink-strong);
 }
+/* カードの上の難しさ：中央にそろえ 白い台の上で選ぶ */
+.recipe-hero__level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.seg--level {
+  width: min(100%, 296px);
+  background: var(--surface);
+}
+.seg--level .seg__item:not([aria-checked='true']) {
+  color: var(--ink-strong);
+}
 .seg__desc {
-  margin-top: 8px;
+  margin: 0;
 }
 
 /* ============================================================ ラウンド */
