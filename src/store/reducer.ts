@@ -321,6 +321,8 @@ function sanitizeRound(v: unknown): ActiveRound | null {
   if (v.questions.length === 0 || v.questions.length !== v.answers.length) return null;
   const okQ = v.questions.every((q) => isObj(q) && typeof q.wordId === 'string' && WORD_BY_ID[q.wordId as string]);
   if (!okQ || (v.game !== 'write' && v.game !== 'match') || !isDiff(v.difficulty)) return null;
+  // 句読点つきの文が残っている古い版の途中ラウンドは 今の問題と食いちがうので捨てる
+  if (/[、。]/.test(JSON.stringify(v.questions))) return null;
   return v as unknown as ActiveRound;
 }
 

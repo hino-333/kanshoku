@@ -11,7 +11,8 @@ import { EmptyState, Header, Icon, Sheet } from '../ui/parts';
 /** 語の長さに合わせて文字サイズを決める（長い語でも枠からはみ出さない） */
 export function wordSize(surface: string, max = 84) {
   const n = [...surface].length;
-  return `min(${max}px, ${Math.floor(78 / Math.max(n, 1))}cqw)`;
+  // 文字の大きさは 4px 刻みにそろえる
+  return `round(down, min(${max}px, ${Math.floor(78 / Math.max(n, 1))}cqw), 4px)`;
 }
 
 export function WordScreen({ id }: { id: string }) {
@@ -86,12 +87,14 @@ export function WordScreen({ id }: { id: string }) {
           const h = WORD_BY_ID[hid];
           if (!h) return null;
           return (
-            <button key={hid} type="button" className="homophone card" onClick={() => navigate(`/word/${hid}?from=${from}`, { replace: true })}>
-              <span className="caption">同じ読みのことば</span>
-              <span className="row">
-                <span className="kanji homophone__word">{h.surface}</span>
-                <span className="caption grow">{h.meaning}</span>
-                <Icon name="chevron" className="btn__icon" />
+            <button key={hid} type="button" className="go-card homophone" onClick={() => navigate(`/word/${hid}?from=${from}`, { replace: true })}>
+              <span className="kanji homophone__word">{h.surface}</span>
+              <span className="grow">
+                <span className="go-card__sub">同じ読みのことば</span>
+                <span className="homophone__meaning">{h.meaning}</span>
+              </span>
+              <span className="go-card__strip go-card__strip--meaning" aria-hidden="true">
+                <Icon name="arrow" />
               </span>
             </button>
           );
@@ -242,7 +245,7 @@ function BigView({ word, onClose }: { word: Word; onClose: () => void }) {
         <Icon name="close" />
       </button>
       <p className="bigview__reading">{word.reading}</p>
-      <p className="kanji bigview__word" style={{ fontSize: `min(${Math.floor(86 / n)}cqw, ${Math.floor(60 / n)}cqh)` }}>
+      <p className="kanji bigview__word" style={{ fontSize: `round(down, min(${Math.floor(86 / n)}cqw, ${Math.floor(60 / n)}cqh), 4px)` }}>
         {word.surface}
       </p>
       <p className="caption">お手本にして紙に書くときにどうぞ</p>

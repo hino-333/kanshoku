@@ -50,11 +50,12 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 52px;
+  height: 48px;
   padding: 0 16px;
   border: 0;
-  border-radius: 26px;
+  border-radius: var(--r-l);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   text-align: left;
   transition: transform var(--t-fast);
 }
@@ -64,14 +65,15 @@
 .search-pill__icon {
   width: 20px;
   height: 20px;
-  color: var(--ink-soft);
+  color: var(--ink-strong);
 }
 .search-pill__text {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink-soft);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--ink-mute);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -90,6 +92,7 @@
   border: 0;
   border-radius: 24px;
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   font-size: 16px;
   font-weight: 700;
   color: var(--ink-strong);
@@ -140,6 +143,7 @@
   border: 0;
   border-radius: 24px;
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   color: var(--primary);
   transition: transform var(--t-fast);
 }
@@ -160,8 +164,8 @@
   right: -4px;
   min-width: 20px;
   height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
+  padding: 0 8px;
+  border-radius: 12px;
   background: var(--ink-strong);
   color: var(--primary-ink);
   font-size: 12px;
@@ -180,7 +184,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px var(--gutter) calc(14px + var(--safe-b));
+  padding: 16px var(--gutter) calc(16px + var(--safe-b));
   border-radius: var(--r-l) var(--r-l) 0 0;
   background: var(--surface);
   animation: sheet-up 320ms var(--ease-out);
@@ -199,23 +203,24 @@
 .drawer__head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 /* とじる・もどるは丸を敷かず アイコンだけ */
 .drawer__head .icon-btn {
   background: transparent;
+  box-shadow: none;
   color: var(--ink);
 }
 .drawer__back {
-  margin: 0 -10px 0 -12px;
+  margin: 0 -12px 0 -12px;
 }
 .food-grid {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 108px;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
-  padding: 6px 2px 4px;
+  padding: 8px 2px 4px;
   scroll-snap-type: x mandatory;
   /* スクロールバーの線は出さない（横にスワイプできる） */
   scrollbar-width: none;
@@ -226,7 +231,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 12px 6px 10px;
+  padding: 12px 8px 12px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface-warm);
@@ -236,25 +241,25 @@
 }
 /* 選んだごはんは青い枠で囲む */
 .food-card[aria-checked='true'] {
-  box-shadow: inset 0 0 0 3px var(--primary);
+  box-shadow: inset 0 0 0 4px var(--primary);
   transform: translateY(-4px);
 }
 /* 絵の後ろに丸は敷かない 名前との間はゆったり */
 .food-card__art {
   width: 64px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .food-card__name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-strong);
 }
 .food-card__count {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  min-width: 30px;
-  padding: 0 6px;
+  top: 8px;
+  right: 8px;
+  min-width: 32px;
+  padding: 0 8px;
   border-radius: var(--r-pill);
   background: var(--surface);
   font-size: 12px;
@@ -315,7 +320,7 @@
 /* 指先がごはんの真下に来るように */
 .drag-hint__hand {
   position: absolute;
-  left: -23px;
+  left: -24px;
   top: -4px;
   width: 52px;
 }
@@ -323,11 +328,11 @@
   position: absolute;
   left: 0;
   top: 0;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 16px;
   background: var(--primary);
   color: var(--primary-ink);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   transform: translate(calc(var(--dx) * 0.55 + 36px), calc(var(--dy) * 0.55 - 14px));
@@ -345,21 +350,21 @@
 
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
   padding: 2px 2px 4px;
   scrollbar-width: none;
 }
 .tabs__tab {
   flex: none;
-  min-height: 40px;
-  padding: 0 16px;
+  min-height: 36px;
+  padding: 0 20px;
   border: 0;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-m);
   background: var(--surface-warm);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-strong);
 }
 .tabs__tab[aria-selected='true'] {
   background: var(--ink-strong);
@@ -368,7 +373,7 @@
 .decor-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
 }
 .decor-item {
   position: relative;
@@ -376,16 +381,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 8px;
   min-height: 104px;
-  padding: 12px 6px 10px;
+  padding: 12px 8px 12px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface-warm);
 }
 /* 選んだ家具も ごはんかごと同じく青い枠 */
 .decor-item[aria-pressed='true'] {
-  box-shadow: inset 0 0 0 3px var(--primary);
+  box-shadow: inset 0 0 0 4px var(--primary);
 }
 .decor-item__art {
   width: 70%;
@@ -409,7 +414,7 @@
   margin-bottom: 4px;
   border-radius: var(--r-s);
   background: var(--surface);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-soft);
 }
 /* 選択中の印：ふちは細く（2px） */
@@ -442,7 +447,7 @@
 
 /* ============================================================ しらべる */
 .search-field {
-  padding-right: 6px;
+  padding-right: 8px;
 }
 .search-field input[type='search']::-webkit-search-cancel-button {
   display: none;
@@ -472,14 +477,15 @@
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
-  column-gap: 10px;
+  column-gap: 12px;
   align-items: center;
   min-height: 72px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border: 0;
   border-radius: var(--r-m);
   /* 面は白にそろえて アイコンの色だけで分ける */
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   text-align: left;
   transition: transform var(--t-fast);
 }
@@ -498,28 +504,25 @@
 .alt-tile__label {
   font-size: 16px;
   font-weight: 700;
+  line-height: 24px;
   color: var(--ink-strong);
 }
 .alt-tile__desc {
   font-size: 12px;
+  line-height: 20px;
   color: var(--ink-soft);
 }
+/* 検索結果は あつめた漢字と同じ「進むカード」 */
 .hit-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 14px 12px 14px 16px;
-  border: 0;
-  text-align: left;
-  transition: transform var(--t-fast);
-}
-.hit-card:active {
-  transform: scale(0.99);
+  padding-left: 12px;
 }
 .hit-card__word {
   flex: none;
-  font-size: 30px;
+  min-width: 76px;
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+  color: var(--primary-deep);
 }
 .hit-card__body {
   flex: 1;
@@ -528,44 +531,38 @@
   flex-direction: column;
 }
 .hit-card__reading {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 20px;
   color: var(--primary-deep);
 }
 .hit-card__meaning {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 20px;
   color: var(--ink);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.hit-card__chev,
-.pocket-card__chev {
-  width: 20px;
-  height: 20px;
-  flex: none;
-  color: var(--ink-soft);
-}
 .chip--history {
-  min-height: 40px;
   font-size: 16px;
+  font-weight: 700;
 }
 .chip--word {
-  min-height: 40px;
-  padding: 0 14px;
-  font-size: 17px;
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 700;
 }
-.chip--filter {
-  min-height: 40px;
-  padding: 0 14px;
+/* 進むカードが続くときは あつめた漢字と同じ間隔 */
+.go-card + .go-card {
+  margin-top: 8px;
 }
 .demo-note__list {
   padding: 4px 2px;
 }
 .demo-note__list .eyebrow {
-  margin: 6px 0;
+  margin: 8px 0;
 }
 .state__art {
   width: 104px;
@@ -581,13 +578,15 @@
 /* 大きく見せる漢字のカードは 少し濃い黄色で強調する */
 .word-card {
   container-type: inline-size;
-  padding: 26px 18px 18px;
+  padding: 28px 20px 20px;
   text-align: center;
   background: var(--sun-soft);
+  box-shadow: none;
 }
 .word-card__reading {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
+  line-height: 28px;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--primary-deep);
@@ -595,12 +594,13 @@
 .word-card__surface {
   margin: 4px 0 8px;
   line-height: 1.2;
+  color: var(--primary-deep);
 }
 .word-card__meaning {
   margin: 0 auto;
   max-width: 30em;
   font-size: 16px;
-  line-height: 1.75;
+  line-height: 28px;
   color: var(--ink-strong);
 }
 .word-card__tools {
@@ -616,26 +616,29 @@
 .example-card__text {
   margin: 8px 0 0;
   font-size: 16px;
-  line-height: 1.9;
+  line-height: 32px;
 }
 .hl {
-  padding: 0 3px;
-  border-radius: 6px;
+  padding: 0 4px;
+  border-radius: 4px;
   background: var(--sun-tint);
   color: var(--ink-strong);
 }
 .homophone {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  padding: 12px 14px;
-  border: 0;
-  text-align: left;
-  background: var(--surface-warm);
+  padding-left: 12px;
 }
 .homophone__word {
-  font-size: 22px;
+  flex: none;
+  min-width: 76px;
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+  color: var(--primary-deep);
+}
+.homophone__meaning {
+  display: block;
+  font-size: 12px;
+  line-height: 20px;
 }
 .more-card {
   padding: 0;
@@ -644,8 +647,8 @@
 .more-card__summary {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 54px;
+  gap: 12px;
+  min-height: 56px;
   padding: 0 16px;
   cursor: pointer;
   list-style: none;
@@ -693,8 +696,8 @@
 .kanji-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 12px 14px;
+  gap: 16px;
+  padding: 12px 16px;
   border-radius: var(--r-s);
   background: var(--surface-warm);
 }
@@ -706,11 +709,11 @@
   margin: 0;
   display: grid;
   gap: 2px;
-  font-size: 14px;
+  font-size: 12px;
 }
 .kanji-row__meta div {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 .kanji-row__meta dt {
   min-width: 2.5em;
@@ -727,28 +730,29 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  min-height: 50px;
-  padding: 6px 14px;
+  min-height: 52px;
+  padding: 8px 16px;
   border: 0;
   border-radius: var(--r-m);
-  background: var(--mint-tint);
-  font-size: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  font-size: 12px;
   font-weight: 700;
   text-align: left;
   color: var(--ink-strong);
 }
 .saved-bar__check {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex: none;
-  padding: 3px;
+  padding: 4px;
   border-radius: 50%;
   background: var(--ok);
   color: #fff;
 }
 .tag-pick {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 .tag-option {
   display: grid;
@@ -756,11 +760,12 @@
   grid-template-rows: auto auto;
   column-gap: 12px;
   align-items: center;
-  min-height: 66px;
-  padding: 10px 14px;
+  min-height: 68px;
+  padding: 12px 16px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   text-align: left;
   transition: transform var(--t-fast), background-color var(--t-mid);
 }
@@ -768,13 +773,13 @@
   transform: scale(0.98);
 }
 .tag-option[aria-pressed='true'].tag-option--read {
-  background: var(--mint);
+  background: var(--tag-read);
 }
 .tag-option[aria-pressed='true'].tag-option--write {
-  background: var(--sun);
+  background: var(--tag-write);
 }
 .tag-option[aria-pressed='true'].tag-option--meaning {
-  background: var(--pink);
+  background: var(--tag-meaning);
 }
 .tag-option__check {
   grid-row: span 2;
@@ -782,7 +787,7 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  border-radius: 9px;
+  border-radius: 8px;
   background: var(--surface-warm);
 }
 .tag-option[aria-pressed='true'] .tag-option__check {
@@ -790,16 +795,18 @@
   color: #fff;
 }
 .tag-option__check svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 .tag-option__label {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 24px;
   color: var(--ink-strong);
 }
 .tag-option__desc {
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 20px;
   color: var(--ink-soft);
 }
 .bigview {
@@ -811,7 +818,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: calc(var(--safe-t) + 60px) var(--gutter) calc(var(--safe-b) + 30px);
+  padding: calc(var(--safe-t) + 60px) var(--gutter) calc(var(--safe-b) + 32px);
   background: var(--surface);
   container-type: size;
   animation: fade-in var(--t-mid);
@@ -824,7 +831,7 @@
 }
 .bigview__reading {
   margin: 0;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.25em;
   color: var(--primary-deep);
@@ -836,10 +843,10 @@
 .fly-card {
   position: fixed;
   z-index: 200;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: var(--r-s);
   background: var(--surface);
-  font-size: 30px;
+  font-size: 32px;
   box-shadow: var(--shadow-float);
   pointer-events: none;
 }
@@ -847,97 +854,67 @@
   width: 100%;
 }
 
-/* ============================================================ ポケット */
+/* ============================================================ あつめた漢字（Figma 06 改善案が全画面の基準） */
 .filter-row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  /* 影が切れないよう 上下左右に少しゆとりをとる */
+  margin: -8px calc(-1 * var(--gutter));
+  padding: 8px var(--gutter) 12px;
   scrollbar-width: none;
-}
-.play-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 14px 12px 14px 16px;
-  border: 0;
-  background: var(--sun-soft);
-  text-align: left;
-}
-.play-banner__sub {
-  display: block;
 }
 .pocket-list {
   margin: 0;
-  padding: 0;
+  padding: 4px 0 0;
   list-style: none;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: 20px;
 }
 .pocket-list li {
   min-width: 0;
 }
 .pocket-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 12px 12px 12px 12px;
-  border: 0;
-  text-align: left;
-  transition: transform var(--t-fast);
-}
-.pocket-card:active {
-  transform: scale(0.99);
+  padding-left: 12px;
 }
 .pocket-card__word {
   flex: none;
-  display: grid;
-  place-items: center;
-  min-width: 76px;
-  min-height: 64px;
-  padding: 0 8px;
-  border-radius: var(--r-s);
-  background: var(--sun);
-  font-size: 26px;
+  width: 76px;
+  font-size: 28px;
+  line-height: 32px;
   text-align: center;
-}
-/* 色分けは最初のタグの色（読み＝ミント 書き＝黄色 意味＝ピンク）をはっきり出す */
-.pocket-card__word--read {
-  background: var(--mint);
-}
-.pocket-card__word--meaning {
-  background: var(--pink);
+  color: var(--primary-deep);
 }
 .pocket-card__body {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 .pocket-card__reading {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 20px;
   color: var(--primary-deep);
 }
 .pocket-card__meaning {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 20px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.pocket-card__tags {
-  gap: 6px;
-  margin-top: 4px;
 }
 
 /* ============================================================ あそぶ */
 .resume-card {
   background: var(--sun-tint);
+  box-shadow: none;
+}
+.resume-card .eyebrow,
+.resume-card .h2,
+.resume-card .caption {
+  margin: 0;
 }
 .focus-banner {
   display: flex;
@@ -946,15 +923,16 @@
   padding: 8px 8px 8px 16px;
 }
 .focus-banner__word {
-  font-size: 26px;
+  font-size: 28px;
 }
 .recipe-hero {
-  padding: 20px 18px 18px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  border-radius: var(--r-l);
-  background: var(--sun);
+  gap: 16px;
+  border-radius: var(--r-m);
+  background: var(--tag-write);
+  box-shadow: none;
   overflow: hidden;
 }
 .recipe-hero--match {
@@ -982,14 +960,14 @@
 .recipe-hero__main {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .recipe-hero__icon {
   width: 72px;
   height: 72px;
   flex: none;
-  padding: 18px;
-  border-radius: 24px;
+  padding: 20px;
+  border-radius: var(--r-m);
   background: var(--surface);
   color: var(--ink-strong);
 }
@@ -1002,33 +980,34 @@
   align-items: center;
   gap: 8px;
   margin: 0;
-  padding: 14px 16px;
-  border-radius: 16px;
+  padding: 12px 16px;
+  border-radius: var(--r-s);
   background: var(--surface);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--ink-strong);
 }
 .recipe-hero__reason-icon {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   color: var(--primary);
 }
 .recipe-hero__facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .recipe-hero__facts li {
-  padding: 3px 12px;
-  border-radius: var(--r-pill);
+  padding: 4px 12px;
+  border-radius: var(--r-s);
   background: var(--surface);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 400;
+  line-height: 16px;
   color: var(--ink-strong);
 }
 .play-options__body {
@@ -1037,21 +1016,21 @@
 .game-pick {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 .game-option {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 14px 8px;
+  padding: 16px 8px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface-warm);
 }
 /* 選んだものは青い枠で囲む（ごはんかご・模様替えと同じ） */
 .game-option[aria-checked='true'] {
-  box-shadow: inset 0 0 0 3px var(--primary);
+  box-shadow: inset 0 0 0 4px var(--primary);
 }
 .game-option__icon {
   width: 32px;
@@ -1059,7 +1038,7 @@
   color: var(--primary-deep);
 }
 .game-option__name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--ink-strong);
 }
@@ -1074,24 +1053,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: -6px auto 0;
+  margin: -8px auto 0;
   width: 200px;
 }
 .pot__art {
   width: 104px;
-  margin-top: -14px;
+  margin-top: -16px;
 }
 .pot__slots {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 .pot__slot {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.75);
 }
@@ -1103,13 +1082,13 @@
   background: var(--sun-tint);
 }
 .pot__q {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-soft);
 }
 /* 材料はにんじん・トマト・ブロッコリー（白い食べ物は背景に溶けるので使わない） */
 .pot__ingredient {
-  width: 30px;
+  width: 32px;
 }
 @keyframes drop-in {
   0% {
@@ -1141,7 +1120,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: fit-content;
   margin: 0 auto 8px;
   padding: 4px 12px;
@@ -1157,23 +1136,24 @@
 }
 .q-word {
   container-type: inline-size;
-  padding: 6px 0;
+  padding: 8px 0;
   text-align: center;
 }
 .q-word__surface {
   margin: 0;
+  color: var(--primary-deep);
 }
 .q-title {
   text-align: center;
 }
 .q-sentence__text {
   margin: 0;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.9;
 }
 .options {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 .options--reading {
   grid-template-columns: 1fr 1fr;
@@ -1181,21 +1161,22 @@
 .option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-height: 60px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   text-align: left;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 24px;
   color: var(--ink-strong);
   transition: transform var(--t-fast), background-color var(--t-mid), opacity var(--t-mid);
 }
 .options--reading .option {
   justify-content: center;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -1247,8 +1228,8 @@
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px var(--gutter) calc(14px + var(--safe-b));
+  gap: 12px;
+  padding: 16px var(--gutter) calc(16px + var(--safe-b));
   border-radius: var(--r-l) var(--r-l) 0 0;
   background: var(--coral-tint);
 }
@@ -1295,7 +1276,7 @@
 }
 .q-write__lead {
   margin: 0 0 4px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .q-write__reading {
   margin: 0;
@@ -1309,19 +1290,19 @@
   justify-content: center;
   align-items: center;
   gap: 4px;
-  margin: 2px 0 6px;
+  margin: 2px 0 8px;
   font-size: 40px;
 }
 .q-write__blank {
   display: inline-block;
   width: 1em;
   height: 1em;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--primary-tint);
 }
 .q-write__sentence {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.8;
   color: var(--ink);
 }
@@ -1330,21 +1311,21 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 .hint {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--r-s);
   background: var(--sun-tint);
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.6;
 }
 .hint__icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex: none;
   margin-top: 2px;
   color: #b07d00;
@@ -1354,6 +1335,7 @@
   margin: 0 auto;
   border-radius: var(--r-m);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
 }
 .pad__guides {
@@ -1367,7 +1349,7 @@
   flex: 1;
 }
 .pad__box + .pad__box {
-  background: linear-gradient(#bfe3ef, #bfe3ef) left / 3px 100% no-repeat;
+  background: linear-gradient(#bfe3ef, #bfe3ef) left / 4px 100% no-repeat;
 }
 .pad__box::before,
 .pad__box::after {
@@ -1424,20 +1406,21 @@
   color: var(--primary-ink);
 }
 .pad__peek svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 .tool {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   min-height: 56px;
-  padding: 4px 2px;
+  padding: 4px;
   border: 0;
   border-radius: var(--r-s);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   font-size: 12px;
   font-weight: 700;
   color: var(--ink-strong);
@@ -1456,7 +1439,7 @@
 .peek {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .peek__chars {
   font-size: 48px;
@@ -1464,16 +1447,16 @@
 .compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 .compare__panel {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .compare__panel figcaption {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-align: center;
   color: var(--ink-soft);
@@ -1485,6 +1468,7 @@
   width: 100%;
   border-radius: var(--r-m);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   overflow: hidden;
   container-type: size;
 }
@@ -1499,7 +1483,7 @@
 .compare__glyphs {
   display: flex;
   width: 100%;
-  font-size: min(78cqh, calc(78cqw / var(--n, 1)));
+  font-size: round(down, min(78cqh, calc(78cqw / var(--n, 1))), 4px);
   line-height: 1;
 }
 .compare__glyphs span {
@@ -1514,8 +1498,8 @@
 .compare__target {
   color: var(--primary-deep);
   background: var(--sun-tint);
-  border-radius: 6px;
-  padding: 0 2px;
+  border-radius: 4px;
+  padding: 0 4px;
 }
 .self-check {
   display: grid;
@@ -1523,7 +1507,7 @@
 }
 .self-check__btn {
   justify-content: flex-start;
-  padding-left: 14px;
+  padding-left: 16px;
 }
 .self-check__mark {
   display: grid;
@@ -1532,7 +1516,7 @@
   height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 /* ============================================================ ごほうび（Figma 09 改善案2）
@@ -1592,7 +1576,7 @@
 }
 .reward-sub {
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--ink-soft);
 }
 .reward-extras {
@@ -1630,7 +1614,6 @@
 /* ============================================================ プロフィール */
 .profile-card {
   overflow: hidden;
-  border-radius: var(--r-l);
 }
 .profile-card__top {
   position: relative;
@@ -1673,15 +1656,15 @@
   display: grid;
   grid-template-columns: 6.6em 1fr;
   align-items: center;
-  gap: 10px;
-  min-height: 58px;
+  gap: 12px;
+  min-height: 60px;
   padding: 8px 0;
 }
 .profile-field + .profile-field {
   background: linear-gradient(var(--surface-warm), var(--surface-warm)) top / 100% 2px no-repeat;
 }
 .profile-field dt {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-soft);
 }
@@ -1693,18 +1676,18 @@
   background: var(--surface-warm);
 }
 .profile-field__value {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--ink-strong);
   overflow-wrap: anywhere;
 }
 .profile-meals {
   margin: 0 16px 16px;
-  padding: 14px;
+  padding: 16px;
   border-radius: var(--r-m);
   background: var(--surface-warm);
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 .profile-meals__title {
   display: flex;
@@ -1712,15 +1695,15 @@
   gap: 8px;
 }
 .profile-meals__icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   color: var(--coral-deep);
 }
 /* 食べたごはん：ピルで囲まず 絵と数を並べるだけ */
 .meal-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 18px;
+  gap: 8px 20px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1729,12 +1712,12 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
 .meal-chip__art {
-  width: 30px;
+  width: 32px;
 }
 .meal-chip__n {
   color: var(--ink-soft);
@@ -1746,17 +1729,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 62px;
-  padding: 10px 16px;
+  min-height: 64px;
+  padding: 12px 16px;
   border: 0;
   border-radius: var(--r-m);
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
   font-weight: 700;
   color: var(--ink-strong);
   text-align: left;
 }
-.setting--button {
-  width: 100%;
+.setting-go {
+  min-height: 64px;
+  color: var(--ink-strong);
 }
 .setting__desc {
   display: block;
@@ -1805,8 +1790,8 @@
   z-index: 80;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: calc(var(--safe-t) + 14px) var(--gutter) calc(var(--safe-b) + 16px);
+  gap: 16px;
+  padding: calc(var(--safe-t) + 16px) var(--gutter) calc(var(--safe-b) + 16px);
   background: var(--bg);
   overflow-y: auto;
 }
@@ -1817,7 +1802,7 @@
 }
 .onboard__dots {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   padding-left: 4px;
 }
 .onboard__dots span {
@@ -1838,7 +1823,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 24px 18px;
+  padding: 24px 20px;
   border-radius: var(--r-l);
   text-align: center;
   animation: rise-in 360ms var(--ease-out);
@@ -1853,9 +1838,9 @@
 .onboard__pet {
   display: grid;
   place-items: end center;
-  width: 170px;
+  width: 172px;
   aspect-ratio: 1;
-  padding: 26px 24px 28px;
+  padding: 28px 24px 28px;
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
   background: var(--primary-tint);
 }
@@ -1894,9 +1879,9 @@
 .onboard__food {
   display: grid;
   place-items: center;
-  width: 170px;
+  width: 172px;
   aspect-ratio: 1;
-  padding: 30px;
+  padding: 32px;
   border-radius: 50% 50% 46% 54% / 48% 52% 48% 52%;
   background: var(--primary-tint);
   animation: reward-pop 700ms var(--ease-pop) both;
@@ -1906,7 +1891,7 @@
 }
 .onboard__actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* ============================================================ カメラ・声 */
@@ -1934,17 +1919,17 @@
   width: min(62vw, 62%, 280px);
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border-radius: 22px;
+  border-radius: 24px;
   box-shadow: 0 0 0 999px rgba(30, 24, 20, 0.55);
 }
 .viewfinder__hint {
   position: relative;
-  margin: 18px var(--gutter) 0;
-  padding: 6px 14px;
+  margin: 20px var(--gutter) 0;
+  padding: 8px 16px;
   align-self: center;
   border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.92);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-strong);
 }
@@ -1954,7 +1939,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px var(--gutter) calc(18px + var(--safe-b));
+  padding: 16px var(--gutter) calc(20px + var(--safe-b));
 }
 .shutter {
   width: 76px;
@@ -1969,15 +1954,15 @@
 .capture-hero {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 .capture-hero__frame {
   flex: none;
   display: grid;
   place-items: center;
-  width: 78px;
-  height: 78px;
-  border-radius: 18px;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
   background: var(--primary-tint);
   font-size: 44px;
 }
@@ -2011,15 +1996,15 @@
   transition: transform var(--t-fast);
 }
 .mic-btn svg {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
 }
 .mic-btn:active {
   transform: scale(0.94);
 }
 .mic-caption {
   text-align: center;
-  margin-top: -6px;
+  margin-top: -8px;
 }
 .wave {
   display: flex;
@@ -2028,8 +2013,8 @@
   height: 80px;
 }
 .wave span {
-  width: 14px;
-  height: 30px;
+  width: 16px;
+  height: 32px;
   border-radius: 8px;
   background: var(--primary);
   animation: wave 900ms ease-in-out infinite;
@@ -2074,7 +2059,7 @@
 @media (max-height: 620px) {
   .pot {
     transform: scale(0.85);
-    margin-bottom: -10px;
+    margin-bottom: -12px;
   }
 }
 

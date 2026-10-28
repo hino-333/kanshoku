@@ -133,6 +133,18 @@ describe('保存と復元', () => {
     expect(state.pocket.w_mokuhyou.tags).toEqual(['read']);
   });
 
+  it('句読点つきの古い途中ラウンドは捨て 今の途中ラウンドは残す', () => {
+    const state = createInitialState(T0);
+    const round = buildRound(state, { game: 'match', difficulty: 'normal', at: T0, rng: seeded(3) });
+    const playing = reducer(state, { type: 'startRound', round });
+    const storage = new MemStorage();
+    storage.setItem(STORAGE_KEY, JSON.stringify(playing));
+    expect(loadState(storage, T0).state.play.active?.id).toBe(round.id);
+    const old = { ...playing, play: { ...playing.play, active: { ...round, questions: round.questions.map((q) => ({ ...q, note: '物事のだいたいの内容。' })) } } };
+    storage.setItem(STORAGE_KEY, JSON.stringify(old));
+    expect(loadState(storage, T0).state.play.active).toBeNull();
+  });
+
   it('ストレージが使えなくても起動できる', () => {
     expect(loadState(null, T0).notice).toBe('unavailable');
   });

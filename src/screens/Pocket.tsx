@@ -35,7 +35,7 @@ export function PocketScreen() {
 
   return (
     <div className="screen pocket-screen">
-      <Header title="あつめた漢字" sub={entries.length ? `${entries.length}こ` : '相棒と見つけた漢字の置き場所'} />
+      <Header title="あつめた漢字" sub={entries.length ? undefined : '相棒と見つけた漢字の置き場所'} />
       <div className="screen__body stack">
         {entries.length === 0 ? (
           <EmptyState
@@ -59,20 +59,20 @@ export function PocketScreen() {
 
             <div className="filter-row" role="radiogroup" aria-label="タグでしぼる">
               {(['all', ...TAGS] as Filter[]).map((f) => (
-                <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip chip--filter" onClick={() => setFilter(f)}>
+                <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip" onClick={() => setFilter(f)}>
                   {f === 'all' ? 'すべて' : TAG_LABEL[f]}
                   <span className="chip__count">{counts[f]}</span>
                 </button>
               ))}
             </div>
 
-            <button type="button" className="play-banner card" onClick={() => navigate('/play')}>
+            <button type="button" className="go-card go-card--invite" onClick={() => navigate('/play')}>
               <span className="grow">
-                <span className="h3">あつめた漢字であそぶ</span>
-                <span className="caption play-banner__sub">3問・時間制限なし・ごはんがもらえる</span>
+                <span className="go-card__sub">いい字そろってるね！</span>
+                <span className="go-card__title">あつめた漢字であそんでみる？</span>
               </span>
-              <span className="btn btn--primary btn--sm" aria-hidden="true">
-                あそぶ
+              <span className="go-card__strip go-card__strip--primary" aria-hidden="true">
+                <Icon name="arrow" />
               </span>
             </button>
 
@@ -82,20 +82,23 @@ export function PocketScreen() {
               <ul className="pocket-list">
                 {shown.map(({ id, e, w }, i) => (
                   <li key={id} className="rise-in" style={{ animationDelay: `${Math.min(i, 8) * 30}ms` }}>
-                    <button type="button" className="pocket-card card" onClick={() => navigate(`/word/${id}?from=pocket`)}>
-                      <span className={`kanji pocket-card__word pocket-card__word--${e.tags[0] ?? 'write'}`}>{w.surface}</span>
+                    <button type="button" className="go-card pocket-card" onClick={() => navigate(`/word/${id}?from=pocket`)}>
+                      <span className="kanji pocket-card__word">{w.surface}</span>
                       <span className="pocket-card__body">
                         <span className="pocket-card__reading">{w.reading}</span>
                         <span className="pocket-card__meaning">{w.meaning}</span>
-                        <span className="row row--wrap pocket-card__tags">
-                          {e.tags.map((t) => (
-                            <span key={t} className={`tag tag--${t}`}>
-                              {TAG_LABEL[t]}
-                            </span>
-                          ))}
-                        </span>
                       </span>
-                      <Icon name="chevron" className="pocket-card__chev" />
+                      {/* タグは左上の角からはみ出させる 帯の色は最初のタグ */}
+                      <span className="corner-tags">
+                        {e.tags.map((t) => (
+                          <span key={t} className={`tag tag--${t}`}>
+                            {TAG_LABEL[t]}
+                          </span>
+                        ))}
+                      </span>
+                      <span className={`go-card__strip go-card__strip--${e.tags[0] ?? 'write'}`} aria-hidden="true">
+                        <Icon name="arrow" />
+                      </span>
                     </button>
                   </li>
                 ))}

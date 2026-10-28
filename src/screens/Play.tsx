@@ -46,7 +46,7 @@ export function PlayScreen() {
       <Header title="あそぶ" sub="ひとくち分あそぶ？" />
       <div className="screen__body stack">
         {active && (
-          <section className="resume-card card card--pad rise-in" aria-labelledby="resume-title">
+          <section className="resume-card card card--pad stack stack--s rise-in" aria-labelledby="resume-title">
             <p className="eyebrow">つづきから</p>
             <h2 className="h2" id="resume-title">
               {GAME_INFO[active.game].name}・{active.answers.filter(Boolean).length + 1}/{active.questions.length}問目

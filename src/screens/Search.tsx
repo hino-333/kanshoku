@@ -149,8 +149,8 @@ export function SearchScreen() {
 
         {status === 'loading' && (
           <div className="stack stack--s" aria-busy="true" aria-label="さがしています">
-            <div className="skeleton" style={{ height: 76 }} />
-            <div className="skeleton" style={{ height: 76 }} />
+            <div className="skeleton" style={{ height: 88 }} />
+            <div className="skeleton" style={{ height: 88 }} />
           </div>
         )}
 
@@ -176,13 +176,15 @@ export function SearchScreen() {
             </div>
             {sameReading && <p className="caption">同じ読みでも意味がちがうよ</p>}
             {hits.map((h, i) => (
-              <button key={h.word.id} type="button" className="hit-card card rise-in" style={{ animationDelay: `${i * 40}ms` }} onClick={() => openWord(h.word)}>
+              <button key={h.word.id} type="button" className="go-card hit-card rise-in" style={{ animationDelay: `${i * 40}ms` }} onClick={() => openWord(h.word)}>
                 <span className="kanji hit-card__word">{h.word.surface}</span>
                 <span className="hit-card__body">
                   <span className="hit-card__reading">{h.word.reading}</span>
                   <span className="hit-card__meaning">{h.word.meaning}</span>
                 </span>
-                <Icon name="chevron" className="hit-card__chev" />
+                <span className="go-card__strip" aria-hidden="true">
+                  <Icon name="arrow" />
+                </span>
               </button>
             ))}
           </section>

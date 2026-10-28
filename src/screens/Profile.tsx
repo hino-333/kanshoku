@@ -136,9 +136,11 @@ export function ProfileScreen() {
               onChange={(e) => dispatch({ type: 'setSetting', key: 'reduceMotion', value: e.target.checked ? 'on' : 'system' })}
             />
           </label>
-          <button type="button" className="setting setting--button" onClick={() => dispatch({ type: 'resetOnboarding' })}>
-            <span className="grow">はじめの案内をもう一度見る</span>
-            <Icon name="chevron" className="btn__icon" />
+          <button type="button" className="go-card setting-go" onClick={() => dispatch({ type: 'resetOnboarding' })}>
+            <span className="go-card__title grow">はじめの案内をもう一度見る</span>
+            <span className="go-card__strip go-card__strip--meaning" aria-hidden="true">
+              <Icon name="arrow" />
+            </span>
           </button>
           <div className="notice">
             <Icon name="info" className="notice__icon" />

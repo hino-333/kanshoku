@@ -12,6 +12,8 @@
   --ink: #4b4038;
   --ink-strong: #3a3029;
   --ink-soft: #7a6c60;
+  /* 入力欄の案内文字 */
+  --ink-mute: #9a8d80;
 
   /* 主色 #38AACF と その上の文字色 */
   --primary: #38aacf;
@@ -33,17 +35,23 @@
   --mint-tint: #dff5ea;
   --pink: #ffb8c6;
   --pink-tint: #ffe6eb;
+  /* あつめた漢字の色分け（Figma 06 改善案）：読み＝ピンク 書き＝黄色 意味＝水色 */
+  --tag-read: #fda3ac;
+  --tag-write: #ffdd6a;
+  --tag-meaning: #c4dff3;
   --ok: #2f7f50;
   --warn-ink: #a23f22;
 
-  /* 形 */
+  /* 形（角丸・大きさ・文字は 4 の倍数でそろえる） */
   --r-s: 12px;
-  --r-m: 18px;
-  --r-l: 26px;
+  --r-m: 20px;
+  --r-l: 24px;
   --r-pill: 999px;
+  /* カードの右端の「進む」帯の幅 */
+  --strip-w: 40px;
 
-  /* 影はごく薄く 浮いている面にだけ使う */
-  --shadow-soft: 0 4px 18px rgba(75, 64, 56, 0.07);
+  /* 白い面にはごく薄い影（Figma のドロップシャドウ1） */
+  --shadow-soft: 0 4px 18px rgba(74, 64, 56, 0.07);
   --shadow-float: 0 12px 32px rgba(75, 64, 56, 0.16);
 
   /* 文字は LINE Seed JP に統一 */
@@ -54,7 +62,7 @@
   --header-h: 56px;
   --gutter: 16px;
   /* 手書き欄の1マスの高さ（画面の高さに合わせて 道具とボタンが見えるように） */
-  --pad-h: clamp(190px, calc(100dvh - 540px), 360px);
+  --pad-h: clamp(192px, calc(100dvh - 540px), 360px);
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
 
