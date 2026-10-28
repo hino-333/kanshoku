@@ -1,0 +1,761 @@
+/* ============================================================
+   おへや（ステージ）と相棒の動き
+   相棒の動きは .pet-motion にだけかける（配置や絵の微調整と競合させない）
+   ============================================================ */
+
+.stage-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+}
+/* 部屋は画面いっぱい。3:4 の部屋（.stage）を下にそろえ
+   上の余りは壁の色 下の余り（ナビの下）は床の色でつなぐ */
+.stage-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: var(--room-floor-gap, 0px);
+  overflow: hidden;
+  background: linear-gradient(to top, var(--floor-fill, #f3e7cf) var(--room-floor-gap, 0px), var(--stage-fill, #ddf2f9) var(--room-floor-gap, 0px));
+  isolation: isolate;
+}
+.stage {
+  position: relative;
+  flex: none;
+  width: 100%;
+}
+.stage__layer {
+  position: absolute;
+  inset: 0;
+}
+.stage__bg .asset {
+  width: 100%;
+  height: 100%;
+}
+.stage__item {
+  position: absolute;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.stage__item.is-landing .art-box {
+  animation: land 560ms var(--ease-pop) both;
+  transform-origin: 50% 100%;
+}
+
+/* 絵の箱：縦横比を保ち、画像の実寸で広がらない */
+.art-box {
+  position: relative;
+  width: 100%;
+}
+.asset {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+.art-box > .asset,
+.art-box > .asset-missing {
+  position: absolute;
+  inset: 0;
+}
+.asset--cover {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+.asset-missing {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: #cbbfa8;
+}
+.asset-missing svg {
+  width: min(60%, 64px);
+  height: auto;
+}
+
+/* ------------------------------------------------ 相棒 */
+.stage__pet {
+  position: absolute;
+  transform: translateX(-50%);
+  transition: left 900ms var(--ease-out), bottom 900ms var(--ease-out), width 600ms var(--ease-out);
+}
+.pet-hit {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 40%;
+  background: none;
+  touch-action: manipulation;
+}
+.pet-hit:focus-visible {
+  outline-offset: 4px;
+}
+.pet-sprite {
+  position: relative;
+  width: 100%;
+}
+.pet-motion {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.pet-motion > .asset,
+.pet-motion > .asset-missing {
+  position: absolute;
+  inset: 0;
+}
+.pet-cheek {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  animation: stick 360ms var(--ease-pop) both;
+}
+.pet-cheek > .asset {
+  width: 100%;
+  height: 100%;
+}
+
+.stage__plate,
+.eating-food {
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+.stage__plate {
+  animation: rise-in 400ms var(--ease-out) both;
+}
+
+/* 相棒のひとこと：吹き出しは使わず 文字だけが相棒からポンと出て ふわっと消える */
+.pop-text {
+  position: absolute;
+  left: 50%;
+  z-index: 9;
+  width: max-content;
+  max-width: 74%;
+  text-wrap: balance;
+  word-break: auto-phrase;
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--primary-deep);
+  text-align: center;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: pop-text-in 420ms var(--ease-pop) both;
+}
+/* 消えるのは JS がクラスをつけたとき（動きを減らす設定でも 一度は読める） */
+.pop-text.is-leaving {
+  animation: pop-text-out 420ms var(--ease-out) both;
+}
+@keyframes pop-text-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 14px) scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -4px) scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+@keyframes pop-text-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -18px);
+  }
+}
+
+/* ------------------------------------------------ 演出 */
+.stage__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.fx {
+  position: absolute;
+}
+.fx__piece {
+  position: absolute;
+  display: block;
+}
+.fx__piece > .asset {
+  width: 100%;
+  height: 100%;
+}
+.fx--puff {
+  left: -6%;
+  top: 30%;
+  width: 34%;
+}
+.fx--puff .fx__piece {
+  width: 100%;
+  aspect-ratio: 1.4;
+  animation: puff 2.4s ease-out infinite;
+}
+.fx--zzz {
+  right: 2%;
+  top: -10%;
+  width: 26%;
+}
+.fx--zzz .fx__piece {
+  width: 100%;
+  aspect-ratio: 1;
+  animation: zzz 2.8s ease-in-out infinite;
+}
+.fx--magnifier {
+  right: -10%;
+  top: 12%;
+  width: 30%;
+}
+.fx--magnifier .fx__piece {
+  width: 100%;
+  aspect-ratio: 1;
+  animation: magnify 1.6s ease-in-out infinite;
+}
+.fx--steam {
+  left: 78%;
+  top: 4%;
+  width: 20%;
+}
+.fx--steam .fx__piece {
+  width: 100%;
+  aspect-ratio: 0.6;
+  animation: steam 1.8s ease-in-out infinite;
+}
+.fx--hearts,
+.fx--sparkles,
+.fx--crumbs {
+  inset: 0;
+}
+.fx--hearts .fx__piece,
+.fx--sparkles .fx__piece {
+  width: 16%;
+  aspect-ratio: 1;
+  left: calc(18% + var(--i) * 30%);
+  top: calc(8% + var(--i) * 4%);
+  animation: float-up 1.6s calc(var(--i) * 0.22s) ease-out infinite both;
+}
+.fx--crumbs .fx__piece {
+  width: 7%;
+  aspect-ratio: 1;
+  left: calc(64% + var(--i) * 8%);
+  top: 52%;
+  animation: crumb 0.9s calc(var(--i) * 0.28s) ease-in infinite both;
+}
+
+/* ------------------------------------------------ 相棒の動き */
+.m-idle {
+  animation: breathe 3.4s ease-in-out infinite;
+}
+.m-tap {
+  animation: tap-bounce 720ms var(--ease-out);
+}
+.m-lean {
+  animation: lean-in 420ms var(--ease-out) forwards, lean-bob 1.6s 420ms ease-in-out infinite;
+}
+.m-search {
+  animation: search 1s ease-in-out infinite;
+}
+.m-sigh {
+  animation: sigh 2.4s ease-in-out 2;
+}
+.m-peckish {
+  animation: peckish 3s ease-in-out infinite;
+}
+.m-hungry {
+  animation: peek 3.2s ease-in-out infinite;
+}
+.m-flop {
+  animation: flop-in 700ms var(--ease-out) forwards, flop-breathe 3.6s 700ms ease-in-out infinite;
+}
+.m-rest {
+  animation: rest-in 600ms var(--ease-out) forwards, rest-breathe 3.2s 600ms ease-in-out infinite;
+}
+.m-eat-chomp {
+  animation: chomp 2.6s ease-in-out;
+}
+.m-eat-wobble {
+  animation: wobble 2.6s ease-in-out;
+}
+.m-eat-sip {
+  animation: sip 3.6s ease-in-out;
+}
+.m-eat-hop {
+  animation: hop 2.4s ease-in-out;
+}
+.m-eat-savor {
+  animation: savor 3.2s ease-in-out;
+}
+.m-happy {
+  animation: happy 1.3s ease-in-out 3;
+}
+.m-cheer {
+  animation: cheer 800ms var(--ease-out) 2;
+}
+
+/* 食べているごはん */
+.eating-food--chomp {
+  animation: food-bites 2.6s steps(1, end) forwards;
+}
+.eating-food--wobble {
+  animation: food-jiggle 2.6s ease-in-out forwards;
+}
+.eating-food--sip {
+  animation: food-sip 3.6s ease-in-out forwards;
+}
+.eating-food--hop {
+  animation: food-toss 2.4s ease-in-out forwards;
+}
+.eating-food--savor {
+  animation: food-savor 3.2s ease-in-out forwards;
+}
+.eating-food .art-box {
+  transform-origin: 50% 100%;
+}
+
+/* ------------------------------------------------ キーフレーム */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.018, 0.982);
+  }
+}
+@keyframes tap-bounce {
+  0% {
+    transform: none;
+  }
+  16% {
+    transform: scale(1.14, 0.82);
+  }
+  38% {
+    transform: translateY(-12%) scale(0.92, 1.1) rotate(-5deg);
+  }
+  60% {
+    transform: scale(1.06, 0.94) rotate(3deg);
+  }
+  80% {
+    transform: scale(0.99, 1.01) rotate(-1deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes lean-in {
+  to {
+    transform: translateX(5%) rotate(9deg);
+  }
+}
+@keyframes lean-bob {
+  0%,
+  100% {
+    transform: translateX(5%) rotate(9deg);
+  }
+  50% {
+    transform: translateX(6%) translateY(-2%) rotate(11deg);
+  }
+}
+@keyframes search {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: translateX(-3%) rotate(-6deg);
+  }
+  75% {
+    transform: translateX(3%) rotate(6deg);
+  }
+}
+@keyframes sigh {
+  0%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: scale(1.05, 0.9);
+  }
+  60% {
+    transform: scale(1.02, 0.95);
+  }
+}
+@keyframes peckish {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg) translateY(1%);
+  }
+}
+@keyframes peek {
+  0%,
+  100% {
+    transform: translateX(-2%) rotate(-8deg);
+  }
+  50% {
+    transform: translateX(-5%) rotate(-13deg) scale(1.02, 0.98);
+  }
+}
+@keyframes flop-in {
+  to {
+    transform: scale(1.24, 0.7);
+  }
+}
+@keyframes flop-breathe {
+  0%,
+  100% {
+    transform: scale(1.24, 0.7);
+  }
+  50% {
+    transform: scale(1.27, 0.67);
+  }
+}
+@keyframes rest-in {
+  to {
+    transform: scale(1.1, 0.86) rotate(-4deg);
+  }
+}
+@keyframes rest-breathe {
+  0%,
+  100% {
+    transform: scale(1.1, 0.86) rotate(-4deg);
+  }
+  50% {
+    transform: scale(1.13, 0.83) rotate(-4deg);
+  }
+}
+/* ほおばる：小刻みに弾む */
+@keyframes chomp {
+  0%,
+  100% {
+    transform: none;
+  }
+  8%,
+  30%,
+  52%,
+  74% {
+    transform: scale(1.08, 0.9);
+  }
+  18%,
+  40%,
+  62%,
+  84% {
+    transform: translateY(-4%) scale(0.97, 1.05);
+  }
+}
+/* ぷるぷる：ゼリーのように揺れ、一瞬プリンのような台形に寄る */
+@keyframes wobble {
+  0%,
+  100% {
+    transform: none;
+  }
+  10% {
+    transform: scale(1.1, 0.9) skewX(6deg);
+  }
+  20% {
+    transform: scale(0.94, 1.08) skewX(-6deg);
+  }
+  30% {
+    transform: scale(1.06, 0.94) skewX(4deg);
+  }
+  40% {
+    transform: scale(0.97, 1.04) skewX(-3deg);
+  }
+  55% {
+    transform: scale(0.86, 1.08);
+  }
+  62% {
+    transform: scale(0.86, 1.08) skewX(2deg);
+  }
+  75% {
+    transform: scale(1.04, 0.96) skewX(-2deg);
+  }
+  88% {
+    transform: scale(0.99, 1.01) skewX(1deg);
+  }
+}
+/* ふうふう：ゆっくり傾いて飲み、落ち着く */
+@keyframes sip {
+  0%,
+  100% {
+    transform: none;
+  }
+  15% {
+    transform: scale(1.03, 0.97);
+  }
+  25% {
+    transform: scale(0.98, 1.02);
+  }
+  45%,
+  70% {
+    transform: rotate(-7deg) translateX(-2%);
+  }
+  85% {
+    transform: scale(1.04, 0.95);
+  }
+}
+/* うれしくて跳ねる・くるっと回る */
+@keyframes hop {
+  0%,
+  100% {
+    transform: none;
+  }
+  12% {
+    transform: scale(1.1, 0.88);
+  }
+  26% {
+    transform: translateY(-22%) scale(0.94, 1.08);
+  }
+  40% {
+    transform: scale(1.08, 0.9);
+  }
+  54% {
+    transform: translateY(-18%) scaleX(-1);
+  }
+  68% {
+    transform: scaleX(-1.06) scaleY(0.92);
+  }
+  80% {
+    transform: translateY(-8%);
+  }
+}
+/* じっくり味わう */
+@keyframes savor {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: rotate(-5deg) scale(1.02, 0.98);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.03, 0.97);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes happy {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: scale(1.06, 0.92);
+  }
+  45% {
+    transform: translateY(-9%) scale(0.97, 1.04);
+  }
+  70% {
+    transform: scale(1.03, 0.97);
+  }
+}
+@keyframes cheer {
+  0%,
+  100% {
+    transform: none;
+  }
+  40% {
+    transform: translateY(-14%) rotate(-6deg) scale(0.96, 1.06);
+  }
+  70% {
+    transform: scale(1.06, 0.94);
+  }
+}
+
+@keyframes food-bites {
+  0% {
+    transform: translateX(-50%) scale(1);
+  }
+  25% {
+    transform: translateX(-50%) scale(0.78) rotate(-6deg);
+  }
+  50% {
+    transform: translateX(-50%) scale(0.56) rotate(4deg);
+  }
+  75% {
+    transform: translateX(-50%) scale(0.32) rotate(-3deg);
+  }
+  100% {
+    transform: translateX(-50%) scale(0);
+  }
+}
+@keyframes food-jiggle {
+  0% {
+    transform: translateX(-50%);
+  }
+  10%,
+  30%,
+  50% {
+    transform: translateX(-50%) skewX(9deg) scale(1.04, 0.94);
+  }
+  20%,
+  40%,
+  60% {
+    transform: translateX(-50%) skewX(-9deg) scale(0.96, 1.05);
+  }
+  80% {
+    transform: translateX(-50%) scale(0.45);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(0);
+    opacity: 0;
+  }
+}
+@keyframes food-sip {
+  0% {
+    transform: translateX(-50%);
+  }
+  35%,
+  75% {
+    transform: translateX(-62%) rotate(-24deg);
+  }
+  90% {
+    transform: translateX(-50%) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+  }
+}
+@keyframes food-toss {
+  0% {
+    transform: translateX(-50%);
+  }
+  30% {
+    transform: translateX(-80%) translateY(-120%) rotate(-200deg);
+  }
+  55% {
+    transform: translateX(-140%) translateY(-60%) rotate(-340deg) scale(0.4);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-140%) translateY(-60%) scale(0);
+    opacity: 0;
+  }
+}
+@keyframes food-savor {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(-50%) scale(0.1);
+    opacity: 0;
+  }
+}
+
+@keyframes land {
+  0% {
+    opacity: 0;
+    transform: translateY(-40%) scale(0.9, 1.1);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.08, 0.88);
+  }
+  78% {
+    transform: scale(0.97, 1.03);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes stick {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+  }
+}
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.9);
+  }
+}
+@keyframes puff {
+  0% {
+    opacity: 0;
+    transform: translate(10%, 10%) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-40%, -60%) scale(1.1);
+  }
+}
+@keyframes zzz {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-20%);
+    opacity: 1;
+  }
+}
+@keyframes magnify {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+  50% {
+    transform: translate(-30%, 20%) rotate(8deg);
+  }
+}
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(20%);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40%);
+  }
+}
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20%) scale(0.6);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-140%) scale(1);
+  }
+}
+@keyframes crumb {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(40%, 220%) scale(0.6);
+  }
+}

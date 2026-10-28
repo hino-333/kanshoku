@@ -1,0 +1,66 @@
+/* ============================================================
+   漢食 デザイントークン（フラット）
+   輪郭線は使わず 面の色と余白で区切る
+   ============================================================ */
+:root {
+  /* 背景と面 */
+  --bg: #fffed5;
+  --surface: #ffffff;
+  --surface-warm: #fff6cc;
+
+  /* 文字 */
+  --ink: #4b4038;
+  --ink-strong: #3a3029;
+  --ink-soft: #7a6c60;
+
+  /* 主色 #38AACF と その上の文字色 */
+  --primary: #38aacf;
+  /* 青の上の文字はクリーム色（濃いグレーは青と相性が悪いため使わない） */
+  --primary-ink: #fffed5;
+  --primary-deep: #1b6f8e;
+  --primary-tint: #ddf2f9;
+
+  /* 遊び心のある補助色 */
+  --sun: #ffd54f;
+  --sun-tint: #fff1b8;
+  /* 少しだけ濃い黄色（強調したいカードの面） */
+  --sun-soft: #ffe98f;
+  --coral: #ff8a6b;
+  --coral-tint: #ffe3da;
+  /* ごはんのアイコンの色（青とは組み合わせない） */
+  --coral-deep: #e8735a;
+  --mint: #7fd1ae;
+  --mint-tint: #dff5ea;
+  --pink: #ffb8c6;
+  --pink-tint: #ffe6eb;
+  --ok: #2f7f50;
+  --warn-ink: #a23f22;
+
+  /* 形 */
+  --r-s: 12px;
+  --r-m: 18px;
+  --r-l: 26px;
+  --r-pill: 999px;
+
+  /* 影はごく薄く 浮いている面にだけ使う */
+  --shadow-soft: 0 4px 18px rgba(75, 64, 56, 0.07);
+  --shadow-float: 0 12px 32px rgba(75, 64, 56, 0.16);
+
+  /* 文字は LINE Seed JP に統一 */
+  --font: 'LINE Seed JP', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui, sans-serif;
+
+  /* レイアウト */
+  --app-max: 440px;
+  --header-h: 56px;
+  --gutter: 16px;
+  /* 手書き欄の1マスの高さ（画面の高さに合わせて 道具とボタンが見えるように） */
+  --pad-h: clamp(190px, calc(100dvh - 540px), 360px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* 動き */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 120ms;
+  --t-mid: 240ms;
+}

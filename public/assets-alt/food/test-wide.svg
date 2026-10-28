@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100"><!-- 差し替え確認用：横長のおにぎり弁当（線なし） -->
+  <rect x="6" y="14" width="148" height="80" rx="16" fill="#FF8A6B"/>
+  <path d="M46 26 C54 26 76 70 76 78 C76 86 66 86 46 86 C26 86 16 86 16 78 C16 70 38 26 46 26 Z" fill="#FFFFFF"/>
+  <path d="M114 26 C122 26 144 70 144 78 C144 86 134 86 114 86 C94 86 84 86 84 78 C84 70 106 26 114 26 Z" fill="#FFFFFF"/>
+  <rect x="34" y="66" width="24" height="18" rx="3" fill="#2F3B32"/><rect x="102" y="66" width="24" height="18" rx="3" fill="#2F3B32"/>
+</svg>
