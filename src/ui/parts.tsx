@@ -49,19 +49,21 @@ export function Header({
       )}
     </div>
   );
-  // もどるボタンがある画面は タイトルを中央に置く
+  // 見出しはどの画面でも中央に置く（左右は もどる・相棒 がなくても同じ幅をあける）
   return (
-    <header className={`header ${back ? 'header--center' : ''}`}>
-      {back && (
+    <header className="header header--center">
+      {back ? (
         <button type="button" className="icon-btn" onClick={typeof back === 'string' ? () => goBack(back) : back} aria-label="もどる">
           <Icon name="back" />
         </button>
+      ) : (
+        <span className="header__side" aria-hidden="true" />
       )}
       <div className="header__title">
         <h1 className="h2">{title}</h1>
         {sub && <p className="header__sub">{sub}</p>}
       </div>
-      {side || (back && <span className="header__side" aria-hidden="true" />)}
+      {side || <span className="header__side" aria-hidden="true" />}
     </header>
   );
 }
