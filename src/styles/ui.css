@@ -506,77 +506,140 @@
 }
 
 /* ------------------------------------------------ 下部ナビ（Figma「ボトムバーv2」）
-   白い台に 白い丸ボタンを並べる。選んでいるものだけ 青く横に伸びて名前が出る */
+   幅352で固定。白い丸ボタンが並び 選んでいるところへ青い面がすべって移動する
+   押した瞬間は おもちのように「もちっ」とつぶれる（位置・大きさ・透明度だけで動かす） */
 :root {
+  --nav-w: 352px;
   --nav-h: 72px;
   --nav-bottom: var(--bottom-gap);
   /* ナビの上に重ならないよう 画面の下にあける余白 */
   --nav-space: calc(var(--nav-h) + var(--nav-bottom) + 8px);
+  /* 着く直前に少しだけ行きすぎて戻る ばねの動き */
+  --ease-spring: cubic-bezier(0.3, 1.2, 0.5, 1);
+  --nav-move: 420ms;
 }
 .nav {
   position: absolute;
   left: 50%;
   bottom: var(--nav-bottom);
   z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  width: var(--nav-w);
   height: var(--nav-h);
-  padding: 6px 8px;
   transform: translateX(-50%);
   border-radius: var(--r-pill);
   background: var(--surface);
   box-shadow: var(--shadow-soft);
+  -webkit-tap-highlight-color: transparent;
+}
+/* せまい画面では バー全体を少し縮めて収める（幅の比率は変えない） */
+@media (max-width: 375px) {
+  .nav {
+    transform: translateX(-50%) scale(0.92);
+    transform-origin: 50% 100%;
+  }
+}
+@media (max-width: 335px) {
+  .nav {
+    transform: translateX(-50%) scale(0.84);
+  }
 }
 .nav--hidden {
   display: none;
 }
-.nav__item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex: none;
-  width: 60px;
+.nav__pill,
+.nav__pill-hit,
+.nav__item,
+.nav__label {
+  position: absolute;
+  top: 6px;
+  left: 0;
   height: 60px;
+  transition: transform var(--nav-move) var(--ease-spring);
+}
+.nav__pill,
+.nav__pill-hit {
+  width: 132px;
+}
+.nav--none .nav__pill {
+  opacity: 0;
+}
+.nav__pill-stretch,
+.nav__pill-body {
+  width: 100%;
+  height: 100%;
+}
+.nav__pill-body {
+  border-radius: 30px;
+  background: var(--primary);
+  box-shadow: var(--shadow-soft);
+  transform-origin: 50% 100%;
+}
+.nav__pill-hit {
+  z-index: 2;
   padding: 0;
   border: 0;
+  background: transparent;
+}
+.nav__item {
+  z-index: 1;
+  width: 60px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+/* 白い丸（押すとつぶれる部分） */
+.nav__blob {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
   border-radius: 30px;
   background: var(--surface);
   box-shadow: var(--shadow-soft);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
   color: var(--primary);
-  transition: width var(--t-mid) var(--ease-out), background-color var(--t-mid), color var(--t-mid);
+  transform-origin: 50% 100%;
+  transition: background-color 200ms, box-shadow 200ms, color 300ms;
+}
+/* 選んでいるもの：白い丸は消えて 青い面の上のアイコンはクリーム */
+.nav__item[aria-current='page'] .nav__blob {
+  background: transparent;
+  box-shadow: none;
+  color: var(--primary-ink);
+}
+/* 「もちっ」：下を支点に 横に広がって縦につぶれる */
+.nav__blob.is-pressed,
+.nav__pill-body.is-pressed {
+  transform: scale(1.08, 0.88);
+  transition: transform 90ms ease-out, background-color 200ms, box-shadow 200ms, color 300ms;
+}
+.nav__icon-wrap {
+  display: grid;
+  place-items: center;
 }
 .nav__icon {
   width: 24px;
   height: 24px;
 }
+/* 名前：前の名前はすっと消え 新しい名前は青い面が着く少し手前から横からふわっと出る */
 .nav__label {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
   white-space: nowrap;
-}
-/* 選んでいるもの：青く伸びて アイコンと名前はクリーム（青の上の文字はクリーム） */
-.nav__item[aria-current='page'] {
-  width: auto;
-  min-width: 132px;
-  padding: 0 24px;
-  background: var(--primary);
   color: var(--primary-ink);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--nav-move) var(--ease-spring), opacity 100ms;
 }
-.nav__item:active {
-  transform: scale(0.95);
+.nav__label.is-on {
+  opacity: 1;
+  transition: transform var(--nav-move) var(--ease-spring), opacity 220ms 180ms;
 }
 .nav__item.is-bump .nav__icon {
   animation: bump 520ms var(--ease-pop);
-}
-/* せまい画面では 選んでいるものの横幅をつめる */
-@media (max-width: 359px) {
-  .nav__item[aria-current='page'] {
-    min-width: 0;
-    padding: 0 16px;
-  }
 }
 /* ナビの下に隠れないよう 各画面の下に余白をとる（おへやは全面表示なので除く） */
 .app--nav .screen:not(.room-screen) .screen__body {
