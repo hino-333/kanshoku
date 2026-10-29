@@ -36,7 +36,7 @@ body {
   font-size: 16px;
   line-height: 1.6;
   color: var(--ink);
-  background-color: #f4efd9;
+  background-color: #ffffff;
   -webkit-font-smoothing: antialiased;
   /* 日本語を文節で折り返す（対応ブラウザのみ）。収まらない語は折り返す */
   word-break: auto-phrase;

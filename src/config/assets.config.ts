@@ -138,6 +138,15 @@ export const ASSETS = {
     hand: { src: A + 'deco/hand.svg', aspect: 1, alt: '' },
   },
 
+  // ---------------------------------------------------------- 画面に顔を出す人たち（あつめた漢字 Figma 06 改善案）
+  people: {
+    /** 見出しの帯から顔を出すおじさん（手は検索欄のふちにかける） */
+    salaryman: { src: A + 'people/salaryman.png', aspect: 240 / 248, alt: '' },
+    salarymanHand: { src: A + 'people/salaryman-hand.png', aspect: 1, alt: '' },
+    /** おさそいカードでおやつを食べている子 */
+    snackBoy: { src: A + 'people/snack-boy.png', aspect: 200 / 250, alt: '' },
+  },
+
   // ---------------------------------------------------------- 料理の材料（遊びの進み具合に1問ずつ並ぶ）
   // 背景に溶けないよう 色のはっきりした食べ物にする（白い食べ物は避ける）
   ingredients: [

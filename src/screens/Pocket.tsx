@@ -6,7 +6,7 @@ import { normalizeQuery, toHiragana } from '../dictionary/provider';
 import { navigate } from '../lib/router';
 import { useGame } from '../store/store';
 import { TAGS, TAG_LABEL, type Tag } from '../store/types';
-import { EmptyState, Header, Icon } from '../ui/parts';
+import { EmptyState, Icon } from '../ui/parts';
 
 type Filter = 'all' | Tag;
 
@@ -35,7 +35,21 @@ export function PocketScreen() {
 
   return (
     <div className="screen pocket-screen">
-      <Header title="あつめた漢字" />
+      {/* 見出しの帯（青）：文字はクリーム 検索欄は帯の中 */}
+      <header className="pocket-band">
+        <h1 className="h2 pocket-band__title">あつめた漢字</h1>
+        {entries.length > 0 && (
+          <div className="pocket-band__search">
+            <ArtBox def={ASSETS.people.salaryman} className="pocket-band__peek" />
+            <label className="field field--sm">
+              <Icon name="searchLine" className="field__icon" />
+              <span className="sr-only">あつめた漢字をさがす</span>
+              <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="あつめた漢字をさがす" enterKeyHint="search" />
+            </label>
+            <ArtBox def={ASSETS.people.salarymanHand} className="pocket-band__hand" />
+          </div>
+        )}
+      </header>
       <div className="screen__body stack">
         {entries.length === 0 ? (
           <EmptyState
@@ -51,12 +65,6 @@ export function PocketScreen() {
           />
         ) : (
           <>
-            <label className="field field--sm">
-              <Icon name="searchLine" className="field__icon" />
-              <span className="sr-only">あつめた漢字をさがす</span>
-              <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="あつめた漢字をさがす" enterKeyHint="search" />
-            </label>
-
             <div className="filter-row" role="radiogroup" aria-label="タグでしぼる">
               {(['all', ...TAGS] as Filter[]).map((f) => (
                 <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip" onClick={() => setFilter(f)}>
@@ -66,14 +74,13 @@ export function PocketScreen() {
               ))}
             </div>
 
-            <button type="button" className="go-card go-card--invite" onClick={() => navigate('/play')}>
+            <button type="button" className="go-card go-card--invite pocket-invite" onClick={() => navigate('/play')}>
+              <ArtBox def={ASSETS.people.snackBoy} className="pocket-invite__art" />
               <span className="grow">
                 <span className="go-card__sub">いい字そろってるね！</span>
                 <span className="go-card__title">あつめた漢字であそんでみる？</span>
               </span>
-              <span className="go-card__strip go-card__strip--primary" aria-hidden="true">
-                <Icon name="arrow" />
-              </span>
+              <Icon name="arrow" className="pocket-invite__arrow" />
             </button>
 
             {shown.length === 0 ? (
