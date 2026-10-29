@@ -588,42 +588,51 @@
 
 /* ============================================================ ことば（結果） */
 /* 大きく見せる漢字のカードは 少し濃い黄色で強調する */
+/* ことばのカード（Figma 05）：メインの青に クリームの文字 */
 .word-card {
   container-type: inline-size;
-  padding: 28px 20px 20px;
+  padding: 24px 20px 16px;
+  border-radius: var(--r-l);
   text-align: center;
-  background: var(--sun-soft);
-  box-shadow: none;
+  background: var(--primary);
 }
 .word-card__reading {
   margin: 0;
   font-size: 20px;
-  line-height: 28px;
+  line-height: 24px;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--primary-deep);
+  letter-spacing: 4px;
+  color: var(--primary-ink);
 }
 .word-card__surface {
-  margin: 4px 0 8px;
+  margin: 4px 0;
   line-height: 1.2;
-  color: var(--primary-deep);
+  color: var(--primary-ink);
 }
 .word-card__meaning {
   margin: 0 auto;
   max-width: 30em;
   font-size: 16px;
-  line-height: 28px;
-  color: var(--ink-strong);
+  line-height: 24px;
+  color: var(--primary-ink);
 }
 .word-card__tools {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
 }
 .word-card__tools .btn {
   background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+/* しらべる・ことばの画面の見出しと カードの見出しは濃い青 */
+.search-screen .header__title .h2,
+.word-screen .header__title .h2,
+.word-screen .card .h3,
+.word-screen .more-card__summary .h3 {
+  color: var(--primary-deep);
 }
 .example-card__text {
   margin: 8px 0 0;

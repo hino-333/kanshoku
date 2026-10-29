@@ -6,10 +6,10 @@ import { Icon, type Glyph } from './parts';
 export type Tab = 'room' | 'search' | 'play' | 'pocket';
 
 const ITEMS: { tab: Tab; label: string; icon: Glyph; path: string }[] = [
-  { tab: 'room', label: 'おへや', icon: 'room', path: '/room' },
-  { tab: 'search', label: 'しらべる', icon: 'search', path: '/search' },
-  { tab: 'play', label: 'あそぶ', icon: 'play', path: '/play' },
-  { tab: 'pocket', label: 'あつめた漢字', icon: 'pocket', path: '/pocket' },
+  { tab: 'room', label: 'お部屋', icon: 'room', path: '/room' },
+  { tab: 'search', label: '調べる', icon: 'search', path: '/search' },
+  { tab: 'play', label: '遊ぶ', icon: 'play', path: '/play' },
+  { tab: 'pocket', label: '保存済み', icon: 'pocket', path: '/pocket' },
 ];
 
 export function BottomNav({ active, hidden }: { active: Tab | null; hidden?: boolean }) {
@@ -35,7 +35,8 @@ export function BottomNav({ active, hidden }: { active: Tab | null; hidden?: boo
           data-nav={it.tab}
         >
           <Icon name={it.icon} className="nav__icon" />
-          <span className="nav__label">{it.label}</span>
+          {/* 選んでいないときは丸いボタンだけ（名前は読み上げ用に残す） */}
+          <span className={active === it.tab ? 'nav__label' : 'sr-only'}>{it.label}</span>
         </button>
       ))}
     </nav>

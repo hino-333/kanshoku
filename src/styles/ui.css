@@ -382,6 +382,7 @@
 .tag--scene {
   background: var(--surface-warm);
   color: var(--ink-soft);
+  font-weight: 700;
 }
 
 /* セグメント（難しさなど） */
@@ -504,9 +505,9 @@
   margin: 8px 0 0;
 }
 
-/* ------------------------------------------------ 下部ナビ（368×72 の角丸長方形を浮かせる） */
+/* ------------------------------------------------ 下部ナビ（Figma「ボトムバーv2」）
+   白い台に 白い丸ボタンを並べる。選んでいるものだけ 青く横に伸びて名前が出る */
 :root {
-  --nav-w: 368px;
   --nav-h: 72px;
   --nav-bottom: var(--bottom-gap);
   /* ナビの上に重ならないよう 画面の下にあける余白 */
@@ -519,13 +520,11 @@
   z-index: 30;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  width: min(var(--nav-w), calc(100% - 32px));
+  gap: 8px;
   height: var(--nav-h);
-  padding: 4px;
+  padding: 6px 8px;
   transform: translateX(-50%);
-  border-radius: 36px;
+  border-radius: var(--r-pill);
   background: var(--surface);
   box-shadow: var(--shadow-soft);
 }
@@ -536,47 +535,51 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  flex: 1 1 0;
-  height: 64px;
-  min-width: 48px;
-  padding: 0 12px;
+  gap: 8px;
+  flex: none;
+  width: 60px;
+  height: 60px;
+  padding: 0;
   border: 0;
-  border-radius: 32px;
-  background: none;
+  border-radius: 30px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 400;
   line-height: 24px;
-  color: var(--ink-strong);
-  transition: flex-grow var(--t-mid) var(--ease-out), background-color var(--t-mid), color var(--t-mid);
+  color: var(--primary);
+  transition: width var(--t-mid) var(--ease-out), background-color var(--t-mid), color var(--t-mid);
 }
 .nav__icon {
   width: 24px;
   height: 24px;
 }
 .nav__label {
-  display: none;
   white-space: nowrap;
 }
+/* 選んでいるもの：青く伸びて アイコンはクリーム 名前は白（Figma「ボトムバーv2-お部屋」のとおり） */
 .nav__item[aria-current='page'] {
-  flex-grow: 2.4;
-  background: var(--primary-tint);
-  color: var(--primary-deep);
+  width: auto;
+  min-width: 132px;
+  padding: 0 24px;
+  background: var(--primary);
+  color: var(--primary-ink);
 }
 .nav__item[aria-current='page'] .nav__label {
-  display: inline;
-}
-/* せまい画面では ナビの文字を小さく */
-@media (max-width: 359px) {
-  .nav__item {
-    font-size: 12px;
-  }
+  color: #fff;
 }
 .nav__item:active {
   transform: scale(0.95);
 }
 .nav__item.is-bump .nav__icon {
   animation: bump 520ms var(--ease-pop);
+}
+/* せまい画面では 選んでいるものの横幅をつめる */
+@media (max-width: 359px) {
+  .nav__item[aria-current='page'] {
+    min-width: 0;
+    padding: 0 16px;
+  }
 }
 /* ナビの下に隠れないよう 各画面の下に余白をとる（おへやは全面表示なので除く） */
 .app--nav .screen:not(.room-screen) .screen__body {
