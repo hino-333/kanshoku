@@ -557,16 +557,13 @@
 .nav__label {
   white-space: nowrap;
 }
-/* 選んでいるもの：青く伸びて アイコンはクリーム 名前は白（Figma「ボトムバーv2-お部屋」のとおり） */
+/* 選んでいるもの：青く伸びて アイコンと名前はクリーム（青の上の文字はクリーム） */
 .nav__item[aria-current='page'] {
   width: auto;
   min-width: 132px;
   padding: 0 24px;
   background: var(--primary);
   color: var(--primary-ink);
-}
-.nav__item[aria-current='page'] .nav__label {
-  color: #fff;
 }
 .nav__item:active {
   transform: scale(0.95);
