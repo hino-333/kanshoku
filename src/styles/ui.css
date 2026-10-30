@@ -350,6 +350,10 @@
   /* 青の上の文字はクリーム */
   color: var(--primary-ink);
 }
+/* すべる印のある並びでは 青い面は印のほうが受けもつ */
+[data-slide-group] .chip[aria-checked='true'] {
+  background: transparent;
+}
 .chip:active {
   transform: scale(0.96);
 }
@@ -409,6 +413,9 @@
   background: var(--primary);
   color: var(--primary-ink);
 }
+[data-slide-group] .seg__item[aria-checked='true'] {
+  background: transparent !important;
+}
 /* 難しさは やさしい→ふつう→むずかしい の順に色が濃くなる */
 .seg__item--easy[aria-checked='true'] {
   background: var(--level-easy);
@@ -419,6 +426,65 @@
 }
 .seg__item--hard[aria-checked='true'] {
   background: var(--level-hard);
+}
+
+/* ------------------------------------------------ 切り替わるときの動き（ボトムバーと同じ）
+   選んだ印は1枚がすべって移り 押すと「もちっ」とつぶれる */
+[data-slide-group] {
+  position: relative;
+}
+[data-slide-key] {
+  position: relative;
+  z-index: 1;
+  transform-origin: 50% 100%;
+}
+.slide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.slide.is-ready {
+  transition:
+    transform var(--nav-move) var(--ease-spring),
+    width var(--nav-move) var(--ease-spring),
+    height var(--nav-move) var(--ease-spring),
+    opacity 200ms;
+}
+.slide__body {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--slide-r, var(--r-m));
+  transform-origin: 50% 100%;
+  transition: background-color 300ms;
+}
+/* 青い面（チップ・タブ・難しさ）はボタンの後ろ */
+.slide--fill .slide__body {
+  background: var(--primary);
+}
+/* 青い枠（ごはん・家具・遊び方）はボタンの上にかぶせる */
+.slide--ring {
+  z-index: 2;
+}
+.slide--ring .slide__body {
+  box-shadow: inset 0 0 0 4px var(--primary);
+}
+/* 難しさは やさしい→ふつう→むずかしい の順に濃くなる */
+.slide--easy .slide__body {
+  background: var(--level-easy);
+}
+.slide--normal .slide__body {
+  background: var(--level-normal);
+}
+.slide--hard .slide__body {
+  background: var(--level-hard);
+}
+/* 「もちっ」：下を支点に 横に広がって縦につぶれる */
+.is-mochi {
+  transform: scale(1.08, 0.88) !important;
+  transition: transform 90ms ease-out !important;
 }
 
 /* ------------------------------------------------ ヘッダー */

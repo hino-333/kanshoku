@@ -5,6 +5,7 @@ import { buildRound, recommend } from '../game/questions';
 import { navigate, useRoute } from '../lib/router';
 import { dispatch, store, useGame } from '../store/store';
 import type { GameKind } from '../store/types';
+import { mochi, useSlide } from '../ui/slide';
 import { Dialog, Header, Icon } from '../ui/parts';
 
 export const GAME_INFO: Record<GameKind, { name: string; verb: string; desc: string; icon: 'gameWrite' | 'gameMatch' }> = {
@@ -30,6 +31,8 @@ export function PlayScreen() {
   const initialGame: GameKind = focusTags ? (focusTags.includes('write') ? 'write' : 'match') : rec.game;
   const [game, setGame] = useState<GameKind>(initialGame);
   const [diff, setDiff] = useState<Difficulty>(state.play.lastDifficulty);
+  const gameSlide = useSlide(game, 'ring');
+  const diffSlide = useSlide(diff, 'fill', diff);
   const [confirm, setConfirm] = useState(false);
   const info = GAME_INFO[game];
 
@@ -70,9 +73,10 @@ export function PlayScreen() {
             <Icon name="down" className="more-card__chev" />
           </summary>
           <div className="stack play-options__body">
-            <div className="game-pick" role="radiogroup" aria-label="遊び">
+            <div className="game-pick" role="radiogroup" aria-label="遊び" ref={gameSlide.ref} {...gameSlide.groupProps}>
+              {gameSlide.indicator}
               {(['write', 'match'] as GameKind[]).map((g) => (
-                <button key={g} type="button" role="radio" aria-checked={game === g} className="game-option" onClick={() => setGame(g)}>
+                <button key={g} type="button" role="radio" aria-checked={game === g} className="game-option" data-slide-key={g} onClick={() => setGame(g)} {...mochi}>
                   <Icon name={GAME_INFO[g].icon} className="game-option__icon" />
                   <span className="game-option__name">{GAME_INFO[g].name}</span>
                   <span className="caption">{GAME_INFO[g].verb}</span>
@@ -95,9 +99,10 @@ export function PlayScreen() {
         <section className={`recipe-hero card recipe-hero--${diff}`} aria-labelledby="hero-title">
           {/* 難しさはカードのいちばん上で選ぶ（選ぶとカードの色も同じ濃さに変わる） */}
           <div className="recipe-hero__level">
-            <div className="seg seg--level" role="radiogroup" aria-label="難しさ">
+            <div className="seg seg--level" role="radiogroup" aria-label="難しさ" ref={diffSlide.ref} {...diffSlide.groupProps}>
+              {diffSlide.indicator}
               {(['easy', 'normal', 'hard'] as Difficulty[]).map((d) => (
-                <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} onClick={() => setDiff(d)}>
+                <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} data-slide-key={d} onClick={() => setDiff(d)} {...mochi}>
                   {DIFF_INFO[d].label}
                 </button>
               ))}

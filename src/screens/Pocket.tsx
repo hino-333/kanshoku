@@ -7,12 +7,14 @@ import { navigate } from '../lib/router';
 import { useGame } from '../store/store';
 import { TAGS, TAG_LABEL, type Tag } from '../store/types';
 import { EmptyState, Icon } from '../ui/parts';
+import { mochi, useSlide } from '../ui/slide';
 
 type Filter = 'all' | Tag;
 
 export function PocketScreen() {
   const pocket = useGame((s) => s.pocket);
   const [filter, setFilter] = useState<Filter>('all');
+  const filterSlide = useSlide(filter, 'fill');
   const [q, setQ] = useState('');
 
   const entries = useMemo(
@@ -65,9 +67,10 @@ export function PocketScreen() {
           />
         ) : (
           <>
-            <div className="filter-row" role="radiogroup" aria-label="タグでしぼる">
+            <div className="filter-row" role="radiogroup" aria-label="タグでしぼる" ref={filterSlide.ref} {...filterSlide.groupProps}>
+              {filterSlide.indicator}
               {(['all', ...TAGS] as Filter[]).map((f) => (
-                <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip" onClick={() => setFilter(f)}>
+                <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip" data-slide-key={f} onClick={() => setFilter(f)} {...mochi}>
                   {f === 'all' ? 'すべて' : TAG_LABEL[f]}
                   <span className="chip__count">{counts[f]}</span>
                 </button>

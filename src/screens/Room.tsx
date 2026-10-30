@@ -9,6 +9,7 @@ import { goBack, navigate } from '../lib/router';
 import { petEvent } from '../lib/ui';
 import { dispatch, store, useGame } from '../store/store';
 import { EmptyState, Icon } from '../ui/parts';
+import { mochi, mochiDown, mochiUp, useSlide } from '../ui/slide';
 
 type Mode = 'idle' | 'food' | 'decor';
 
@@ -114,6 +115,7 @@ function FoodDrawer({ petRef, eating }: { petRef: React.RefObject<HTMLButtonElem
   const [hint, setHint] = useState<{ food: FoodId; from: DOMRect; to: DOMRect; key: number } | null>(null);
   const start = useRef<{ food: FoodId; x: number; y: number; moved: boolean } | null>(null);
   const sel = selected && foods[selected] > 0 ? selected : null;
+  const foodSlide = useSlide(sel, 'ring');
   const { closing, close, ref: drawerRef } = useDrawerClose();
 
   useEffect(() => {
@@ -188,7 +190,8 @@ function FoodDrawer({ petRef, eating }: { petRef: React.RefObject<HTMLButtonElem
         />
       ) : (
         <>
-          <div className="food-grid" role="radiogroup" aria-label="あげるごはん">
+          <div className="food-grid" role="radiogroup" aria-label="あげるごはん" ref={foodSlide.ref} {...foodSlide.groupProps}>
+            {foodSlide.indicator}
             {owned.map((id) => (
               <button
                 key={id}
@@ -196,13 +199,22 @@ function FoodDrawer({ petRef, eating }: { petRef: React.RefObject<HTMLButtonElem
                 role="radio"
                 aria-checked={sel === id}
                 className="food-card"
+                data-slide-key={id}
                 onClick={(e) => {
                   if (!start.current?.moved) choose(id, e.currentTarget);
                 }}
-                onPointerDown={onDown(id)}
+                onPointerDown={(e) => {
+                  mochiDown(e);
+                  onDown(id)(e);
+                }}
                 onPointerMove={onMove}
-                onPointerUp={onUp}
-                onPointerCancel={() => {
+                onPointerUp={(e) => {
+                  mochiUp(e);
+                  onUp(e);
+                }}
+                onPointerLeave={mochiUp}
+                onPointerCancel={(e) => {
+                  mochiUp(e);
                   start.current = null;
                   setDrag(null);
                 }}
@@ -261,6 +273,8 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
   const [slot, setSlot] = useState<SlotId>('rug');
   const owned = useGame((s) => s.furniture);
   const room = useGame((s) => s.room);
+  const tabSlide = useSlide(slot, 'fill');
+  const itemSlide = useSlide(`${slot}:${room[slot] ?? 'none'}`, 'ring');
   const items = useMemo(() => FURNITURE_IDS.filter((id) => FURNITURE[id].slot === slot), [slot]);
   const initial = useRef(room).current;
   const { closing, close, ref: drawerRef } = useDrawerClose();
@@ -291,23 +305,25 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
           できた
         </button>
       </div>
-      <div className="tabs" role="tablist" aria-label="置く場所">
+      <div className="tabs" role="tablist" aria-label="置く場所" ref={tabSlide.ref} {...tabSlide.groupProps}>
+        {tabSlide.indicator}
         {SLOT_IDS.map((s) => (
-          <button key={s} type="button" role="tab" aria-selected={slot === s} className="tabs__tab" onClick={() => setSlot(s)}>
+          <button key={s} type="button" role="tab" aria-selected={slot === s} className="tabs__tab" data-slide-key={s} onClick={() => setSlot(s)} {...mochi}>
             {SLOT_LABEL[s]}
           </button>
         ))}
       </div>
-      <div className="decor-grid" role="tabpanel" aria-label={SLOT_LABEL[slot]}>
+      <div className="decor-grid" role="tabpanel" aria-label={SLOT_LABEL[slot]} ref={itemSlide.ref} {...itemSlide.groupProps}>
+        {itemSlide.indicator}
         {OPTIONAL_SLOTS.includes(slot) && (
-          <button type="button" className="decor-item" aria-pressed={room[slot] === null} onClick={() => place(null)}>
+          <button type="button" className="decor-item" aria-pressed={room[slot] === null} data-slide-key={`${slot}:none`} onClick={() => place(null)} {...mochi}>
             <span className="decor-item__none">なし</span>
             <span className="decor-item__name">置かない</span>
           </button>
         )}
         {items.map((id) =>
           owned.includes(id) ? (
-            <button key={id} type="button" className="decor-item" aria-pressed={room[slot] === id} onClick={() => place(id)}>
+            <button key={id} type="button" className="decor-item" aria-pressed={room[slot] === id} data-slide-key={`${slot}:${id}`} onClick={() => place(id)} {...mochi}>
               <ArtBox def={ASSETS.furniture[id]} className="decor-item__art" />
               <span className="decor-item__name">{FURNITURE[id].name}</span>
               {room[slot] === id && (
