@@ -502,6 +502,8 @@
 }
 .header__title .h2 {
   overflow-wrap: anywhere;
+  /* 画面の見出しは どの画面も濃い青にそろえる */
+  color: var(--primary-deep);
 }
 .header__sub {
   margin: 0;

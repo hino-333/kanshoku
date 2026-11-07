@@ -25,6 +25,8 @@
 .header--center {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) 48px;
+  /* もどるボタンや相棒があってもなくても 見出しの行は48pxにそろえる */
+  grid-template-rows: 48px;
 }
 .header--center .header__title {
   text-align: center;
@@ -623,9 +625,7 @@
   background: var(--surface);
   box-shadow: var(--shadow-soft);
 }
-/* しらべる・ことばの画面の見出しと カードの見出しは濃い青 */
-.search-screen .header__title .h2,
-.word-screen .header__title .h2,
+/* ことばの画面のカードの見出しは濃い青 */
 .word-screen .card .h3,
 .word-screen .more-card__summary .h3 {
   color: var(--primary-deep);
