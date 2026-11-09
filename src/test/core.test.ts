@@ -4,7 +4,7 @@ import { searchWords, normalizeQuery } from '../dictionary/provider';
 import { KANJI, WORDS, isKanji } from '../data/words';
 import { buildRound, writeBlanks } from '../game/questions';
 import { seeded } from '../game/rng';
-import { hungerOf, fatigueOf } from '../game/pet';
+import { hungerOf, fatigueOf, fullnessOf } from '../game/pet';
 import { createInitialState, reducer } from '../store/reducer';
 import { createStore, loadState, STORAGE_KEY, type KeyValueStorage } from '../store/store';
 import type { Answer, GameState } from '../store/types';
@@ -254,12 +254,29 @@ describe('データ', () => {
 });
 
 describe('相棒のようす', () => {
-  it('おなかは時間で変わるが、深刻な状態には進まない', () => {
-    const s = { pet: { name: 'x', metAt: T0, lastFedAt: T0 } };
+  it('おなかは時間で減るが、深刻な状態には進まない', () => {
+    const s = { pet: { name: 'x', metAt: T0, lastFedAt: T0, fullness: 100 } };
     expect(hungerOf(s, T0 + 1000)).toBe('content');
-    expect(hungerOf(s, T0 + 5 * 3600_000)).toBe('peckish');
-    expect(hungerOf(s, T0 + 12 * 3600_000)).toBe('hungry');
+    expect(hungerOf(s, T0 + 12 * 3600_000)).toBe('peckish');
+    expect(hungerOf(s, T0 + 20 * 3600_000)).toBe('hungry');
     expect(hungerOf(s, T0 + 365 * 24 * 3600_000)).toBe('flop');
+    expect(fullnessOf(s, T0 + 365 * 24 * 3600_000)).toBe(0);
+  });
+  it('ごはんを食べるとおなかが少しだけたまり、100をこえない', () => {
+    const s0 = createInitialState(T0);
+    expect(fullnessOf(s0, T0)).toBe(GAME.pet.startFullness);
+    const s1 = reducer(s0, { type: 'feed', foodId: 'onigiri', mealId: 'm1', at: T0 });
+    expect(fullnessOf(s1, T0)).toBe(GAME.pet.startFullness + GAME.pet.fullnessPerMeal);
+    const full = { ...s1, foods: { ...s1.foods, onigiri: 9 } };
+    let s = full;
+    for (let i = 0; i < 6; i++) s = reducer(s, { type: 'feed', foodId: 'onigiri', mealId: `f${i}`, at: T0 });
+    expect(fullnessOf(s, T0)).toBe(100);
+  });
+  it('おなかの量がない古い保存は 最後に食べた直後を満腹として読みこむ', () => {
+    const storage = new MemStorage();
+    const old = { ...createInitialState(T0), pet: { name: 'みかん', metAt: T0, lastFedAt: T0 } };
+    storage.setItem(STORAGE_KEY, JSON.stringify(old));
+    expect(loadState(storage, T0).state.pet.fullness).toBe(100);
   });
   it('疲れは休むと戻り、検索の回数で何かが減ることはない', () => {
     let s = createInitialState(T0);

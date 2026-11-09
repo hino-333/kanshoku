@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { GAME } from '../config/game.config';
 import type { PetVisualState } from '../config/assets.config';
 import { FOODS, type EatReaction, type FoodId } from '../data/catalog';
-import { fatigueOf, hungerOf, type Hunger } from '../game/pet';
+import { fatigueOf, fullnessOf, hungerOf, type Hunger } from '../game/pet';
 import { useNow } from '../lib/env';
 import { useUi } from '../lib/ui';
 import { useGame } from '../store/store';
@@ -22,6 +22,8 @@ export interface PetDisplay {
   eatingFood: FoodId | null;
   cheek: FoodId | null;
   hunger: Hunger;
+  /** おなかの量 0〜100（相棒の上のゲージ） */
+  fullness: number;
 }
 
 /** 食べ方ごとの長さ（ミリ秒） */
@@ -99,11 +101,12 @@ export function usePetDisplay(opts: { hasActiveRound?: boolean } = {}): PetDispl
   }, []);
 
   const hunger = hungerOf({ pet }, now);
+  const fullness = Math.round(fullnessOf({ pet }, now));
   const { sighing, resting } = fatigueOf({ recentSearches: recent }, now);
   const cheek = lastAte && FOODS[lastAte.food] && now - lastAte.at < 60_000 ? lastAte.food : null;
 
   return useMemo<PetDisplay>(() => {
-    const base = { eatingFood: null, cheek, hunger, prop: null, effects: [] as Effect[] };
+    const base = { eatingFood: null, cheek, hunger, fullness, prop: null, effects: [] as Effect[] };
     if (phase?.kind === 'eat') {
       const r = FOODS[phase.food].reaction;
       return { ...base, visual: 'eating', motion: `eat-${r}` as PetMotion, motionKey: `eat${phase.seq}`, spot: 'default', bubble: FOODS[phase.food].eatLine, effects: EAT_EFFECT[r], eatingFood: phase.food, cheek: null };
@@ -139,5 +142,5 @@ export function usePetDisplay(opts: { hasActiveRound?: boolean } = {}): PetDispl
     }
     const bubble = opts.hasActiveRound ? 'さっきのつづきあそぶ？' : IDLE_LINES[lineIdx % IDLE_LINES.length];
     return { ...base, visual: idleVisual, motion: 'idle', motionKey: 'idle', spot, bubble };
-  }, [phase, sighing, resting, hunger, blink, lineIdx, cheek, opts.hasActiveRound]);
+  }, [phase, sighing, resting, hunger, fullness, blink, lineIdx, cheek, opts.hasActiveRound]);
 }

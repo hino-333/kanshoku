@@ -5,14 +5,19 @@ export type Hunger = 'content' | 'peckish' | 'hungry' | 'flop';
 
 const H = 3_600_000;
 
-/** 最後のごはんからの時間で、おなかのようすを決める。flop より先には進まない */
+/** 今のおなかの量（0〜100）。最後に食べたとき（まだなら出会ったとき）から時間で減る */
+export function fullnessOf(state: Pick<GameState, 'pet'>, now: number): number {
+  const from = state.pet.lastFedAt ?? state.pet.metAt;
+  const hours = Math.max(0, now - from) / H;
+  return Math.max(0, Math.min(100, state.pet.fullness - hours * GAME.pet.fullnessDecayPerHour));
+}
+
+/** おなかの量で ようすを決める。flop より先には進まない */
 export function hungerOf(state: Pick<GameState, 'pet'>, now: number): Hunger {
-  const last = state.pet.lastFedAt;
-  if (last == null) return 'peckish';
-  const since = (now - last) / H;
-  if (since >= GAME.pet.flopAfterHours) return 'flop';
-  if (since >= GAME.pet.hungryAfterHours) return 'hungry';
-  if (since >= GAME.pet.peckishAfterHours) return 'peckish';
+  const f = fullnessOf(state, now);
+  if (f < GAME.pet.flopBelow) return 'flop';
+  if (f < GAME.pet.hungryBelow) return 'hungry';
+  if (f < GAME.pet.peckishBelow) return 'peckish';
   return 'content';
 }
 

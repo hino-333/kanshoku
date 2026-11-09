@@ -10,6 +10,7 @@ import {
   type SlotId,
 } from '../data/catalog';
 import { WORD_BY_ID } from '../data/words';
+import { fullnessOf } from '../game/pet';
 import { computeReward } from '../game/rewards';
 import type { Action, ActiveRound, Answer, GameState, Tag, WordStat } from './types';
 import { TAGS } from './types';
@@ -23,7 +24,7 @@ export function createInitialState(now: number): GameState {
     version: 1,
     createdAt: now,
     onboarded: false,
-    pet: { name: DEFAULT_PET_NAME, metAt: now, lastFedAt: null },
+    pet: { name: DEFAULT_PET_NAME, metAt: now, lastFedAt: null, fullness: GAME.pet.startFullness },
     recentSearches: [],
     meals: [],
     foods,
@@ -146,7 +147,8 @@ export function reducer(state: GameState, action: Action): GameState {
         ...state,
         foods: { ...state.foods, [action.foodId]: state.foods[action.foodId] - 1 },
         meals,
-        pet: { ...state.pet, lastFedAt: action.at },
+        // ごはんを1つ食べると おなかが少したまる
+        pet: { ...state.pet, lastFedAt: action.at, fullness: Math.min(100, fullnessOf(state, action.at) + GAME.pet.fullnessPerMeal) },
         play: { ...state.play, lastReward },
       };
     }
@@ -238,6 +240,13 @@ export function sanitize(raw: unknown, now: number): GameState {
       name: typeof raw.pet.name === 'string' && raw.pet.name.trim() ? raw.pet.name.slice(0, 12) : base.pet.name,
       metAt: num(raw.pet.metAt, s.createdAt),
       lastFedAt: typeof raw.pet.lastFedAt === 'number' ? raw.pet.lastFedAt : null,
+      // おなかの量がない古い保存は 最後に食べた直後を満腹として扱う
+      fullness:
+        typeof raw.pet.fullness === 'number' && Number.isFinite(raw.pet.fullness)
+          ? Math.max(0, Math.min(100, raw.pet.fullness))
+          : typeof raw.pet.lastFedAt === 'number'
+            ? 100
+            : GAME.pet.startFullness,
     };
   }
   if (Array.isArray(raw.recentSearches)) s.recentSearches = raw.recentSearches.filter((t): t is number => typeof t === 'number');

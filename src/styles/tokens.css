@@ -44,6 +44,8 @@
   --level-easy: #a8dcec;
   --level-normal: #38aacf;
   --level-hard: #1b6f8e;
+  /* おなかが少ないときの赤 */
+  --hungry: #e5544b;
   --ok: #2f7f50;
   --warn-ink: #a23f22;
 

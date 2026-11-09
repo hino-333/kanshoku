@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { ASSETS, type DecoKey, type Placement } from '../config/assets.config';
+import { GAME } from '../config/game.config';
 import { FOODS, SLOT_IDS, type FoodId, type FurnitureId, type SlotId } from '../data/catalog';
 import { AssetImage } from './AssetImage';
 import { PetSprite } from './PetSprite';
@@ -109,6 +110,14 @@ export function RoomStage({ room, pet, onPetTap, petLabel, landed, petRef, child
             </div>
           )}
 
+          {/* おなかゲージ：相棒の頭の上に小さく 少なくなると赤くなる */}
+          <div className={`fullness ${pet.fullness < GAME.pet.hungryBelow ? 'is-low' : ''}`} role="meter" aria-label="おなか" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pet.fullness}>
+            <span className="fullness__label">おなか</span>
+            <span className="fullness__track">
+              <span className="fullness__fill" style={{ width: `${pet.fullness}%` }} />
+            </span>
+          </div>
+
           {pet.eatingFood && <EatingFood food={pet.eatingFood} spotWidth={spot.width} motionKey={pet.motionKey} />}
 
           <div className="stage__fx" aria-hidden="true">
@@ -130,7 +139,7 @@ export function RoomStage({ room, pet, onPetTap, petLabel, landed, petRef, child
           <div
             key={pop.key}
             className={`pop-text ${pop.leaving ? 'is-leaving' : ''}`}
-            style={{ left: `${Math.min(68, Math.max(32, spot.x))}%`, bottom: `${spot.bottom + petH + 2}%` }}
+            style={{ left: `${Math.min(68, Math.max(32, spot.x))}%`, bottom: `${spot.bottom + petH + 10}%` }}
             aria-live="polite"
           >
             {pop.text}

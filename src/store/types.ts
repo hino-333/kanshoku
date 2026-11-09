@@ -76,7 +76,8 @@ export interface GameState {
   version: 1;
   createdAt: number;
   onboarded: boolean;
-  pet: { name: string; metAt: number; lastFedAt: number | null };
+  /** fullness は 最後にごはんを食べた直後（まだなら出会ったとき）のおなかの量 0〜100 */
+  pet: { name: string; metAt: number; lastFedAt: number | null; fullness: number };
   recentSearches: number[];
   meals: Meal[];
   foods: Record<FoodId, number>;
