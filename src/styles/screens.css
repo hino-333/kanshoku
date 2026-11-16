@@ -1083,6 +1083,21 @@
   z-index: 1;
   transform: translateY(24px) scale(0.76);
 }
+/* 下にのぞく次のカードの押せる場所（前のカードの下の余白まで少し広げて押しやすく） */
+.deck__peek {
+  position: absolute;
+  z-index: 4;
+  left: 6.5%;
+  right: 6.5%;
+  bottom: 0;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 32px 32px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
 /* 後ろのカードは色だけ見せる（中身は前に来たときに浮かぶ） */
 .deck__content,
 .deck__start {

@@ -108,7 +108,7 @@ export function DiffDeck({
     const anims: Animation[] = [];
     const owl = (el: HTMLElement, delay: number) =>
       el.querySelector('.deck__owl')?.animate([{ transform: 'translateY(48px)' }, { transform: 'translateY(0)' }], {
-        duration: 760,
+        duration: 600,
         delay,
         easing: spring(0.42),
         fill: 'backwards',
@@ -125,14 +125,14 @@ export function DiffDeck({
             { transform: tf(PEEK + 16, POSE[2].s), zIndex: 0, offset: 0.84, easing: 'ease-out' },
             { transform: at(2), zIndex: 0 },
           ],
-          { duration: 900, fill: 'both' },
+          { duration: 600, fill: 'both' },
         ),
       );
       // 後ろのカード：持ち上がったすきに ばねで前へ出てくる
-      anims.push(b.animate([{ transform: fb }, { transform: at(0) }], { duration: 820, delay: 120, easing: spring(0.5), fill: 'both' }));
+      anims.push(b.animate([{ transform: fb }, { transform: at(0) }], { duration: 560, delay: 60, easing: spring(0.5), fill: 'both' }));
       // かくれていたカード：前のカードが裏へ回りこんだあと 下からのぞく位置へ
-      anims.push(c.animate([{ transform: at(2) }, { transform: at(1) }], { duration: 640, delay: 420, easing: spring(0.45), fill: 'both' }));
-      const o = owl(b, 200);
+      anims.push(c.animate([{ transform: at(2) }, { transform: at(1) }], { duration: 460, delay: 260, easing: spring(0.45), fill: 'both' }));
+      const o = owl(b, 120);
       if (o) anims.push(o);
     } else {
       // いちばん後ろのカード：前のカードの裏から上へ出てくる → 前へまわって上から乗る
@@ -145,13 +145,13 @@ export function DiffDeck({
             // 着地するころに 難しさの切りかえ（5）の下へもぐる
             { transform: at(0), zIndex: 4 },
           ],
-          { duration: 1100, fill: 'both' },
+          { duration: 720, fill: 'both' },
         ),
       );
       // 前のカード：上から乗られて 後ろへ押し下げられる
-      anims.push(a.animate([{ transform: fa }, { transform: at(1) }], { duration: 700, delay: 480, easing: spring(0.5), fill: 'both' }));
-      anims.push(b.animate([{ transform: fb }, { transform: at(2) }], { duration: 420, delay: 440, easing: 'ease-out', fill: 'both' }));
-      const o = owl(c, 520);
+      anims.push(a.animate([{ transform: fa }, { transform: at(1) }], { duration: 500, delay: 300, easing: spring(0.5), fill: 'both' }));
+      anims.push(b.animate([{ transform: fb }, { transform: at(2) }], { duration: 300, delay: 280, easing: 'ease-out', fill: 'both' }));
+      const o = owl(c, 320);
       if (o) anims.push(o);
     }
     // 動きを先に置いてから入れかえるので ちらつかない
@@ -167,7 +167,7 @@ export function DiffDeck({
     };
     Promise.all(anims.map((x) => x.finished.catch(() => undefined))).then(end);
     // 画面が裏に回って動きが止まっても 操作できなくならないように
-    window.setTimeout(end, 1600);
+    window.setTimeout(end, 1200);
   };
   const goRef = useRef(go);
   goRef.current = go;
@@ -268,7 +268,7 @@ export function DiffDeck({
       if (Math.abs(acc) > 40) {
         goRef.current(acc > 0 ? 1 : -1);
         acc = 0;
-        lock = t + 520;
+        lock = t + 380;
       }
     };
     el.addEventListener('wheel', onWheel, { passive: false });
@@ -348,6 +348,13 @@ export function DiffDeck({
         <p className="deck__desc">{descOf(diff)}</p>
       </div>
 
+      {/* 下にのぞいている次のカードを押しても 前へ出てくる */}
+      <button
+        type="button"
+        className="deck__peek"
+        aria-label={`${labelOf(LEVELS[(LEVELS.indexOf(diff) + 1) % 3])}のカードを前へ`}
+        onClick={() => go(1)}
+      />
       {LEVELS.map((d) => {
         const slot = slotOf(d);
         return (
