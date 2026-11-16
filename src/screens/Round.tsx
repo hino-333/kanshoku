@@ -384,7 +384,7 @@ function WriteQuestion({
   const pad = useRef<WritingPadHandle>(null);
   const [hasInk, setHasInk] = useState(false);
   const [strokeCount, setStrokeCount] = useState(0);
-  const [hints, setHints] = useState(difficulty === 'easy' ? 1 : 0);
+  const [hints, setHints] = useState(0);
   const [drawing, setDrawing] = useState<string | null>(null);
   const [phase, setPhase] = useState<'write' | 'compare'>(answer ? 'compare' : 'write');
   const [ton, setTon] = useState<{ x: number; y: number; n: number } | null>(null);

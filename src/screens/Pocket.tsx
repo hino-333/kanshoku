@@ -42,13 +42,12 @@ export function PocketScreen() {
         <h1 className="h2 pocket-band__title">あつめた漢字</h1>
         {entries.length > 0 && (
           <div className="pocket-band__search">
-            <ArtBox def={ASSETS.people.salaryman} className="pocket-band__peek" />
-            <label className="field field--sm">
+                        <label className="field field--sm">
               <Icon name="searchLine" className="field__icon" />
               <span className="sr-only">あつめた漢字をさがす</span>
               <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="あつめた漢字をさがす" enterKeyHint="search" />
             </label>
-            <ArtBox def={ASSETS.people.salarymanHand} className="pocket-band__hand" />
+            <ArtBox def={ASSETS.people.ojisan} className="pocket-band__sit" />
           </div>
         )}
       </header>
@@ -78,7 +77,7 @@ export function PocketScreen() {
             </div>
 
             <button type="button" className="go-card go-card--invite pocket-invite" onClick={() => navigate('/play')}>
-              <ArtBox def={ASSETS.people.snackBoy} className="pocket-invite__art" />
+              <ArtBox def={ASSETS.people.hamster} className="pocket-invite__art" />
               <span className="grow">
                 <span className="go-card__sub">いい字そろってるね！</span>
                 <span className="go-card__title">あつめた漢字であそんでみる？</span>

@@ -145,7 +145,11 @@ export const ASSETS = {
 
   // ---------------------------------------------------------- 画面に顔を出す人たち（あつめた漢字 Figma 06 改善案）
   people: {
-    /** 見出しの帯から顔を出すおじさん（手は検索欄のふちにかける） */
+    /** 見出しの帯の右で 検索欄のふちにちょこんと座るおじさん */
+    ojisan: { src: A + 'people/ojisan.webp', aspect: 213 / 247, alt: '' },
+    /** おさそいカードでおにぎりを食べるハムスター */
+    hamster: { src: A + 'people/hamster-onigiri.webp', aspect: 215 / 216, alt: '' },
+    /** （前の絵）見出しの帯から顔を出すおじさん */
     salaryman: { src: A + 'people/salaryman.png', aspect: 240 / 248, alt: '' },
     salarymanHand: { src: A + 'people/salaryman-hand.png', aspect: 1, alt: '' },
     /** おさそいカードでおやつを食べている子 */

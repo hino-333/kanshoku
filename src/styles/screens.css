@@ -907,35 +907,29 @@
 .pocket-band__search input::placeholder {
   font-size: 12px;
 }
-/* 帯から顔を出す人（体は検索欄の後ろ 手は検索欄のふちにかける） */
-.pocket-band__peek {
-  position: absolute;
-  right: 4px;
-  bottom: 16px;
-  width: 80px;
-}
-.pocket-band__hand {
+/* 帯の右で 検索欄のふちに座るおじさん（検索欄より前） */
+.pocket-band__sit {
   position: absolute;
   z-index: 2;
-  right: 8px;
-  top: -8px;
-  width: 20px;
+  right: 14px;
+  bottom: calc(100% - 12px);
+  width: 52px;
 }
 .pocket-screen .screen__body {
   padding-top: 12px;
 }
-/* おさそいカード：おやつを食べる子が左から少しはみ出す */
+/* おさそいカード：左でハムスターがおにぎりを食べている */
 .pocket-invite {
   min-height: 76px;
-  padding: 16px 48px 16px 88px;
+  padding: 16px 48px 16px 68px;
   border-radius: 8px;
   box-shadow: var(--shadow-soft);
 }
 .pocket-invite__art {
   position: absolute;
-  left: 8px;
-  bottom: 0;
-  width: 68px;
+  left: 16px;
+  top: calc(50% - 26px);
+  width: 52px;
 }
 .pocket-invite__arrow {
   position: absolute;
