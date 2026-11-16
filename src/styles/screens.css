@@ -1105,7 +1105,7 @@
 }
 .deck__card:not([data-slot='0']) .deck__content,
 .deck__card:not([data-slot='0']) .deck__start,
-.deck__card:not([data-slot='0']) .deck__owl {
+.deck__card:not([data-slot='0']) .deck__art {
   opacity: 0;
   transition-delay: 0ms;
   transition-duration: 120ms;
@@ -1113,7 +1113,7 @@
 /* 入れかわっている最中は 動いている2枚の中身を見せたまま（消えて見えないように） */
 .deck__card.is-shown .deck__content,
 .deck__card.is-shown .deck__start,
-.deck__card.is-shown .deck__owl {
+.deck__card.is-shown .deck__art {
   opacity: 1;
   transition: none;
 }
@@ -1121,25 +1121,41 @@
 .screen__body.is-deck-swapping {
   overflow: visible;
 }
-.deck__owl {
+.deck__art {
   position: absolute;
   pointer-events: none;
   transition: opacity 200ms ease 80ms;
 }
-.deck__owl--normal {
+.deck__art--normal {
   width: 296px;
   right: -76px;
   bottom: -20px;
 }
-.deck__owl--easy {
+.deck__art--easy {
   width: 276px;
   right: -48px;
   bottom: -28px;
 }
-.deck__owl--hard {
+.deck__art--hard {
   width: 316px;
   right: -56px;
   bottom: -12px;
+}
+/* ハムスターは頭が大きいので 少し小さく下げて 説明の文字にかからないようにする */
+.deck--hamster .deck__art--easy {
+  width: 216px;
+  right: -20px;
+  bottom: -24px;
+}
+.deck--hamster .deck__art--normal {
+  width: 224px;
+  right: -32px;
+  bottom: -24px;
+}
+.deck--hamster .deck__art--hard {
+  width: 256px;
+  right: -36px;
+  bottom: -16px;
 }
 .deck__content {
   position: relative;

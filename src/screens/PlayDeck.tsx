@@ -1,5 +1,4 @@
 import { useEffect, useRef, type MouseEvent as RMouseEvent, type PointerEvent as RPointerEvent } from 'react';
-import { ASSETS } from '../config/assets.config';
 import type { Difficulty } from '../config/game.config';
 import { mochi, motionReduced, useSlide } from '../ui/slide';
 import { Icon, type Glyph } from '../ui/parts';
@@ -51,6 +50,8 @@ export function DiffDeck({
   labelOf,
   card,
   facts,
+  art,
+  artKind,
   onStart,
 }: {
   diff: Difficulty;
@@ -59,6 +60,10 @@ export function DiffDeck({
   labelOf: (d: Difficulty) => string;
   card: CardInfo;
   facts: string[];
+  /** 難しさごとにカードに座るキャラの絵（遊びによって フクロウ／ハムスター） */
+  art: Record<Difficulty, string>;
+  /** 絵の大きさと置き場所をキャラごとに変える */
+  artKind: 'owl' | 'hamster';
   onStart: () => void;
 }) {
   const deckRef = useRef<HTMLDivElement>(null);
@@ -121,7 +126,7 @@ export function DiffDeck({
     for (const el of shown) el.classList.add('is-shown');
     const anims: Animation[] = [];
     const owl = (el: HTMLElement, delay: number) =>
-      el.querySelector('.deck__owl')?.animate([{ transform: 'translateY(48px)' }, { transform: 'translateY(0)' }], {
+      el.querySelector('.deck__art')?.animate([{ transform: 'translateY(48px)' }, { transform: 'translateY(0)' }], {
         duration: 600,
         delay,
         easing: spring(0.42),
@@ -339,15 +344,9 @@ export function DiffDeck({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const owlOf: Record<Difficulty, { src: string }> = {
-    easy: ASSETS.people.owlEasy,
-    normal: ASSETS.people.owlNormal,
-    hard: ASSETS.people.owlHard,
-  };
-
   return (
     <div
-      className={`deck deck--${diff}`}
+      className={`deck deck--${diff} deck--${artKind}`}
       ref={deckRef}
       onPointerDown={onDown}
       onPointerMove={onMove}
@@ -389,7 +388,7 @@ export function DiffDeck({
             inert={slot !== 0}
             aria-labelledby={slot === 0 ? 'deck-title' : undefined}
           >
-            <img className={`deck__owl deck__owl--${d}`} src={owlOf[d].src} alt="" draggable={false} />
+            <img className={`deck__art deck__art--${d}`} src={art[d]} alt="" draggable={false} />
             <div className="deck__content">
               <ul className="deck__facts">
                 {facts.map((f) => (

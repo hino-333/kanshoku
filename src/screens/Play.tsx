@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ASSETS } from '../config/assets.config';
 import { GAME, type Difficulty } from '../config/game.config';
 import { WORD_BY_ID } from '../data/words';
 import { buildRound, recommend } from '../game/questions';
@@ -106,6 +107,12 @@ export function PlayScreen() {
           labelOf={(d) => DIFF_INFO[d].label}
           descOf={(d) => DIFF_INFO[d].desc}
           card={info}
+          artKind={game === 'write' ? 'owl' : 'hamster'}
+          art={
+            game === 'write'
+              ? { easy: ASSETS.people.owlEasy.src, normal: ASSETS.people.owlNormal.src, hard: ASSETS.people.owlHard.src }
+              : { easy: ASSETS.people.hamsterEasy.src, normal: ASSETS.people.hamster.src, hard: ASSETS.people.hamsterHard.src }
+          }
           facts={['3問', '時間制限なし', saved > 0 ? `保存済みから${saved}問出題` : 'おわるとごはん']}
           onStart={() => (active ? setConfirm(true) : start())}
         />

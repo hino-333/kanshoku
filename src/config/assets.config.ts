@@ -156,6 +156,9 @@ export const ASSETS = {
     owlEasy: { src: A + 'people/owl.webp', aspect: 237 / 239, alt: '' },
     owlNormal: { src: A + 'people/owl-onigiri.webp', aspect: 234 / 251, alt: '' },
     owlHard: { src: A + 'people/owl-sleepy.webp', aspect: 276 / 220, alt: '' },
+    /** 「答えをえらぶ」のカードに座るハムスター（ふつうは上の hamster を使う） */
+    hamsterEasy: { src: A + 'people/hamster.webp', aspect: 200 / 209, alt: '' },
+    hamsterHard: { src: A + 'people/hamster-dizzy.webp', aspect: 249 / 215, alt: '' },
     /** （前の絵）見出しの帯から顔を出すおじさん */
     salaryman: { src: A + 'people/salaryman.png', aspect: 240 / 248, alt: '' },
     salarymanHand: { src: A + 'people/salaryman-hand.png', aspect: 1, alt: '' },
