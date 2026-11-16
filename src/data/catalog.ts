@@ -91,8 +91,6 @@ export const SLOT_LABEL: Record<SlotId, string> = {
   plant: 'グリーン',
 };
 
-/** 何も置かない選択ができる場所 */
-export const OPTIONAL_SLOTS: SlotId[] = ['wall', 'plant'];
 
 export const FURNITURE_IDS = [
   'window_plain',

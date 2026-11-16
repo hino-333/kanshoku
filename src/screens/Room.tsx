@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
 import { ASSETS } from '../config/assets.config';
-import { FOODS, FOOD_IDS, FURNITURE, FURNITURE_IDS, OPTIONAL_SLOTS, SLOT_IDS, SLOT_LABEL, type FoodId, type SlotId } from '../data/catalog';
+import { FOODS, FOOD_IDS, FURNITURE, FURNITURE_IDS, SLOT_IDS, SLOT_LABEL, type FoodId, type SlotId } from '../data/catalog';
 import { ArtBox } from '../art/AssetImage';
 import { RoomStage } from '../art/RoomStage';
 import { usePetDisplay } from '../art/usePetDisplay';
@@ -286,7 +286,11 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
   };
 
   const place = (id: (typeof FURNITURE_IDS)[number] | null) => {
-    if (room[slot] === id) return;
+    // 選んでいる家具をもう一度押すと 選択を外す（何も置かない）
+    if (room[slot] === id) {
+      if (id === null) return;
+      id = null;
+    }
     dispatch({ type: 'place', slot, furnitureId: id });
     if (id) onPlaced(slot);
     sfx('pop');
@@ -315,12 +319,11 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
       </div>
       <div className="decor-grid" role="tabpanel" aria-label={SLOT_LABEL[slot]} ref={itemSlide.ref} {...itemSlide.groupProps}>
         {itemSlide.indicator}
-        {OPTIONAL_SLOTS.includes(slot) && (
-          <button type="button" className="decor-item" aria-pressed={room[slot] === null} data-slide-key={`${slot}:none`} onClick={() => place(null)} {...mochi}>
-            <span className="decor-item__none">なし</span>
-            <span className="decor-item__name">置かない</span>
-          </button>
-        )}
+        {/* どの場所も 何も置かないことを選べる */}
+        <button type="button" className="decor-item" aria-pressed={room[slot] === null} data-slide-key={`${slot}:none`} onClick={() => place(null)} {...mochi}>
+          <span className="decor-item__none">なし</span>
+          <span className="decor-item__name">置かない</span>
+        </button>
         {items.map((id) =>
           owned.includes(id) ? (
             <button key={id} type="button" className="decor-item" aria-pressed={room[slot] === id} data-slide-key={`${slot}:${id}`} onClick={() => place(id)} {...mochi}>
