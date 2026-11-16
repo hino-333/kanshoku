@@ -63,10 +63,13 @@ export const ASSETS = {
   // ---------------------------------------------------------- 相棒
   pet: {
     /** 必須：通常の絵。ほかの状態の絵がないときは、これを使います */
-    base: { src: A + 'character/normal.svg', aspect: 240 / 210, pivotX: 0.5, pivotY: 1, alt: '相棒のねこ' },
+    // 相棒の犬（ユーザーの絵 余白を切り取って3枚とも同じキャンバス 257×252・足元を下にそろえてある）
+    base: { src: A + 'character/dog-normal.webp', aspect: 257 / 252, pivotX: 0.5, pivotY: 1, alt: '相棒のいぬ' },
     /** 任意：状態ごとの差分。書いていない状態は base で表示し、動きだけで表現します */
     states: {
-      blink: { src: A + 'character/blink.svg', aspect: 240 / 210 },
+      // ぐったり寝転ぶ絵は おなかがすいたとき（flop）と 休憩（rest）に使う
+      flop: { src: A + 'character/dog-flop.webp', aspect: 257 / 252 },
+      rest: { src: A + 'character/dog-flop.webp', aspect: 257 / 252 },
       // tap:     { src: A + 'character/tap.png',     aspect: 240 / 210 },
       // search:  { src: A + 'character/search.png',  aspect: 240 / 210 },
       // sigh:    { src: A + 'character/sigh.png',    aspect: 240 / 210 },
@@ -79,7 +82,7 @@ export const ASSETS = {
     } as Partial<Record<PetVisualState, AssetDef>>,
     /** 任意：ごはんごとの専用の食事画像（例: おにぎりを両手で抱える絵） */
     eatingByFood: {
-      // onigiri: { src: A + 'character/eat-onigiri.png', aspect: 240 / 210 },
+      onigiri: { src: A + 'character/dog-eat-onigiri.webp', aspect: 257 / 252 },
     } as Partial<Record<FoodId, AssetDef>>,
   },
 
@@ -95,7 +98,7 @@ export const ASSETS = {
 
   /** 食べたあとに相棒のほっぺに付くシールなど（任意） */
   foodCheek: {
-    onigiri: { src: A + 'deco/nori.svg', aspect: 1, alt: 'ほっぺの海苔' },
+    // onigiri: { src: A + 'deco/nori.svg', aspect: 1, alt: 'ほっぺの海苔' },
   } as Partial<Record<FoodId, AssetDef>>,
 
   // ---------------------------------------------------------- 家具

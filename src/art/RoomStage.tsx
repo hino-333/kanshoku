@@ -118,7 +118,8 @@ export function RoomStage({ room, pet, onPetTap, petLabel, landed, petRef, child
             </span>
           </div>
 
-          {pet.eatingFood && <EatingFood food={pet.eatingFood} spotWidth={spot.width} motionKey={pet.motionKey} />}
+          {/* 専用の食事の絵（おにぎりを持つ絵など）があるときは ごはんを別に重ねない */}
+          {pet.eatingFood && !ASSETS.pet.eatingByFood[pet.eatingFood] && <EatingFood food={pet.eatingFood} spotWidth={spot.width} motionKey={pet.motionKey} />}
 
           <div className="stage__fx" aria-hidden="true">
             {pet.effects.map((e) => (

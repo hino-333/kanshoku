@@ -43,13 +43,13 @@
 4. `src/config/assets.config.ts` を開き、次の1行を探します。
 
    ```ts
-   base: { src: A + 'character/normal.svg', aspect: 240 / 210, pivotX: 0.5, pivotY: 1, alt: '相棒のねこ' },
+   base: { src: A + 'character/dog-normal.webp', aspect: 257 / 252, pivotX: 0.5, pivotY: 1, alt: '相棒のいぬ' },
    ```
 
 5. `normal.svg` を `normal.png` に、`240 / 210` を **あなたの絵の「横 / 縦」** に書きかえます。
 
    ```ts
-   base: { src: A + 'character/normal.png', aspect: 960 / 840, pivotX: 0.5, pivotY: 1, alt: '相棒のねこ' },
+   base: { src: A + 'character/normal.png', aspect: 960 / 840, pivotX: 0.5, pivotY: 1, alt: '相棒のいぬ' },
    ```
 
 6. 保存します。開発サーバーが動いていれば、ブラウザが自動で更新されます（動いていなければ「起動方法」を参照）。
@@ -93,7 +93,7 @@
 | `offsetX` | 横位置の微調整（枠の幅に対する %。プラスで右へ） | `-3` |
 | `offsetY` | 縦位置の微調整（枠の高さに対する %。プラスで下へ） | `2` |
 | `pivotX` / `pivotY` | 動きの支点。0〜1。`pivotY: 1` は足元 | 相棒は `0.5, 1` |
-| `alt` | 画面の読み上げに使う短い説明 | `'相棒のねこ'` |
+| `alt` | 画面の読み上げに使う短い説明 | `'相棒のいぬ'` |
 
 **絵は枠の中に「縦横比を保ったまま、下ぞろえ」で収まります。** 切り抜かれたり、引き伸ばされたりはしません。画像の実際のピクセル数が大きくても、画面のレイアウトは広がりません。
 
