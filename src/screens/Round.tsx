@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ASSETS } from '../config/assets.config';
 import { GAME } from '../config/game.config';
-import { KANJI, WORD_BY_ID, type Word } from '../data/words';
+import { KANJI, PARTS, WORD_BY_ID, type Word } from '../data/words';
 import { ArtBox } from '../art/AssetImage';
 import { sfx } from '../lib/env';
 import { navigate } from '../lib/router';
@@ -9,6 +9,7 @@ import { petEvent } from '../lib/ui';
 import { dispatch, store, useGame } from '../store/store';
 import type { ActiveRound, Answer, Question, SelfCheck } from '../store/types';
 import { Dialog, EmptyState, Header, Icon, Notice } from '../ui/parts';
+import { mochi, useSlide } from '../ui/slide';
 import { WritingPad, type WritingPadHandle } from '../ui/WritingPad';
 import { GAME_INFO } from './Play';
 import { wordSize } from './Word';
@@ -100,6 +101,48 @@ export function RoundScreen() {
     window.setTimeout(() => navigate('/play/reward', { replace: true }), 900);
   };
 
+  const feedback = answer && (
+    <div className={`feedback ${feedbackGood(answer) ? 'feedback--good' : ''} rise-in`} role="status">
+      <FeedbackText answer={answer} word={word} question={q} />
+      <button type="button" className="btn btn--lg btn--block" onClick={next} disabled={done} autoFocus>
+        {isLast ? '料理をしあげる' : '次へ'}
+      </button>
+    </div>
+  );
+  const cookDone = done && (
+    <div className="cook-done" aria-live="assertive">
+      <ArtBox def={ASSETS.deco.pot} className="cook-done__pot" />
+      <p className="h1">できあがり！</p>
+    </div>
+  );
+  const quitDialog = quit && <QuitDialog roundId={round.id} onClose={() => setQuit(false)} />;
+
+  // 漢字を書く遊びは 台所（壁のタイル・伝票・まな板）で書く
+  if (q.kind === 'write') {
+    return (
+      <div className="screen kitchen">
+        <div className="kitchen__top">
+          <button type="button" className="icon-btn" onClick={() => setQuit(true)} aria-label="もどる" {...mochi}>
+            <Icon name="back" />
+          </button>
+          <Steps count={round.questions.length} current={view} />
+        </div>
+        <WriteQuestion
+          key={`${round.id}-${view}`}
+          question={q}
+          word={word}
+          difficulty={round.difficulty}
+          answer={answer}
+          onAnswer={submit}
+          cta={view + 1 < round.questions.length ? STEPS[view + 1] : 'しあげる'}
+        />
+        {feedback}
+        {cookDone}
+        {quitDialog}
+      </div>
+    );
+  }
+
   return (
     <div className={`screen round-screen round-screen--${round.game}`}>
       <Header
@@ -116,57 +159,62 @@ export function RoundScreen() {
             <span aria-hidden="true">●</span> この前のことばだ
           </p>
         )}
-        {q.kind === 'write' ? (
-          <WriteQuestion key={`${round.id}-${view}`} question={q} word={word} difficulty={round.difficulty} answer={answer} onAnswer={submit} />
-        ) : (
-          <MatchQuestion key={`${round.id}-${view}`} question={q} word={word} answer={answer} onAnswer={submit} />
-        )}
+        <MatchQuestion key={`${round.id}-${view}`} question={q} word={word} answer={answer} onAnswer={submit} />
       </div>
 
-      {answer && (
-        <div className={`feedback ${feedbackGood(answer) ? 'feedback--good' : ''} rise-in`} role="status">
-          <FeedbackText answer={answer} word={word} question={q} />
-          <button type="button" className="btn btn--lg btn--block" onClick={next} disabled={done} autoFocus>
-            {isLast ? '料理をしあげる' : '次へ'}
+      {feedback}
+      {cookDone}
+      {quitDialog}
+    </div>
+  );
+}
+
+function QuitDialog({ roundId, onClose }: { roundId: string; onClose: () => void }) {
+  return (
+    <Dialog
+      title="ひと休みしますか？"
+      onClose={onClose}
+      actions={
+        <>
+          <button type="button" className="btn btn--primary btn--block" onClick={onClose}>
+            つづける
           </button>
-        </div>
-      )}
+          <button type="button" className="btn btn--block" onClick={() => navigate('/room', { replace: true })}>
+            あとでつづきから
+          </button>
+          <button
+            type="button"
+            className="btn btn--quiet btn--block"
+            onClick={() => {
+              dispatch({ type: 'abandonRound', roundId });
+              navigate('/play', { replace: true });
+            }}
+          >
+            このラウンドをやめる
+          </button>
+        </>
+      }
+    >
+      <p className="lead">{'ここまでの回答は保存されています\n「あとでつづきから」を選ぶとあそぶ画面から再開できます'}</p>
+    </Dialog>
+  );
+}
 
-      {done && (
-        <div className="cook-done" aria-live="assertive">
-          <ArtBox def={ASSETS.deco.pot} className="cook-done__pot" />
-          <p className="h1">できあがり！</p>
-        </div>
-      )}
+/* ============================================================ 料理の工程（1問ごとに1つ進む） */
+const STEPS = ['下ごしらえ', '煮る', '盛る'];
 
-      {quit && (
-        <Dialog
-          title="ひと休みしますか？"
-          onClose={() => setQuit(false)}
-          actions={
-            <>
-              <button type="button" className="btn btn--primary btn--block" onClick={() => setQuit(false)}>
-                つづける
-              </button>
-              <button type="button" className="btn btn--block" onClick={() => navigate('/room', { replace: true })}>
-                あとでつづきから
-              </button>
-              <button
-                type="button"
-                className="btn btn--quiet btn--block"
-                onClick={() => {
-                  dispatch({ type: 'abandonRound', roundId: round.id });
-                  navigate('/play', { replace: true });
-                }}
-              >
-                このラウンドをやめる
-              </button>
-            </>
-          }
-        >
-          <p className="lead">{'ここまでの回答は保存されています\n「あとでつづきから」を選ぶとあそぶ画面から再開できます'}</p>
-        </Dialog>
-      )}
+function Steps({ count, current }: { count: number; current: number }) {
+  const steps = STEPS.slice(0, Math.max(1, Math.min(count, STEPS.length)));
+  const now = steps[Math.min(current, steps.length - 1)];
+  const slide = useSlide(now, 'fill');
+  return (
+    <div className="steps" role="list" ref={slide.ref} {...slide.groupProps} aria-label={`料理の工程 ${current + 1} / ${count}`}>
+      {slide.indicator}
+      {steps.map((s) => (
+        <span role="listitem" key={s} className={`steps__item ${s === now ? 'is-now' : ''}`} data-slide-key={s} aria-current={s === now ? 'step' : undefined}>
+          <span>{s}</span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -307,197 +355,195 @@ function splitAround(text: string, target: string) {
   ];
 }
 
-/* ============================================================ 仕上げのひと筆 */
+/* ============================================================ 漢字を書く（台所） */
+/** ヒントの部品：2つに分けられる字は部品 ないときは部首と画数 */
+function hintChips(t: string): string[] {
+  const p = PARTS[t];
+  if (p) return p;
+  const k = KANJI[t];
+  if (!k) return [];
+  return k.radical ? [k.radical, `${k.strokes}画`] : [`${k.strokes}画`];
+}
+
 function WriteQuestion({
   question,
   word,
   difficulty,
   answer,
   onAnswer,
+  cta,
 }: {
   question: Extract<Question, { kind: 'write' }>;
   word: Word;
   difficulty: ActiveRound['difficulty'];
   answer: Answer | null;
   onAnswer: (a: Answer) => void;
+  /** 次の工程の名前（煮る・盛る） */
+  cta: string;
 }) {
   const pad = useRef<WritingPadHandle>(null);
   const [hasInk, setHasInk] = useState(false);
   const [strokeCount, setStrokeCount] = useState(0);
   const [hints, setHints] = useState(difficulty === 'easy' ? 1 : 0);
-  const [peeked, setPeeked] = useState(false);
-  const [peekOpen, setPeekOpen] = useState(false);
   const [drawing, setDrawing] = useState<string | null>(null);
   const [phase, setPhase] = useState<'write' | 'compare'>(answer ? 'compare' : 'write');
+  const [ton, setTon] = useState<{ x: number; y: number; n: number } | null>(null);
   const chars = [...word.surface];
   const targets = question.blanks.map((i) => chars[i]);
   const maxHints = GAME.writeHints[difficulty];
-  const target0 = KANJI[targets[0]];
-
-  const hintLines = [
-    `意味：${word.meaning}`,
-    targets.length === 1 && target0?.radical ? `部首は「${target0.radical}」（${target0.radicalName}）・${target0.strokes}画` : `画数：${targets.map((t) => `${KANJI[t]?.strokes ?? '?'}画`).join('・')}`,
-  ].slice(0, maxHints);
+  const peeked = false;
 
   const masked = chars.map((c, i) => (question.blanks.includes(i) ? '□' : c)).join('');
+
+  const ticket = (
+    <div className="ticket">
+      <span className="ticket__magnet" aria-hidden="true" />
+      <p className="ticket__reading">{word.reading}</p>
+      <p className="kanji ticket__word" aria-label={`${word.reading} 空いているところを書く`}>
+        {chars.map((c, i) =>
+          question.blanks.includes(i) ? (
+            <span key={i} className="ticket__blank" aria-hidden="true" />
+          ) : (
+            <span key={i}>{c}</span>
+          ),
+        )}
+      </p>
+      <p className="ticket__sentence">{word.example.replace(word.surface, `［${masked}］`)}</p>
+    </div>
+  );
 
   if (phase === 'compare') {
     const a = answer?.kind === 'write' ? answer : null;
     return (
-      <div className="stack question">
-        <p className="eyebrow">見くらべる</p>
-        <div className="compare">
-          <figure className="compare__panel">
-            <figcaption>あなたの字</figcaption>
-            <div className="compare__box" style={{ aspectRatio: String(targets.length) }}>
-              {(a?.drawing ?? drawing) ? <img src={a?.drawing ?? drawing!} alt="自分で書いた字" /> : <span className="caption">（画像なし）</span>}
+      <>
+        {ticket}
+        <div className="counter">
+          <div className="counter__sheet stack question">
+            <div className="compare">
+              <figure className="compare__panel">
+                <figcaption>あなたの字</figcaption>
+                <div className="compare__box" style={{ aspectRatio: String(targets.length) }}>
+                  {(a?.drawing ?? drawing) ? <img src={a?.drawing ?? drawing!} alt="自分で書いた字" /> : <span className="caption">（画像なし）</span>}
+                </div>
+              </figure>
+              <figure className="compare__panel">
+                <figcaption>見本</figcaption>
+                <div className="compare__box" style={{ aspectRatio: String(targets.length) }}>
+                  <div className="compare__glyphs kanji" style={{ '--n': targets.length } as React.CSSProperties}>
+                    {targets.map((t, i) => (
+                      <span key={i}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </figure>
             </div>
-          </figure>
-          <figure className="compare__panel">
-            <figcaption>見本</figcaption>
-            <div className="compare__box" style={{ aspectRatio: String(targets.length) }}>
-              <div className="compare__glyphs kanji" style={{ '--n': targets.length } as React.CSSProperties}>
-                {targets.map((t, i) => (
-                  <span key={i}>{t}</span>
-                ))}
+            <Notice>{'自動で正解・不正解は判定していません\n形をよく見くらべて自分で選んでください'}</Notice>
+            {!a && (
+              <div className="self-check" role="group" aria-label="自分の字はどうだった？">
+                <button type="button" className="btn btn--mint self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'ok', peeked, hints, drawing })}>
+                  <span className="self-check__mark">◯</span>
+                  書けた
+                </button>
+                <button type="button" className="btn btn--butter self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'unsure', peeked, hints, drawing })}>
+                  <span className="self-check__mark">△</span>
+                  あやしい
+                </button>
+                <button type="button" className="btn self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'ng', peeked, hints, drawing })}>
+                  <span className="self-check__mark">✕</span>
+                  まだ書けない
+                </button>
               </div>
-            </div>
-          </figure>
-        </div>
-        <p className="compare__word">
-          <span className="kanji">
-            {chars.map((c, i) => (
-              <span key={i} className={question.blanks.includes(i) ? 'compare__target' : ''}>
-                {c}
-              </span>
-            ))}
-          </span>
-          <span className="caption">（{word.reading}）</span>
-        </p>
-        <Notice>
-          {'自動で正解・不正解は判定していません\n形をよく見くらべて自分で選んでください'}
-          {(a?.peeked ?? peeked) && <strong>{'\n書く前に見本を見たので今回は「練習」として記録します'}</strong>}
-        </Notice>
-        {!a && (
-          <div className="self-check" role="group" aria-label="自分の字はどうだった？">
-            <button type="button" className="btn btn--mint self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'ok', peeked, hints, drawing })}>
-              <span className="self-check__mark">◯</span>
-              {peeked ? '見本を見て書けた' : '書けた'}
-            </button>
-            <button type="button" className="btn btn--butter self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'unsure', peeked, hints, drawing })}>
-              <span className="self-check__mark">△</span>
-              あやしい
-            </button>
-            <button type="button" className="btn self-check__btn" onClick={() => onAnswer({ kind: 'write', self: 'ng', peeked, hints, drawing })}>
-              <span className="self-check__mark">✕</span>
-              まだ書けない
-            </button>
+            )}
+            {!a && (
+              <button
+                type="button"
+                className="btn btn--quiet btn--sm"
+                onClick={() => {
+                  setHasInk(false);
+                  setStrokeCount(0);
+                  setDrawing(null);
+                  setPhase('write');
+                }}
+              >
+                書き直す
+              </button>
+            )}
           </div>
-        )}
-        {!a && (
-          <button
-            type="button"
-            className="btn btn--quiet btn--sm"
-            onClick={() => {
-              setHasInk(false);
-              setStrokeCount(0);
-              setDrawing(null);
-              setPhase('write');
-            }}
-          >
-            書き直す
-          </button>
-        )}
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="stack question">
-      <div className="q-write card card--pad">
-        <p className="eyebrow q-write__lead">読みと文を見て漢字を書こう</p>
-        <p className="q-write__reading">{word.reading}</p>
-        <p className="kanji q-write__masked" aria-label={`${word.reading} 空いているところを書く`}>
-          {chars.map((c, i) =>
-            question.blanks.includes(i) ? (
-              <span key={i} className="q-write__blank" aria-hidden="true" />
-            ) : (
-              <span key={i}>{c}</span>
-            ),
+    <>
+      {ticket}
+      <div className="counter">
+        <div className="board" style={{ '--grain': `url(${ASSETS.deco.boardGrain.src})` } as React.CSSProperties}>
+          {hints > 0 && (
+            <div className="recipe rise-in" aria-live="polite" aria-label="ヒント">
+              {targets.map((t, ti) => (
+                <span key={ti} className="recipe__group">
+                  {hintChips(t)
+                    .slice(0, hints)
+                    .map((c, ci) => (
+                      <span key={ci} className="recipe__item">
+                        {ci > 0 && <span className="recipe__plus">＋</span>}
+                        <span className={`recipe__part recipe__part--${ci} ${c.length > 1 ? 'is-text' : 'kanji'}`}>{c}</span>
+                      </span>
+                    ))}
+                </span>
+              ))}
+            </div>
           )}
-        </p>
-        <p className="q-write__sentence">{word.example.replace(word.surface, `［${masked}］`)}</p>
-      </div>
-
-      {hints > 0 && (
-        <ul className="hints" aria-live="polite">
-          {hintLines.slice(0, hints).map((h) => (
-            <li key={h} className="hint rise-in">
-              <Icon name="hint" className="hint__icon" />
-              {h}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <WritingPad
-        ref={pad}
-        boxes={targets.length}
-        label={`${targets.length}文字を書く手書き欄`}
-        onInkChange={(ink, n) => {
-          setHasInk(ink);
-          setStrokeCount(n);
-        }}
-        corner={
-          <button
-            type="button"
-            className="pad__peek"
-            onClick={() => {
-              setPeeked(true);
-              setPeekOpen((v) => !v);
+          <WritingPad
+            ref={pad}
+            boxes={targets.length}
+            ratio={1.08}
+            label={`${targets.length}文字を書く手書き欄`}
+            onInkChange={(ink, n) => {
+              setHasInk(ink);
+              setStrokeCount(n);
+              if (n === 0) setTon(null);
             }}
-            aria-expanded={peekOpen}
-            aria-label="見本を見る"
-          >
-            <Icon name="eye" />
-          </button>
-        }
-      />
+            onStrokeEnd={(x, y) => setTon((v) => ({ x, y, n: (v?.n ?? 0) + 1 }))}
+            corner={
+              ton && (
+                <span key={ton.n} className="board__ton" style={{ left: ton.x, top: ton.y }} aria-hidden="true">
+                  トン
+                </span>
+              )
+            }
+          />
+        </div>
 
-      <div className="pad-tools">
-        <button type="button" className="tool" onClick={() => pad.current?.undo()} disabled={strokeCount === 0}>
-          <Icon name="undo" />
-          1画戻す
-        </button>
-        <button type="button" className="tool" onClick={() => pad.current?.clear()} disabled={strokeCount === 0}>
-          <Icon name="erase" />
-          消す
-        </button>
-        <button type="button" className="tool" onClick={() => setHints((h) => Math.min(maxHints, h + 1))} disabled={hints >= maxHints}>
-          <Icon name="hint" />
-          ヒント {hints}/{maxHints}
+        <div className="kitchen-tools">
+          <button type="button" className="kitchen-tool" onClick={() => pad.current?.undo()} disabled={strokeCount === 0} {...mochi}>
+            <Icon name="undo" />
+            1画戻す
+          </button>
+          <button type="button" className="kitchen-tool" onClick={() => pad.current?.clear()} disabled={strokeCount === 0} {...mochi}>
+            <Icon name="erase" />
+            消す
+          </button>
+          <button type="button" className="kitchen-tool" onClick={() => setHints((h) => Math.min(maxHints, h + 1))} disabled={hints >= maxHints} {...mochi}>
+            <Icon name="hint" />
+            ヒント {hints}/{maxHints}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="kitchen-cta"
+          disabled={!hasInk}
+          {...mochi}
+          onClick={() => {
+            setDrawing(pad.current?.snapshot(120) ?? null);
+            setPhase('compare');
+          }}
+        >
+          {cta}
         </button>
       </div>
-
-      {peekOpen && (
-        <div className="peek card card--pad rise-in">
-          <span className="kanji peek__chars">{targets.join('')}</span>
-          <span className="caption">見本を見たあとは「練習」として記録します</span>
-        </div>
-      )}
-
-      <button
-        type="button"
-        className="btn btn--primary btn--lg btn--block"
-        disabled={!hasInk}
-        onClick={() => {
-          setDrawing(pad.current?.snapshot(120) ?? null);
-          setPeekOpen(false);
-          setPhase('compare');
-        }}
-      >
-        {hasInk ? '書けた！見本と見くらべる' : 'まずは書いてみよう'}
-      </button>
-    </div>
+    </>
   );
 }

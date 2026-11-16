@@ -2,6 +2,9 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, type R
 
 type Pt = { x: number; y: number };
 
+/** 書いた線の色（のりの色） */
+const INK = '#2b352c';
+
 export interface WritingPadHandle {
   undo(): void;
   clear(): void;
@@ -14,8 +17,20 @@ export interface WritingPadHandle {
  * ・この領域だけ touch-action: none にして ページ全体のスクロールや拡大は止めない
  * ・指・マウス・ペンに対応（Pointer Events）
  */
-export const WritingPad = forwardRef<WritingPadHandle, { boxes: number; onInkChange: (hasInk: boolean, strokes: number) => void; label: string; corner?: ReactNode }>(
-  function WritingPad({ boxes, onInkChange, label, corner }, ref) {
+export const WritingPad = forwardRef<
+  WritingPadHandle,
+  {
+    boxes: number;
+    onInkChange: (hasInk: boolean, strokes: number) => void;
+    label: string;
+    corner?: ReactNode;
+    /** 1マスの「横 ÷ 縦」 */
+    ratio?: number;
+    /** 1画書き終えたとき 終わった位置（枠の左上からの px）を知らせる */
+    onStrokeEnd?: (x: number, y: number) => void;
+  }
+>(
+  function WritingPad({ boxes, onInkChange, label, corner, ratio = 1, onStrokeEnd }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const strokes = useRef<Pt[][]>([]);
     const current = useRef<Pt[] | null>(null);
@@ -32,7 +47,7 @@ export const WritingPad = forwardRef<WritingPadHandle, { boxes: number; onInkCha
       ctx.clearRect(0, 0, w, h);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#382e27';
+      ctx.strokeStyle = INK;
       ctx.lineWidth = lineWidth();
       for (const s of strokes.current) drawStroke(ctx, s, w, h);
     }, []);
@@ -78,7 +93,7 @@ export const WritingPad = forwardRef<WritingPadHandle, { boxes: number; onInkCha
         const ctx = out.getContext('2d')!;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#382e27';
+        ctx.strokeStyle = INK;
         ctx.lineWidth = Math.max(2.5, height * 0.06);
         for (const s of strokes.current) drawStroke(ctx, s, out.width, out.height);
         return out.toDataURL('image/png');
@@ -91,7 +106,7 @@ export const WritingPad = forwardRef<WritingPadHandle, { boxes: number; onInkCha
     };
 
     return (
-      <div className="pad" style={{ aspectRatio: String(boxes), width: `min(100%, calc(var(--pad-h) * ${boxes}))` }}>
+      <div className="pad" style={{ aspectRatio: String(boxes * ratio), width: `min(100%, calc(var(--pad-h) * ${boxes * ratio}))` }}>
         <div className="pad__guides" aria-hidden="true">
           {Array.from({ length: boxes }, (_, i) => (
             <span key={i} className="pad__box" />
@@ -116,8 +131,11 @@ export const WritingPad = forwardRef<WritingPadHandle, { boxes: number; onInkCha
             redraw();
           }}
           onPointerUp={() => {
+            const s = current.current;
             current.current = null;
             report();
+            const last = s?.[s.length - 1];
+            if (last && onStrokeEnd) onStrokeEnd(last.x * size.current.w, last.y * size.current.h);
           }}
           onPointerCancel={() => {
             current.current = null;

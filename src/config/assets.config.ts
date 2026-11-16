@@ -129,6 +129,8 @@ export const ASSETS = {
 
   // ---------------------------------------------------------- 装飾・演出
   deco: {
+    /** 漢字を書く画面のまな板の木目（真ん中の板とつなぎ目もふくむ） */
+    boardGrain: { src: A + 'kitchen/board-grain.svg', aspect: 354 / 338, alt: '' },
     sparkle: { src: A + 'deco/sparkle.svg', aspect: 1, alt: '' },
     heart: { src: A + 'deco/heart.svg', aspect: 1, alt: '' },
     steam: { src: A + 'deco/steam.svg', aspect: 0.6, alt: '' },
