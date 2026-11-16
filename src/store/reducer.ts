@@ -50,7 +50,7 @@ export function createInitialState(now: number): GameState {
       lastGame: 'match',
       lastDifficulty: 'normal',
     },
-    settings: { sound: false, reduceMotion: 'system' },
+    settings: { sound: true, soundChosen: false, reduceMotion: 'system' },
   };
 }
 
@@ -212,7 +212,10 @@ export function reducer(state: GameState, action: Action): GameState {
       };
     }
     case 'setSetting':
-      return { ...state, settings: { ...state.settings, [action.key]: action.value } };
+      return {
+        ...state,
+        settings: { ...state.settings, [action.key]: action.value, ...(action.key === 'sound' ? { soundChosen: true } : {}) },
+      };
     case 'wipe':
       return { ...createInitialState(action.at), onboarded: true };
     default:
@@ -318,7 +321,9 @@ export function sanitize(raw: unknown, now: number): GameState {
   }
   if (isObj(raw.settings)) {
     s.settings = {
-      sound: raw.settings.sound === true,
+      // 前は初期状態がオフだったので 自分で切りかえていない人は音ありに戻す
+      soundChosen: raw.settings.soundChosen === true,
+      sound: raw.settings.soundChosen === true ? raw.settings.sound === true : true,
       reduceMotion: raw.settings.reduceMotion === 'on' || raw.settings.reduceMotion === 'off' ? raw.settings.reduceMotion : 'system',
     };
   }

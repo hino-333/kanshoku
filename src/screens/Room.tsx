@@ -26,7 +26,6 @@ export function RoomScreen({ mode }: { mode: Mode }) {
   const onPetTap = useCallback(() => {
     if (pet.visual === 'eating') return;
     petEvent({ kind: 'tap' });
-    sfx('tap');
   }, [pet.visual]);
 
   return (

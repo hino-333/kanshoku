@@ -96,7 +96,7 @@ export interface GameState {
     lastGame: GameKind;
     lastDifficulty: Difficulty;
   };
-  settings: { sound: boolean; reduceMotion: 'system' | 'on' | 'off' };
+  settings: { sound: boolean; soundChosen: boolean; reduceMotion: 'system' | 'on' | 'off' };
 }
 
 export type Action =

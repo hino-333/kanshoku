@@ -31,7 +31,7 @@ export function useKeyboardOpen(): boolean {
   return open;
 }
 
-// ------------------------------------------------------------ 効果音（初期状態はオフ）
+// ------------------------------------------------------------ 効果音（初期状態はオン）
 let ctx: AudioContext | null = null;
 type Sfx = 'tap' | 'pop' | 'chew' | 'sparkle' | 'slurp' | 'chop';
 
