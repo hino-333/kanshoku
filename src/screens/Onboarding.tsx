@@ -29,18 +29,18 @@ export function Onboarding() {
       <div className="onboard__card card" key={step}>
         {step === 0 && (
           <>
-            <p className="onboard__logo" aria-hidden="true">
-              漢食
-            </p>
+            <h1 className="onboard__logo">
+              <img src={ASSETS.logo.src} alt={ASSETS.logo.alt} width={136} height={117} />
+            </h1>
             <div className="onboard__pet">
-              <PetSprite state="idle" motion="cheer" label="相棒" />
+              <PetSprite state="idle" motion="cheer" label="パートナー" />
             </div>
             <h1 className="h1" id="ob-title">
               はじめまして
             </h1>
-            <p className="lead">{'漢字を調べてくれる小さくて食いしん坊の相棒です\nなまえをつけてね'}</p>
+            <p className="lead">{'漢字を調べてくれる小さくて食いしん坊のパートナーです\nなまえをつけてね'}</p>
             <label className="field field--sm onboard__name">
-              <span className="sr-only">相棒のなまえ</span>
+              <span className="sr-only">パートナーのなまえ</span>
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={12} enterKeyHint="next" />
             </label>
             <p className="caption">あとからプロフィールで変えられます</p>

@@ -34,7 +34,7 @@ export function ProfileScreen() {
 
   return (
     <div className="screen profile-screen">
-      <Header title="相棒のプロフィール" back="/room" />
+      <Header title="パートナーのプロフィール" back="/room" />
       <div className="screen__body">
         <div className="profile-card card">
             <div className="profile-card__top">
@@ -179,7 +179,7 @@ export function ProfileScreen() {
             </>
           }
         >
-          <p className="lead">{'あつめた漢字・ごはん・家具・相棒の記録がすべて消えます\n元には戻せません'}</p>
+          <p className="lead">{'あつめた漢字・ごはん・家具・パートナーの記録がすべて消えます\n元には戻せません'}</p>
         </Dialog>
       )}
     </div>

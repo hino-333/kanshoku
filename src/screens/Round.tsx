@@ -115,7 +115,7 @@ export function RoundScreen() {
       <p className="h1">できあがり！</p>
     </div>
   );
-  const quitDialog = quit && <QuitDialog roundId={round.id} onClose={() => setQuit(false)} />;
+  const quitDialog = quit && <QuitDialog onClose={() => setQuit(false)} />;
 
   // 漢字を書く遊びは 台所（壁のタイル・伝票・まな板）で書く
   if (q.kind === 'write') {
@@ -169,7 +169,7 @@ export function RoundScreen() {
   );
 }
 
-function QuitDialog({ roundId, onClose }: { roundId: string; onClose: () => void }) {
+function QuitDialog({ onClose }: { onClose: () => void }) {
   return (
     <Dialog
       title="ひと休みしますか？"
@@ -181,16 +181,6 @@ function QuitDialog({ roundId, onClose }: { roundId: string; onClose: () => void
           </button>
           <button type="button" className="btn btn--block" onClick={() => navigate('/room', { replace: true })}>
             あとでつづきから
-          </button>
-          <button
-            type="button"
-            className="btn btn--quiet btn--block"
-            onClick={() => {
-              dispatch({ type: 'abandonRound', roundId });
-              navigate('/play', { replace: true });
-            }}
-          >
-            このラウンドをやめる
           </button>
         </>
       }

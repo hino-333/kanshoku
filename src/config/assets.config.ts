@@ -64,7 +64,7 @@ export const ASSETS = {
   pet: {
     /** 必須：通常の絵。ほかの状態の絵がないときは、これを使います */
     // 相棒の犬（ユーザーの絵 余白を切り取って3枚とも同じキャンバス 257×252・足元を下にそろえてある）
-    base: { src: A + 'character/dog-normal.webp', aspect: 257 / 252, pivotX: 0.5, pivotY: 1, alt: '相棒のいぬ' },
+    base: { src: A + 'character/dog-normal.webp', aspect: 257 / 252, pivotX: 0.5, pivotY: 1, alt: 'パートナーのいぬ' },
     /** 任意：状態ごとの差分。書いていない状態は base で表示し、動きだけで表現します */
     states: {
       // ぐったり寝転ぶ絵は おなかがすいたとき（flop）と 休憩（rest）に使う
@@ -144,6 +144,9 @@ export const ASSETS = {
   },
 
   // ---------------------------------------------------------- 画面に顔を出す人たち（あつめた漢字 Figma 06 改善案）
+  /** アプリのロゴ（はじめての画面と 大きい画面の左に出す） */
+  logo: { src: A + 'logo.svg', aspect: 650 / 560, alt: '漢食' },
+
   people: {
     /** 見出しの帯の右で 検索欄のふちにちょこんと座るおじさん */
     ojisan: { src: A + 'people/ojisan.webp', aspect: 213 / 247, alt: '' },

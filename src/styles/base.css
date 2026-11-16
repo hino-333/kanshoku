@@ -122,11 +122,10 @@ img {
     color: var(--ink);
     font-family: var(--font);
   }
-  .app-brand__name {
-    font-size: 44px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.1;
+  .app-brand__logo {
+    display: block;
+    width: 160px;
+    height: auto;
   }
   .app-brand__copy {
     margin-top: 8px;

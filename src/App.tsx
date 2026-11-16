@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ASSETS } from './config/assets.config';
 import { useKeyboardOpen, useReducedMotion } from './lib/env';
 import { navigate, useRoute } from './lib/router';
 import { store, useGame } from './store/store';
@@ -79,8 +80,8 @@ export function App() {
   return (
     <>
       <aside className="app-brand" aria-hidden="true">
-        <div className="app-brand__name">漢食</div>
-        <div className="app-brand__copy">調べてくれる相棒に遊んでごちそう</div>
+        <img className="app-brand__logo" src={ASSETS.logo.src} alt="" />
+        <div className="app-brand__copy">調べてくれるパートナーに遊んでごちそう</div>
       </aside>
       <div className={`app ${nav && !keyboard ? 'app--nav' : ''}`}>
         <main className="app__main">{el}</main>
