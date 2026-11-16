@@ -23,6 +23,8 @@ const POSE = [
 ] as const;
 const tf = (y: number, s: number) => `translateY(${y}px) scale(${s})`;
 const at = (slot: 0 | 1 | 2) => tf(POSE[slot].y, POSE[slot].s);
+/** 上の欄や背景に重なっているあいだのカードの濃さ（下の文字が透けて読める） */
+const SEE = 0.5;
 /** これだけはらえば入れ替わる */
 const SWIPE = 72;
 
@@ -89,11 +91,15 @@ export function DiffDeck({
   const freeze = () => {
     const els = bySlot().filter(Boolean);
     const pos = els.map((el) => getComputedStyle(el).transform);
+    const ops = els.map((el) => getComputedStyle(el).opacity);
     running.current?.();
     for (const el of els) {
       for (const x of el.getAnimations({ subtree: true })) x.cancel();
     }
-    els.forEach((el, k) => (el.style.transform = pos[k]));
+    els.forEach((el, k) => {
+      el.style.transform = pos[k];
+      el.style.opacity = ops[k];
+    });
   };
 
   /**
@@ -115,7 +121,12 @@ export function DiffDeck({
     const fa = a.style.transform || at(0);
     const fb = b.style.transform || at(1);
     const fc = c.style.transform || at(2);
-    for (const el of [a, b, c]) el.style.transform = '';
+    const oa = Number(a.style.opacity || 1);
+    const oc = Number(c.style.opacity || 1);
+    for (const el of [a, b, c]) {
+      el.style.transform = '';
+      el.style.opacity = '';
+    }
     // 持ち上げる高さ：カードの4割（上の欄にかぶっても 画面の外に切れないようにする）
     const lift = Math.round(Math.min(a.offsetHeight * 0.42, 220));
     const body = deckRef.current?.closest<HTMLElement>('.screen__body');
@@ -138,11 +149,15 @@ export function DiffDeck({
       anims.push(
         a.animate(
           [
-            { transform: fa, zIndex: 6, easing: 'cubic-bezier(.2,.75,.3,1)' },
+            // 持ち上がったら すぐ半透明にして 上の欄の文字が透けて見えるように
+            { transform: fa, opacity: oa, zIndex: 6, easing: 'cubic-bezier(.2,.75,.3,1)' },
+            { opacity: SEE, offset: 0.12 },
             { transform: tf(-lift, 0.94), zIndex: 6, offset: 0.4 },
             { transform: tf(-lift, 0.93), zIndex: 0, offset: 0.42, easing: 'cubic-bezier(.55,0,.35,1)' },
-            { transform: tf(PEEK + 16, POSE[2].s), zIndex: 0, offset: 0.84, easing: 'ease-out' },
-            { transform: at(2), zIndex: 0 },
+            // 裏に収まるころに 元の濃さへ
+            { opacity: SEE, offset: 0.7 },
+            { transform: tf(PEEK + 16, POSE[2].s), opacity: 1, zIndex: 0, offset: 0.84, easing: 'ease-out' },
+            { transform: at(2), opacity: 1, zIndex: 0 },
           ],
           { duration: 600, fill: 'both' },
         ),
@@ -158,17 +173,21 @@ export function DiffDeck({
       anims.push(
         c.animate(
           [
-            { transform: fc, zIndex: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
-            { transform: tf(-lift, 0.94), zIndex: 0, offset: 0.42 },
-            { transform: tf(-lift, 0.94), zIndex: 6, offset: 0.44, easing: spring(0.55) },
+            // 裏から上へ出てくるあいだは半透明 前に乗って着地すると元の濃さへ
+            { transform: fc, opacity: oc, zIndex: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
+            { opacity: SEE, offset: 0.14 },
+            { transform: tf(-lift, 0.94), opacity: SEE, zIndex: 0, offset: 0.42 },
+            { transform: tf(-lift, 0.94), opacity: SEE, zIndex: 6, offset: 0.44, easing: spring(0.55) },
             // 着地するころに 難しさの切りかえ（5）の下へもぐる
-            { transform: at(0), zIndex: 4 },
+            { transform: at(0), opacity: 1, zIndex: 4 },
           ],
           { duration: 720, fill: 'both' },
         ),
       );
       // 前のカード：上から乗られて 後ろへ押し下げられる
-      anims.push(a.animate([{ transform: fa }, { transform: at(1) }], { duration: 500, delay: 300, easing: spring(0.5), fill: 'both' }));
+      anims.push(
+        a.animate([{ transform: fa, opacity: oa }, { transform: at(1), opacity: 1 }], { duration: 500, delay: 300, easing: spring(0.5), fill: 'both' }),
+      );
       anims.push(b.animate([{ transform: fb }, { transform: at(2) }], { duration: 300, delay: 280, easing: 'ease-out', fill: 'both' }));
       const o = owl(c, 320);
       if (o) anims.push(o);
@@ -211,12 +230,15 @@ export function DiffDeck({
       // 上へ：前のカードは指についてくる 後ろのカードは少しずつ前へ
       const p = Math.min(1, -dy / 240);
       a.style.transform = tf(dy, 1 - p * 0.04);
+      // 動かした瞬間から半透明に（上の欄に重なっても下の文字が読める）
+      a.style.opacity = String(1 - Math.min(1, -dy / 40) * (1 - SEE));
       const k = Math.min(1, -dy / 200) * 0.4;
       b.style.transform = tf(POSE[1].y * (1 - k), POSE[1].s + (1 - POSE[1].s) * k);
     } else {
       // 下へ：重くて半分しかついてこない
       const d = dy * 0.45;
       a.style.transform = tf(d, 1 - Math.min(1, d / 200) * 0.05);
+      a.style.opacity = String(1 - Math.min(1, d / 24) * (1 - SEE));
       b.style.transform = tf(POSE[1].y + d * 0.6, POSE[1].s);
     }
   };
@@ -257,8 +279,16 @@ export function DiffDeck({
       [c, 2],
     ] as const) {
       const from = getComputedStyle(el).transform;
+      const op = getComputedStyle(el).opacity;
       el.style.transform = '';
-      el.animate([{ transform: from }, { transform: at(slot) }], { duration: 480, easing: spring(0.5) });
+      el.style.opacity = '';
+      el.animate(
+        [
+          { transform: from, opacity: op },
+          { transform: at(slot), opacity: 1 },
+        ],
+        { duration: 480, easing: spring(0.5) },
+      );
     }
   };
   // はらったあとの指の離しで ボタンが押されないようにする
