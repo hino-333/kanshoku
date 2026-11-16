@@ -399,23 +399,21 @@
   }
 }
 @keyframes tap-bounce {
-  0% {
-    transform: none;
-  }
-  16% {
-    transform: scale(1.14, 0.82);
-  }
-  38% {
-    transform: translateY(-12%) scale(0.92, 1.1) rotate(-5deg);
-  }
-  60% {
-    transform: scale(1.06, 0.94) rotate(3deg);
-  }
-  80% {
-    transform: scale(0.99, 1.01) rotate(-1deg);
-  }
+  0%,
   100% {
     transform: none;
+  }
+  18% {
+    transform: scale(1.03, 0.97);
+  }
+  40% {
+    transform: translateY(-12%) rotate(-5deg);
+  }
+  62% {
+    transform: rotate(3deg);
+  }
+  82% {
+    transform: rotate(-1deg);
   }
 }
 @keyframes lean-in {
@@ -450,10 +448,10 @@
     transform: none;
   }
   30% {
-    transform: scale(1.05, 0.9);
+    transform: translateY(2%) scale(1.02, 0.98);
   }
   60% {
-    transform: scale(1.02, 0.95);
+    transform: translateY(1%);
   }
 }
 @keyframes peckish {
@@ -471,35 +469,41 @@
     transform: translateX(-2%) rotate(-8deg);
   }
   50% {
-    transform: translateX(-5%) rotate(-13deg) scale(1.02, 0.98);
+    transform: translateX(-5%) rotate(-13deg);
   }
 }
 @keyframes flop-in {
+  from {
+    transform: translateY(-4%);
+  }
   to {
-    transform: scale(1.24, 0.7);
+    transform: none;
   }
 }
 @keyframes flop-breathe {
   0%,
   100% {
-    transform: scale(1.24, 0.7);
+    transform: none;
   }
   50% {
-    transform: scale(1.27, 0.67);
+    transform: scale(1.01, 0.99);
   }
 }
 @keyframes rest-in {
+  from {
+    transform: translateY(-4%);
+  }
   to {
-    transform: scale(1.1, 0.86) rotate(-4deg);
+    transform: none;
   }
 }
 @keyframes rest-breathe {
   0%,
   100% {
-    transform: scale(1.1, 0.86) rotate(-4deg);
+    transform: none;
   }
   50% {
-    transform: scale(1.13, 0.83) rotate(-4deg);
+    transform: scale(1.01, 0.99);
   }
 }
 /* ほおばる：小刻みに弾む */
@@ -512,13 +516,13 @@
   30%,
   52%,
   74% {
-    transform: scale(1.08, 0.9);
+    transform: scale(1.02, 0.98);
   }
   18%,
   40%,
   62%,
   84% {
-    transform: translateY(-4%) scale(0.97, 1.05);
+    transform: translateY(-4%);
   }
 }
 /* ぷるぷる：ゼリーのように揺れ、一瞬プリンのような台形に寄る */
@@ -527,29 +531,20 @@
   100% {
     transform: none;
   }
-  10% {
-    transform: scale(1.1, 0.9) skewX(6deg);
+  12% {
+    transform: rotate(-5deg);
   }
-  20% {
-    transform: scale(0.94, 1.08) skewX(-6deg);
-  }
-  30% {
-    transform: scale(1.06, 0.94) skewX(4deg);
+  26% {
+    transform: rotate(5deg);
   }
   40% {
-    transform: scale(0.97, 1.04) skewX(-3deg);
+    transform: rotate(-3deg);
   }
   55% {
-    transform: scale(0.86, 1.08);
-  }
-  62% {
-    transform: scale(0.86, 1.08) skewX(2deg);
+    transform: translateY(-4%) rotate(2deg);
   }
   75% {
-    transform: scale(1.04, 0.96) skewX(-2deg);
-  }
-  88% {
-    transform: scale(0.99, 1.01) skewX(1deg);
+    transform: rotate(-1deg);
   }
 }
 /* ふうふう：ゆっくり傾いて飲み、落ち着く */
@@ -558,18 +553,12 @@
   100% {
     transform: none;
   }
-  15% {
-    transform: scale(1.03, 0.97);
-  }
-  25% {
-    transform: scale(0.98, 1.02);
-  }
   45%,
   70% {
     transform: rotate(-7deg) translateX(-2%);
   }
   85% {
-    transform: scale(1.04, 0.95);
+    transform: rotate(1deg);
   }
 }
 /* うれしくて跳ねる・くるっと回る */
@@ -579,19 +568,19 @@
     transform: none;
   }
   12% {
-    transform: scale(1.1, 0.88);
+    transform: scale(1.02, 0.98);
   }
   26% {
-    transform: translateY(-22%) scale(0.94, 1.08);
+    transform: translateY(-22%);
   }
   40% {
-    transform: scale(1.08, 0.9);
+    transform: none;
   }
   54% {
     transform: translateY(-18%) scaleX(-1);
   }
   68% {
-    transform: scaleX(-1.06) scaleY(0.92);
+    transform: scaleX(-1);
   }
   80% {
     transform: translateY(-8%);
@@ -604,10 +593,10 @@
     transform: none;
   }
   25% {
-    transform: rotate(-5deg) scale(1.02, 0.98);
+    transform: rotate(-5deg);
   }
   50% {
-    transform: rotate(5deg) scale(1.03, 0.97);
+    transform: rotate(5deg);
   }
   75% {
     transform: rotate(-3deg);
@@ -619,13 +608,13 @@
     transform: none;
   }
   20% {
-    transform: scale(1.06, 0.92);
+    transform: scale(1.02, 0.98);
   }
   45% {
-    transform: translateY(-9%) scale(0.97, 1.04);
+    transform: translateY(-9%);
   }
   70% {
-    transform: scale(1.03, 0.97);
+    transform: none;
   }
 }
 @keyframes cheer {
@@ -634,10 +623,10 @@
     transform: none;
   }
   40% {
-    transform: translateY(-14%) rotate(-6deg) scale(0.96, 1.06);
+    transform: translateY(-14%) rotate(-6deg);
   }
   70% {
-    transform: scale(1.06, 0.94);
+    transform: scale(1.02, 0.98);
   }
 }
 
@@ -727,14 +716,11 @@
 @keyframes land {
   0% {
     opacity: 0;
-    transform: translateY(-40%) scale(0.9, 1.1);
+    transform: translateY(-40%);
   }
   55% {
     opacity: 1;
-    transform: translateY(0) scale(1.08, 0.88);
-  }
-  78% {
-    transform: scale(0.97, 1.03);
+    transform: translateY(0) scale(1.02, 0.98);
   }
   100% {
     transform: none;

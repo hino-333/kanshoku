@@ -505,7 +505,10 @@ function WriteQuestion({
               setStrokeCount(n);
               if (n === 0) setTon(null);
             }}
-            onStrokeEnd={(x, y) => setTon((v) => ({ x, y, n: (v?.n ?? 0) + 1 }))}
+            onStrokeEnd={(x, y) => {
+              setTon((v) => ({ x, y, n: (v?.n ?? 0) + 1 }));
+              sfx('chop');
+            }}
             corner={
               ton && (
                 <span key={ton.n} className="board__ton" style={{ left: ton.x, top: ton.y }} aria-hidden="true">

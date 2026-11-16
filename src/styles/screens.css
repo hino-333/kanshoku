@@ -2387,17 +2387,20 @@
   }
 }
 
-/* レシピ（ヒント）：まな板の上にのせた白い札 部品の色はタグと同じ */
+/* レシピ（ヒント）：まな板のふちに半分かけた白い札（書くところをふさがない） 少し薄くして線を見やすく
+   部品の色はタグと同じ */
 .recipe {
   position: absolute;
   z-index: 3;
   left: 50%;
-  top: 16px;
+  top: -18px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 12px;
   height: 40px;
+  opacity: 0.8;
+  box-shadow: var(--shadow-soft);
   padding: 0 12px;
   border-radius: 20px;
   background: var(--surface);
