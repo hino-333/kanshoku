@@ -8,19 +8,37 @@ import { Icon, type Glyph } from '../ui/parts';
    ・いちばん前に選んだ難しさのカード その後ろに次の難しさのカードが下から少しのぞく
    ・上にはらう／ホイールで下へ／「むずかしい」などを押す → 前のカードが持ち上がって 後ろのカードの裏へ回りこむ
    ・下にはらう → いちばん後ろのカードが裏から出てきて 前のカードの上に乗る
-   ・何もしていないと ときどき後ろのカードがコトコトと顔を出して 後ろにあることを知らせる
+   ・後ろのカードは2枚とも下からのぞかせて 3色の階段で「束」だとわかるようにする
+   ・まだ一度もめくったことがない人には 開いた直後に前のカードが1回だけ持ち上がって 後ろを見せる
    動きは位置と大きさだけ（傾けない 形をゆがめない）
    ============================================================ */
 
 export const LEVELS: Difficulty[] = ['easy', 'normal', 'hard'];
 
-/** カードの置き場所：0＝前 1＝後ろ（下から少しのぞく） 2＝そのさらに後ろ（かくれている） */
+/** カードの置き場所：0＝前 1＝後ろ（下から24pxのぞく） 2＝いちばん後ろ（そのさらに下から16pxのぞく） */
 const PEEK = 24;
+const PEEK2 = PEEK + 16;
 const POSE = [
   { y: 0, s: 1 },
   { y: PEEK, s: 0.87 },
-  { y: PEEK, s: 0.76 },
+  { y: PEEK2, s: 0.76 },
 ] as const;
+/** 一度でも自分でめくったら はじめの見本の動きはもう出さない（この端末だけの覚え書き） */
+const LEARNED_KEY = 'kanshoku:deckLearned';
+const learned = () => {
+  try {
+    return localStorage.getItem(LEARNED_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+const learn = () => {
+  try {
+    localStorage.setItem(LEARNED_KEY, '1');
+  } catch {
+    /* 保存できなくても動きに困ることはない */
+  }
+};
 const tf = (y: number, s: number) => `translateY(${y}px) scale(${s})`;
 const at = (slot: 0 | 1 | 2) => tf(POSE[slot].y, POSE[slot].s);
 /** 上の欄や背景に重なっているあいだのカードの濃さ（下の文字が透けて読める） */
@@ -107,7 +125,9 @@ export function DiffDeck({
    * dir=-1：前の難しさへ いちばん後ろのカードが裏から上へ出てきて 前のカードの上へ乗る
    * 消したりうすくしたりせず 重なりの前後が入れかわるところをそのまま見せる
    */
-  const go = (dir: 1 | -1) => {
+  const go = (dir: 1 | -1, byHand = true) => {
+    // タブではなく カードの束を自分で動かしてめくれたら もう見本はいらない
+    if (byHand) learn();
     const i = LEVELS.indexOf(diffRef.current);
     const next = LEVELS[(i + dir + 3) % 3];
     const [a, b, c] = bySlot();
@@ -156,7 +176,7 @@ export function DiffDeck({
             { transform: tf(-lift, 0.93), zIndex: 0, offset: 0.42, easing: 'cubic-bezier(.55,0,.35,1)' },
             // 裏に収まるころに 元の濃さへ
             { opacity: SEE, offset: 0.7 },
-            { transform: tf(PEEK + 16, POSE[2].s), opacity: 1, zIndex: 0, offset: 0.84, easing: 'ease-out' },
+            { transform: tf(PEEK2 + 10, POSE[2].s), opacity: 1, zIndex: 0, offset: 0.84, easing: 'ease-out' },
             { transform: at(2), opacity: 1, zIndex: 0 },
           ],
           { duration: 600, fill: 'both' },
@@ -215,7 +235,7 @@ export function DiffDeck({
     const cur = diffRef.current;
     if (d === cur) return;
     const i = LEVELS.indexOf(cur);
-    go(LEVELS[(i + 1) % 3] === d ? 1 : -1);
+    go(LEVELS[(i + 1) % 3] === d ? 1 : -1, false);
   };
 
   // ---------------------------------------------------------- 指ではらう
@@ -333,43 +353,45 @@ export function DiffDeck({
     };
   }, []);
 
-  // ---------------------------------------------------------- 後ろにカードがあることを ときどき知らせる
+  // ---------------------------------------------------------- はじめの見本：前のカードが1回だけ持ち上がって 後ろを見せる
   useEffect(() => {
-    let timer = 0;
-    const nudge = () => {
-      timer = window.setTimeout(nudge, 4200 + Math.random() * 2600);
+    if (learned()) return;
+    const timer = window.setTimeout(() => {
       if (running.current || drag.current || document.hidden || motionReduced()) return;
-      const [a, b] = bySlot();
-      if (!a || !b) return;
-      const y = POSE[1].y;
-      const s = POSE[1].s;
-      // 後ろのカードが コトッ コトッと2回 下から顔を出す
-      b.animate(
-        [
-          { transform: tf(y, s) },
-          { transform: tf(y + 14, s), offset: 0.18 },
-          { transform: tf(y + 2, s), offset: 0.36 },
-          { transform: tf(y + 9, s), offset: 0.52 },
-          { transform: tf(y, s), offset: 0.7 },
-          { transform: tf(y, s) },
-        ],
-        { duration: 1100, easing: 'cubic-bezier(.45,0,.4,1)' },
-      );
-      // 前のカードは 押し上げられて ほんの少しだけ浮く
+      const [a, b, c] = bySlot();
+      if (!a || !b || !c) return;
+      const lift = Math.round(Math.min(a.offsetHeight * 0.18, 88));
+      const o = { duration: 1400, easing: 'cubic-bezier(.45,0,.35,1)' };
+      // 指ではらったときと同じ向き・同じ透け方で 持ち上がって ストンと戻る
       a.animate(
         [
-          { transform: tf(0, 1) },
-          { transform: tf(-4, 1), offset: 0.18 },
-          { transform: tf(0, 1), offset: 0.36 },
-          { transform: tf(-2, 1), offset: 0.52 },
-          { transform: tf(0, 1), offset: 0.7 },
-          { transform: tf(0, 1) },
+          { transform: at(0), opacity: 1 },
+          { transform: tf(-lift, 0.98), opacity: SEE, offset: 0.32 },
+          { transform: tf(-lift, 0.98), opacity: SEE, offset: 0.56 },
+          { transform: tf(3, 1), opacity: 1, offset: 0.84 },
+          { transform: at(0), opacity: 1 },
         ],
-        { duration: 1100, easing: 'cubic-bezier(.45,0,.4,1)' },
+        o,
       );
-    };
-    // 開いてすぐに1回 そのあとは数秒おき
-    timer = window.setTimeout(nudge, 1200);
+      // 後ろの2枚は 前のカードについていくように少しだけせり上がる
+      for (const [el, slot, k] of [
+        [b, 1, 0.45],
+        [c, 2, 0.25],
+      ] as const) {
+        const p = POSE[slot];
+        const up = tf(p.y * (1 - k), p.s + (POSE[slot - 1].s - p.s) * k);
+        el.animate(
+          [
+            { transform: at(slot) },
+            { transform: up, offset: 0.32 },
+            { transform: up, offset: 0.56 },
+            { transform: at(slot), offset: 0.84 },
+            { transform: at(slot) },
+          ],
+          o,
+        );
+      }
+    }, 900);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -397,12 +419,18 @@ export function DiffDeck({
         <p className="deck__desc">{descOf(diff)}</p>
       </div>
 
-      {/* 下にのぞいている次のカードを押しても 前へ出てくる */}
+      {/* 下にのぞいているカードを押しても 前へ出てくる（すぐ後ろ＝次 いちばん下＝前の難しさ） */}
       <button
         type="button"
         className="deck__peek"
         aria-label={`${labelOf(LEVELS[(LEVELS.indexOf(diff) + 1) % 3])}のカードを前へ`}
         onClick={() => go(1)}
+      />
+      <button
+        type="button"
+        className="deck__peek deck__peek--far"
+        aria-label={`${labelOf(LEVELS[(LEVELS.indexOf(diff) + 2) % 3])}のカードを前へ`}
+        onClick={() => go(-1)}
       />
       {LEVELS.map((d) => {
         const slot = slotOf(d);

@@ -1036,14 +1036,14 @@
   color: var(--ink-strong);
 }
 /* ------------------------------------------------ 難しさのカードの束
-   前のカードの後ろに 次の難しさのカードが下から24pxのぞく
+   前のカードの後ろに 次の難しさのカードが下から24px そのさらに後ろのカードが16pxのぞく
    置き場所（data-slot）ごとの位置は transform だけで表し 動きは PlayDeck.tsx が受けもつ */
 .deck {
   /* あいている高さいっぱいに広がる（Figmaは484px） */
   position: relative;
   flex: 1 1 0;
-  min-height: 404px;
-  max-height: 508px;
+  min-height: 420px;
+  max-height: 524px;
   touch-action: pan-x;
   user-select: none;
   -webkit-user-select: none;
@@ -1053,7 +1053,7 @@
 }
 .deck__card {
   position: absolute;
-  inset: 0 0 24px;
+  inset: 0 0 40px;
   border-radius: 36px;
   overflow: hidden;
   box-shadow: var(--shadow-soft);
@@ -1081,7 +1081,7 @@
 }
 .deck__card[data-slot='2'] {
   z-index: 1;
-  transform: translateY(24px) scale(0.76);
+  transform: translateY(40px) scale(0.76);
 }
 /* 下にのぞく次のカードの押せる場所（前のカードの下の余白まで少し広げて押しやすく） */
 .deck__peek {
@@ -1089,7 +1089,7 @@
   z-index: 4;
   left: 6.5%;
   right: 6.5%;
-  bottom: 0;
+  bottom: 16px;
   height: 40px;
   padding: 0;
   border: 0;
@@ -1097,6 +1097,12 @@
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+.deck__peek--far {
+  left: 12%;
+  right: 12%;
+  bottom: 0;
+  height: 16px;
 }
 /* 後ろのカードは色だけ見せる（中身は前に来たときに浮かぶ） */
 .deck__content,
