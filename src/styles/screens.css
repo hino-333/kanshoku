@@ -927,7 +927,7 @@
 /* おさそいカード：おやつを食べる子が左から少しはみ出す */
 .pocket-invite {
   min-height: 76px;
-  padding: 16px 48px 16px 68px;
+  padding: 16px 48px 16px 88px;
   border-radius: 8px;
   box-shadow: var(--shadow-soft);
 }
