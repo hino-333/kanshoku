@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Difficulty } from '../config/game.config';
+import { GAME, type Difficulty } from '../config/game.config';
 import { WORD_BY_ID } from '../data/words';
 import { buildRound, recommend } from '../game/questions';
 import { navigate, useRoute } from '../lib/router';
@@ -7,6 +7,7 @@ import { dispatch, store, useGame } from '../store/store';
 import type { GameKind } from '../store/types';
 import { mochi, useSlide } from '../ui/slide';
 import { Dialog, Header, Icon } from '../ui/parts';
+import { DiffDeck } from './PlayDeck';
 
 export const GAME_INFO: Record<GameKind, { name: string; verb: string; desc: string; icon: 'gameWrite' | 'gameMatch' }> = {
   // 名前だけで何をする遊びかわかるように（キャッチーさより一瞬でわかること）
@@ -17,7 +18,7 @@ export const GAME_INFO: Record<GameKind, { name: string; verb: string; desc: str
 export const DIFF_INFO: Record<Difficulty, { label: string; desc: string }> = {
   easy: { label: 'やさしい', desc: 'ヒント多め・似た選択肢は出ない' },
   normal: { label: 'ふつう', desc: 'ほどよいヒント・似た選択肢が少し出る' },
-  hard: { label: 'むずかしい', desc: 'ヒント少なめ・似た選択肢が多め・珍しいごはんが出やすい' },
+  hard: { label: 'むずかしい', desc: 'ヒント少なめ・似た選択肢多め・珍しいごはんが出る' },
 };
 
 export function PlayScreen() {
@@ -32,9 +33,13 @@ export function PlayScreen() {
   const [game, setGame] = useState<GameKind>(initialGame);
   const [diff, setDiff] = useState<Difficulty>(state.play.lastDifficulty);
   const gameSlide = useSlide(game, 'ring');
-  const diffSlide = useSlide(diff, 'fill', diff);
   const [confirm, setConfirm] = useState(false);
   const info = GAME_INFO[game];
+  // 保存済み（あつめた漢字）から何問出るか
+  const saved = Math.min(
+    GAME.questionsPerRound,
+    Object.values(state.pocket).filter((e) => (game === 'write' ? e.tags.includes('write') : e.tags.includes('read') || e.tags.includes('meaning'))).length,
+  );
 
   const start = () => {
     const s = store.getState();
@@ -49,20 +54,19 @@ export function PlayScreen() {
       <Header title="あそぶ" />
       <div className="screen__body stack">
         {active && (
-          <section className="resume-card card card--pad stack stack--s rise-in" aria-labelledby="resume-title">
-            <p className="eyebrow">つづきから</p>
-            <h2 className="h2" id="resume-title">
-              {GAME_INFO[active.game].name}・{active.answers.filter(Boolean).length + 1}/{active.questions.length}問目
-            </h2>
-            <p className="caption">途中までの回答は保存されています</p>
-            <div className="row">
-              <button type="button" className="btn btn--primary grow" onClick={() => navigate('/play/round')}>
-                つづける
-              </button>
-              <button type="button" className="btn btn--sm" onClick={() => dispatch({ type: 'abandonRound', roundId: active.id })}>
-                やめる
-              </button>
+          <section className="resume-card card rise-in" aria-labelledby="resume-title">
+            <div className="grow resume-card__text">
+              <p className="eyebrow">つづきから</p>
+              <h2 className="h3" id="resume-title">
+                {GAME_INFO[active.game].name}・{active.answers.filter(Boolean).length + 1}/{active.questions.length}問目
+              </h2>
             </div>
+            <button type="button" className="btn btn--primary btn--sm" onClick={() => navigate('/play/round')} {...mochi}>
+              つづける
+            </button>
+            <button type="button" className="icon-btn resume-card__close" aria-label="途中のラウンドをやめる" onClick={() => dispatch({ type: 'abandonRound', roundId: active.id })} {...mochi}>
+              <Icon name="close" />
+            </button>
           </section>
         )}
 
@@ -96,44 +100,15 @@ export function PlayScreen() {
           </div>
         )}
 
-        <section className={`recipe-hero card recipe-hero--${diff}`} aria-labelledby="hero-title">
-          {/* 難しさはカードのいちばん上で選ぶ（選ぶとカードの色も同じ濃さに変わる） */}
-          <div className="recipe-hero__level">
-            <div className="seg seg--level" role="radiogroup" aria-label="難しさ" ref={diffSlide.ref} {...diffSlide.groupProps}>
-              {diffSlide.indicator}
-              {(['easy', 'normal', 'hard'] as Difficulty[]).map((d) => (
-                <button key={d} type="button" role="radio" aria-checked={diff === d} className={`seg__item seg__item--${d}`} data-slide-key={d} onClick={() => setDiff(d)} {...mochi}>
-                  {DIFF_INFO[d].label}
-                </button>
-              ))}
-            </div>
-            <p className="caption seg__desc">{DIFF_INFO[diff].desc}</p>
-          </div>
-          <p className="eyebrow">{focusWord ? 'このことばで' : game === rec.game ? 'おすすめ' : 'えらんだ遊び'}</p>
-          <div className="recipe-hero__main">
-            <Icon name={info.icon} className="recipe-hero__icon" />
-            <div className="grow">
-              <h2 className="h1" id="hero-title">
-                {info.name}
-              </h2>
-              <p className="caption">{info.desc}</p>
-            </div>
-          </div>
-          <ul className="recipe-hero__facts">
-            <li>3問</li>
-            <li>時間制限なし</li>
-            <li>おわるとごはん</li>
-          </ul>
-          {!focusWord && game === rec.game && (
-            <p className="recipe-hero__reason">
-              <Icon name="pocket" className="recipe-hero__reason-icon" />
-              {rec.reason}
-            </p>
-          )}
-          <button type="button" className="btn btn--primary btn--lg btn--block" onClick={() => (active ? setConfirm(true) : start())}>
-            はじめる
-          </button>
-        </section>
+        <DiffDeck
+          diff={diff}
+          onChange={setDiff}
+          labelOf={(d) => DIFF_INFO[d].label}
+          descOf={(d) => DIFF_INFO[d].desc}
+          card={info}
+          facts={['3問', '時間制限なし', saved > 0 ? `保存済みから${saved}問出題` : 'おわるとごはん']}
+          onStart={() => (active ? setConfirm(true) : start())}
+        />
 
 
       </div>

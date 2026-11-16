@@ -152,6 +152,10 @@ export const ASSETS = {
     ojisan: { src: A + 'people/ojisan.webp', aspect: 213 / 247, alt: '' },
     /** おさそいカードでおにぎりを食べるハムスター */
     hamster: { src: A + 'people/hamster-onigiri.webp', aspect: 215 / 216, alt: '' },
+    /** あそぶ画面の難しさのカードに座るフクロウ（やさしい ふつう むずかしい の順） */
+    owlEasy: { src: A + 'people/owl.webp', aspect: 237 / 239, alt: '' },
+    owlNormal: { src: A + 'people/owl-onigiri.webp', aspect: 234 / 251, alt: '' },
+    owlHard: { src: A + 'people/owl-sleepy.webp', aspect: 276 / 220, alt: '' },
     /** （前の絵）見出しの帯から顔を出すおじさん */
     salaryman: { src: A + 'people/salaryman.png', aspect: 240 / 248, alt: '' },
     salarymanHand: { src: A + 'people/salaryman-hand.png', aspect: 1, alt: '' },

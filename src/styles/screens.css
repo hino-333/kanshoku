@@ -980,14 +980,22 @@
 }
 
 /* ============================================================ あそぶ */
+/* 途中のラウンドは1行にまとめて 難しさのカードの場所をあける */
 .resume-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 16px;
   background: var(--sun-tint);
   box-shadow: none;
 }
 .resume-card .eyebrow,
-.resume-card .h2,
-.resume-card .caption {
+.resume-card .h3 {
   margin: 0;
+}
+.resume-card__close {
+  background: transparent;
+  box-shadow: none;
 }
 .focus-banner {
   display: flex;
@@ -997,99 +1005,6 @@
 }
 .focus-banner__word {
   font-size: 28px;
-}
-.recipe-hero {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-radius: var(--r-m);
-  box-shadow: none;
-  overflow: hidden;
-  transition: background-color var(--t-mid);
-}
-/* カードの色も 選んだ難しさと同じ3段階で濃くなる
-   いちばん薄い青の上は濃い青の文字 それより濃い青の上はクリーム色の文字 */
-.recipe-hero--easy {
-  --hero-ink: var(--primary-deep);
-  background: var(--level-easy);
-}
-.recipe-hero--normal {
-  --hero-ink: var(--primary-ink);
-  background: var(--level-normal);
-}
-.recipe-hero--hard {
-  --hero-ink: var(--primary-ink);
-  background: var(--level-hard);
-}
-.recipe-hero .eyebrow,
-.recipe-hero .caption,
-.recipe-hero .h1 {
-  color: var(--hero-ink);
-}
-.recipe-hero > * {
-  position: relative;
-  z-index: 1;
-}
-.recipe-hero .eyebrow {
-  margin: 0;
-}
-.recipe-hero .btn--primary {
-  --btn-bg: var(--surface);
-  --btn-ink: var(--ink-strong);
-}
-.recipe-hero__main {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.recipe-hero__icon {
-  width: 72px;
-  height: 72px;
-  flex: none;
-  padding: 20px;
-  border-radius: var(--r-m);
-  background: var(--surface);
-  color: var(--ink-strong);
-}
-.recipe-hero__main .caption {
-  margin-top: 4px;
-}
-/* おすすめの理由：あつめた漢字のアイコンつきで はっきり見せる */
-.recipe-hero__reason {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 12px 16px;
-  border-radius: var(--r-s);
-  background: var(--surface);
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--ink-strong);
-}
-.recipe-hero__reason-icon {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  color: var(--primary);
-}
-.recipe-hero__facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.recipe-hero__facts li {
-  padding: 4px 12px;
-  border-radius: var(--r-s);
-  background: var(--surface);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-  color: var(--ink-strong);
 }
 .play-options__body {
   padding: 0 16px 16px;
@@ -1120,23 +1035,185 @@
   font-weight: 700;
   color: var(--ink-strong);
 }
-/* カードの上の難しさ：中央にそろえ 白い台の上で選ぶ */
-.recipe-hero__level {
+/* ------------------------------------------------ 難しさのカードの束
+   前のカードの後ろに 次の難しさのカードが下から24pxのぞく
+   置き場所（data-slot）ごとの位置は transform だけで表し 動きは PlayDeck.tsx が受けもつ */
+.deck {
+  /* あいている高さいっぱいに広がる（Figmaは484px） */
+  position: relative;
+  flex: 1 1 0;
+  min-height: 404px;
+  max-height: 508px;
+  touch-action: pan-x;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.deck.is-dragging {
+  cursor: grabbing;
+}
+.deck__card {
+  position: absolute;
+  inset: 0 0 24px;
+  border-radius: 36px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  transform-origin: 50% 100%;
+  will-change: transform;
+  --deck-ink: var(--primary-ink);
+}
+.deck__card--easy {
+  --deck-ink: var(--primary-deep);
+  background: var(--level-easy);
+}
+.deck__card--normal {
+  background: var(--level-normal);
+}
+.deck__card--hard {
+  background: var(--level-hard);
+}
+.deck__card[data-slot='0'] {
+  z-index: 3;
+  transform: translateY(0) scale(1);
+}
+.deck__card[data-slot='1'] {
+  z-index: 2;
+  transform: translateY(24px) scale(0.87);
+}
+.deck__card[data-slot='2'] {
+  z-index: 1;
+  transform: translateY(24px) scale(0.76);
+}
+/* 後ろのカードは色だけ見せる（中身は前に来たときに浮かぶ） */
+.deck__content,
+.deck__start {
+  transition: opacity 200ms ease 160ms;
+}
+.deck__card:not([data-slot='0']) .deck__content,
+.deck__card:not([data-slot='0']) .deck__start,
+.deck__card:not([data-slot='0']) .deck__owl {
+  opacity: 0;
+  transition-delay: 0ms;
+  transition-duration: 120ms;
+}
+.deck__owl {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 200ms ease 80ms;
+}
+.deck__owl--normal {
+  width: 296px;
+  right: -76px;
+  bottom: -20px;
+}
+.deck__owl--easy {
+  width: 276px;
+  right: -48px;
+  bottom: -28px;
+}
+.deck__owl--hard {
+  width: 316px;
+  right: -56px;
+  bottom: -12px;
+}
+.deck__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 104px 20px 0;
+}
+.deck__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.deck__facts li {
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: rgb(255 255 255 / 0.75);
+  box-shadow: var(--shadow-soft);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-strong);
+}
+.deck__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--deck-ink);
+}
+.deck__icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+}
+.deck__title {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 36px;
+  white-space: nowrap;
+}
+.deck__sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 20px;
+}
+.deck__start {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 16px;
+  height: 60px;
+  border: 0;
+  border-radius: 30px;
+  background: rgb(255 255 255 / 0.9);
+  box-shadow: var(--shadow-soft);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+/* 難しさの切りかえはカードの上に固定（カードと一緒には動かない） */
+.deck__level {
+  position: absolute;
+  z-index: 8;
+  top: 16px;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  text-align: center;
+  pointer-events: none;
+}
+.deck__level .seg {
+  pointer-events: auto;
 }
 .seg--level {
-  width: min(100%, 296px);
+  width: min(calc(100% - 40px), 304px);
   background: var(--surface);
+}
+.seg--level .seg__item {
+  min-height: 40px;
 }
 .seg--level .seg__item:not([aria-checked='true']) {
   color: var(--ink-strong);
 }
-.seg__desc {
+.deck__desc {
   margin: 0;
+  padding: 0 20px;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  color: var(--primary-ink);
+  transition: color var(--t-mid);
+}
+.deck--easy .deck__desc {
+  color: var(--primary-deep);
 }
 
 /* ============================================================ ラウンド */
