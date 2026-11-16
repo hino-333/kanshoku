@@ -63,7 +63,8 @@ export function DiffDeck({
 }) {
   const deckRef = useRef<HTMLDivElement>(null);
   const cards = useRef<Partial<Record<Difficulty, HTMLElement | null>>>({});
-  const busy = useRef(false);
+  /** 動いている入れかわりの後片づけ（途中で次の操作が来たら すぐ呼んで乗りかえる） */
+  const running = useRef<(() => void) | null>(null);
   const drag = useRef<{ id: number; y0: number; x0: number; t0: number; dy: number; on: boolean } | null>(null);
   const dragged = useRef(false);
   const diffRef = useRef(diff);
@@ -77,12 +78,25 @@ export function DiffDeck({
   };
 
   /**
+   * いま動いている途中の位置で3枚を止める
+   * 入れかわりの途中・コトコト・ばねで戻る途中でも 次の操作をすぐ受けて そこから続けて動かすため
+   */
+  const freeze = () => {
+    const els = bySlot().filter(Boolean);
+    const pos = els.map((el) => getComputedStyle(el).transform);
+    running.current?.();
+    for (const el of els) {
+      for (const x of el.getAnimations({ subtree: true })) x.cancel();
+    }
+    els.forEach((el, k) => (el.style.transform = pos[k]));
+  };
+
+  /**
    * dir=1：次の難しさへ  前のカードが上へ持ち上がり 後ろのカードの「裏」へ回って下りていく
    * dir=-1：前の難しさへ いちばん後ろのカードが裏から上へ出てきて 前のカードの上へ乗る
    * 消したりうすくしたりせず 重なりの前後が入れかわるところをそのまま見せる
    */
   const go = (dir: 1 | -1) => {
-    if (busy.current) return;
     const i = LEVELS.indexOf(diffRef.current);
     const next = LEVELS[(i + dir + 3) % 3];
     const [a, b, c] = bySlot();
@@ -91,11 +105,11 @@ export function DiffDeck({
       onChange(next);
       return;
     }
-    busy.current = true;
-    // 指で動かしていた位置から そのまま続けて動かす
-    const now = (el: HTMLElement) => getComputedStyle(el).transform;
-    const fa = now(a);
-    const fb = now(b);
+    // 指で動かしていた位置や 前の入れかわりの途中から そのまま続けて動かす
+    freeze();
+    const fa = a.style.transform || at(0);
+    const fb = b.style.transform || at(1);
+    const fc = c.style.transform || at(2);
     for (const el of [a, b, c]) el.style.transform = '';
     // 持ち上げる高さ：カードの4割（上の欄にかぶっても 画面の外に切れないようにする）
     const lift = Math.round(Math.min(a.offsetHeight * 0.42, 220));
@@ -131,7 +145,7 @@ export function DiffDeck({
       // 後ろのカード：持ち上がったすきに ばねで前へ出てくる
       anims.push(b.animate([{ transform: fb }, { transform: at(0) }], { duration: 560, delay: 60, easing: spring(0.5), fill: 'both' }));
       // かくれていたカード：前のカードが裏へ回りこんだあと 下からのぞく位置へ
-      anims.push(c.animate([{ transform: at(2) }, { transform: at(1) }], { duration: 460, delay: 260, easing: spring(0.45), fill: 'both' }));
+      anims.push(c.animate([{ transform: fc }, { transform: at(1) }], { duration: 460, delay: 260, easing: spring(0.45), fill: 'both' }));
       const o = owl(b, 120);
       if (o) anims.push(o);
     } else {
@@ -139,7 +153,7 @@ export function DiffDeck({
       anims.push(
         c.animate(
           [
-            { transform: at(2), zIndex: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
+            { transform: fc, zIndex: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
             { transform: tf(-lift, 0.94), zIndex: 0, offset: 0.42 },
             { transform: tf(-lift, 0.94), zIndex: 6, offset: 0.44, easing: spring(0.55) },
             // 着地するころに 難しさの切りかえ（5）の下へもぐる
@@ -155,34 +169,36 @@ export function DiffDeck({
       if (o) anims.push(o);
     }
     // 動きを先に置いてから入れかえるので ちらつかない
+    diffRef.current = next;
     onChange(next);
     let done = false;
     const end = () => {
       if (done) return;
       done = true;
+      if (running.current === end) running.current = null;
       for (const x of anims) x.cancel();
       for (const el of shown) el.classList.remove('is-shown');
       body?.classList.remove('is-deck-swapping');
-      busy.current = false;
     };
+    running.current = end;
     Promise.all(anims.map((x) => x.finished.catch(() => undefined))).then(end);
-    // 画面が裏に回って動きが止まっても 操作できなくならないように
-    window.setTimeout(end, 1200);
   };
   const goRef = useRef(go);
   goRef.current = go;
 
   const pick = (d: Difficulty) => {
-    if (d === diff) return;
-    const i = LEVELS.indexOf(diff);
+    // 入れかわりの途中で押されても いま前に来ようとしているカードから数える
+    const cur = diffRef.current;
+    if (d === cur) return;
+    const i = LEVELS.indexOf(cur);
     go(LEVELS[(i + 1) % 3] === d ? 1 : -1);
   };
 
   // ---------------------------------------------------------- 指ではらう
   const onDown = (e: RPointerEvent<HTMLDivElement>) => {
-    if (busy.current || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    drag.current = { id: e.pointerId, y0: e.clientY, x0: e.clientX, t0: performance.now(), dy: 0, on: false };
     dragged.current = false;
+    if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    drag.current = { id: e.pointerId, y0: e.clientY, x0: e.clientX, t0: performance.now(), dy: 0, on: false };
   };
   const follow = (dy: number) => {
     const [a, b] = bySlot();
@@ -214,6 +230,8 @@ export function DiffDeck({
         /* 指がもう離れていたら つかまえなくてよい */
       }
       deckRef.current?.classList.add('is-dragging');
+      // 動いている途中でも つかんだ瞬間に指の下へ（コトコトの動きに負けないように止める）
+      freeze();
     }
     g.dy = dy;
     follow(dy);
@@ -227,14 +245,15 @@ export function DiffDeck({
     if (g.dy < -SWIPE || (g.dy < -24 && v < -0.5)) return go(1);
     if (g.dy > SWIPE * 0.8 || (g.dy > 24 && v > 0.5)) return go(-1);
     // 届かなかったら ばねで元の場所へ
-    const [a, b] = bySlot();
+    const [a, b, c] = bySlot();
     for (const [el, slot] of [
       [a, 0],
       [b, 1],
+      [c, 2],
     ] as const) {
       const from = getComputedStyle(el).transform;
       el.style.transform = '';
-      el.animate([{ transform: from }, { transform: at(slot) }], { duration: 640, easing: spring(0.45) });
+      el.animate([{ transform: from }, { transform: at(slot) }], { duration: 480, easing: spring(0.5) });
     }
   };
   // はらったあとの指の離しで ボタンが押されないようにする
@@ -257,18 +276,19 @@ export function DiffDeck({
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
       e.preventDefault();
       const t = performance.now();
-      if (t < lock || busy.current) {
-        // 慣性でつづくホイールは ひと区切りつくまで受け流す
-        lock = Math.max(lock, t + 160);
+      if (t < lock) {
+        // 1回のスクロール（慣性でつづく分も）で 1枚だけめくる 手をとめたら次をすぐ受ける
+        lock = Math.max(lock, t + 120);
         return;
       }
       clearTimeout(quiet);
-      quiet = window.setTimeout(() => (acc = 0), 180);
+      quiet = window.setTimeout(() => (acc = 0), 260);
       acc += e.deltaY;
-      if (Math.abs(acc) > 40) {
+      // 小さなスクロールでも 1回目からめくれるように 少しの量で反応する
+      if (Math.abs(acc) >= 16) {
         goRef.current(acc > 0 ? 1 : -1);
         acc = 0;
-        lock = t + 380;
+        lock = t + 220;
       }
     };
     el.addEventListener('wheel', onWheel, { passive: false });
@@ -283,7 +303,7 @@ export function DiffDeck({
     let timer = 0;
     const nudge = () => {
       timer = window.setTimeout(nudge, 4200 + Math.random() * 2600);
-      if (busy.current || drag.current || document.hidden || motionReduced()) return;
+      if (running.current || drag.current || document.hidden || motionReduced()) return;
       const [a, b] = bySlot();
       if (!a || !b) return;
       const y = POSE[1].y;
