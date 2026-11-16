@@ -7,8 +7,8 @@ import { Icon, type Glyph } from '../ui/parts';
 /* ============================================================
    難しさのカードの束（マッチングアプリで相手をめくる感じ）
    ・いちばん前に選んだ難しさのカード その後ろに次の難しさのカードが下から少しのぞく
-   ・上にはらう／ホイールで下へ／「むずかしい」などを押す → 前のカードが上へ飛んで 後ろのカードがばねで前へ出る
-   ・下にはらう → 前の難しさのカードが上から落ちてきて いまのカードは後ろへ下がる
+   ・上にはらう／ホイールで下へ／「むずかしい」などを押す → 前のカードが持ち上がって 後ろのカードの裏へ回りこむ
+   ・下にはらう → いちばん後ろのカードが裏から出てきて 前のカードの上に乗る
    ・何もしていないと ときどき後ろのカードがコトコトと顔を出して 後ろにあることを知らせる
    動きは位置と大きさだけ（傾けない 形をゆがめない）
    ============================================================ */
@@ -24,8 +24,6 @@ const POSE = [
 ] as const;
 const tf = (y: number, s: number) => `translateY(${y}px) scale(${s})`;
 const at = (slot: 0 | 1 | 2) => tf(POSE[slot].y, POSE[slot].s);
-/** 前のカードが飛んでいく高さ */
-const FLY = 132;
 /** これだけはらえば入れ替わる */
 const SWIPE = 72;
 
@@ -78,7 +76,11 @@ export function DiffDeck({
     return [0, 1, 2].map((k) => cards.current[LEVELS[(i + k) % 3]]!) as [HTMLElement, HTMLElement, HTMLElement];
   };
 
-  /** dir=1：次の難しさへ（前のカードは上へ飛ぶ） dir=-1：前の難しさへ（上から落ちてくる） */
+  /**
+   * dir=1：次の難しさへ  前のカードが上へ持ち上がり 後ろのカードの「裏」へ回って下りていく
+   * dir=-1：前の難しさへ いちばん後ろのカードが裏から上へ出てきて 前のカードの上へ乗る
+   * 消したりうすくしたりせず 重なりの前後が入れかわるところをそのまま見せる
+   */
   const go = (dir: 1 | -1) => {
     if (busy.current) return;
     const i = LEVELS.indexOf(diffRef.current);
@@ -95,59 +97,77 @@ export function DiffDeck({
     const fa = now(a);
     const fb = now(b);
     for (const el of [a, b, c]) el.style.transform = '';
+    // 持ち上げる高さ：カードの4割（上の欄にかぶっても 画面の外に切れないようにする）
+    const lift = Math.round(Math.min(a.offsetHeight * 0.42, 220));
+    const body = deckRef.current?.closest<HTMLElement>('.screen__body');
+    const free = body && body.scrollTop === 0;
+    if (free) body.classList.add('is-deck-swapping');
+    // 動いているあいだは 入れかわる2枚の中身を見せたままにする
+    const shown = dir === 1 ? [a, b] : [c, a];
+    for (const el of shown) el.classList.add('is-shown');
     const anims: Animation[] = [];
     const owl = (el: HTMLElement, delay: number) =>
-      el.querySelector('.deck__owl')?.animate(
-        [
-          { transform: 'translateY(40px)', opacity: 0 },
-          { transform: 'translateY(0)', opacity: 1 },
-        ],
-        { duration: 720, delay, easing: spring(0.42), fill: 'backwards' },
-      );
+      el.querySelector('.deck__owl')?.animate([{ transform: 'translateY(48px)' }, { transform: 'translateY(0)' }], {
+        duration: 760,
+        delay,
+        easing: spring(0.42),
+        fill: 'backwards',
+      });
 
     if (dir === 1) {
-      // 前のカード：上へ飛んで消え そのまま束のいちばん後ろへ
+      // 前のカード：上へ持ち上がる → 後ろのカードの裏へまわる → 下りて束のいちばん後ろへ
       anims.push(
         a.animate(
           [
-            { transform: fa, opacity: 1, zIndex: 6 },
-            { transform: tf(-FLY, 0.92), opacity: 0, zIndex: 6 },
+            { transform: fa, zIndex: 6, easing: 'cubic-bezier(.2,.75,.3,1)' },
+            { transform: tf(-lift, 0.94), zIndex: 6, offset: 0.4 },
+            { transform: tf(-lift, 0.93), zIndex: 0, offset: 0.42, easing: 'cubic-bezier(.55,0,.35,1)' },
+            { transform: tf(PEEK + 16, POSE[2].s), zIndex: 0, offset: 0.84, easing: 'ease-out' },
+            { transform: at(2), zIndex: 0 },
           ],
-          { duration: 300, easing: 'cubic-bezier(.4,0,.9,.6)', fill: 'forwards' },
+          { duration: 900, fill: 'both' },
         ),
       );
-      // 後ろのカード：ばねで前へ出てくる
-      anims.push(b.animate([{ transform: fb }, { transform: at(0) }], { duration: 760, easing: spring(0.5), fill: 'backwards' }));
-      // かくれていたカード：後ろから すとんと下りてきて のぞく
-      anims.push(
-        c.animate([{ transform: tf(PEEK - 28, POSE[1].s) }, { transform: at(1) }], { duration: 820, delay: 140, easing: spring(0.36), fill: 'backwards' }),
-      );
-      const o = owl(b, 90);
+      // 後ろのカード：持ち上がったすきに ばねで前へ出てくる
+      anims.push(b.animate([{ transform: fb }, { transform: at(0) }], { duration: 820, delay: 120, easing: spring(0.5), fill: 'both' }));
+      // かくれていたカード：前のカードが裏へ回りこんだあと 下からのぞく位置へ
+      anims.push(c.animate([{ transform: at(2) }, { transform: at(1) }], { duration: 640, delay: 420, easing: spring(0.45), fill: 'both' }));
+      const o = owl(b, 200);
       if (o) anims.push(o);
     } else {
-      // かくれていたカード：上から落ちてきて前に乗る
+      // いちばん後ろのカード：前のカードの裏から上へ出てくる → 前へまわって上から乗る
       anims.push(
         c.animate(
           [
-            { transform: tf(-FLY, 0.94), opacity: 0, zIndex: 6 },
-            { opacity: 1, offset: 0.25 },
-            { transform: at(0), opacity: 1, zIndex: 6 },
+            { transform: at(2), zIndex: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
+            { transform: tf(-lift, 0.94), zIndex: 0, offset: 0.42 },
+            { transform: tf(-lift, 0.94), zIndex: 6, offset: 0.44, easing: spring(0.55) },
+            // 着地するころに 難しさの切りかえ（5）の下へもぐる
+            { transform: at(0), zIndex: 4 },
           ],
-          { duration: 760, easing: spring(0.55), fill: 'backwards' },
+          { duration: 1100, fill: 'both' },
         ),
       );
-      // 前のカード：押されて後ろへ下がる
-      anims.push(a.animate([{ transform: fa }, { transform: at(1) }], { duration: 760, delay: 60, easing: spring(0.48), fill: 'backwards' }));
-      anims.push(b.animate([{ transform: fb }, { transform: at(2) }], { duration: 360, easing: 'ease-out', fill: 'backwards' }));
-      const o = owl(c, 120);
+      // 前のカード：上から乗られて 後ろへ押し下げられる
+      anims.push(a.animate([{ transform: fa }, { transform: at(1) }], { duration: 700, delay: 480, easing: spring(0.5), fill: 'both' }));
+      anims.push(b.animate([{ transform: fb }, { transform: at(2) }], { duration: 420, delay: 440, easing: 'ease-out', fill: 'both' }));
+      const o = owl(c, 520);
       if (o) anims.push(o);
     }
     // 動きを先に置いてから入れかえるので ちらつかない
     onChange(next);
-    Promise.all(anims.map((x) => x.finished.catch(() => undefined))).then(() => {
+    let done = false;
+    const end = () => {
+      if (done) return;
+      done = true;
       for (const x of anims) x.cancel();
+      for (const el of shown) el.classList.remove('is-shown');
+      body?.classList.remove('is-deck-swapping');
       busy.current = false;
-    });
+    };
+    Promise.all(anims.map((x) => x.finished.catch(() => undefined))).then(end);
+    // 画面が裏に回って動きが止まっても 操作できなくならないように
+    window.setTimeout(end, 1600);
   };
   const goRef = useRef(go);
   goRef.current = go;
