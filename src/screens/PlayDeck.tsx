@@ -23,22 +23,6 @@ const POSE = [
   { y: PEEK, s: 0.87 },
   { y: PEEK2, s: 0.76 },
 ] as const;
-/** 一度でも自分でめくったら はじめの見本の動きはもう出さない（この端末だけの覚え書き） */
-const LEARNED_KEY = 'kanshoku:deckLearned';
-const learned = () => {
-  try {
-    return localStorage.getItem(LEARNED_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-const learn = () => {
-  try {
-    localStorage.setItem(LEARNED_KEY, '1');
-  } catch {
-    /* 保存できなくても動きに困ることはない */
-  }
-};
 const tf = (y: number, s: number) => `translateY(${y}px) scale(${s})`;
 const at = (slot: 0 | 1 | 2) => tf(POSE[slot].y, POSE[slot].s);
 /** 上の欄や背景に重なっているあいだのカードの濃さ（下の文字が透けて読める） */
@@ -125,9 +109,7 @@ export function DiffDeck({
    * dir=-1：前の難しさへ いちばん後ろのカードが裏から上へ出てきて 前のカードの上へ乗る
    * 消したりうすくしたりせず 重なりの前後が入れかわるところをそのまま見せる
    */
-  const go = (dir: 1 | -1, byHand = true) => {
-    // タブではなく カードの束を自分で動かしてめくれたら もう見本はいらない
-    if (byHand) learn();
+  const go = (dir: 1 | -1) => {
     const i = LEVELS.indexOf(diffRef.current);
     const next = LEVELS[(i + dir + 3) % 3];
     const [a, b, c] = bySlot();
@@ -235,7 +217,7 @@ export function DiffDeck({
     const cur = diffRef.current;
     if (d === cur) return;
     const i = LEVELS.indexOf(cur);
-    go(LEVELS[(i + 1) % 3] === d ? 1 : -1, false);
+    go(LEVELS[(i + 1) % 3] === d ? 1 : -1);
   };
 
   // ---------------------------------------------------------- 指ではらう
@@ -353,9 +335,8 @@ export function DiffDeck({
     };
   }, []);
 
-  // ---------------------------------------------------------- はじめの見本：前のカードが1回だけ持ち上がって 後ろを見せる
+  // ---------------------------------------------------------- はじめの見本：画面に来るたび 前のカードが1回だけ持ち上がって 後ろを見せる
   useEffect(() => {
-    if (learned()) return;
     const timer = window.setTimeout(() => {
       if (running.current || drag.current || document.hidden || motionReduced()) return;
       const [a, b, c] = bySlot();
