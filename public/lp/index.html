@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>漢食｜調べてくれるパートナーにあそんでごちそう</title>
+<meta name="description" content="漢字を調べてくれる食いしん坊のパートナーと暮らすアプリ">
+<meta name="theme-color" content="#38aacf">
+<link rel="icon" href="../assets/icons/app.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap">
+<style>
+/* ============================================================
+   漢食 LP
+   アプリと同じトークン 白い面と薄い影 輪郭線なし 傾けない
+   大きさ・角丸・文字はすべて4の倍数
+   ============================================================ */
+:root{
+  --bg:#ffffff;
+  --cream:#fffed5;
+  --ink:#4b4038;
+  --ink-strong:#3a3029;
+  --ink-soft:#7a6c60;
+  --primary:#38aacf;
+  --primary-deep:#1b6f8e;
+  --primary-tint:#ddf2f9;
+  --sun:#ffd54f;
+  --sun-tint:#fff1b8;
+  --coral-deep:#e8735a;
+  --coral-tint:#ffe3da;
+  --mint-tint:#dff5ea;
+  --tag-read:#fda3ac;
+  --tag-write:#ffdd6a;
+  --tag-meaning:#c4dff3;
+  --level-easy:#a8dcec;
+  --level-normal:#38aacf;
+  --level-hard:#1b6f8e;
+  --floor:#f3e6d0;
+  --r-s:12px;--r-m:20px;--r-l:24px;--r-xl:36px;--r-pill:999px;
+  --shadow-soft:0 4px 18px rgba(74,64,56,.16);
+  --shadow-float:0 12px 32px rgba(75,64,56,.16);
+  --font:'LINE Seed JP','Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic',system-ui,sans-serif;
+  --max:1120px;
+  --gut-l:max(20px,env(safe-area-inset-left,0px));
+  --gut-r:max(20px,env(safe-area-inset-right,0px));
+  --spring:cubic-bezier(.34,1.4,.5,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.75;font-weight:400;overflow-x:hidden}
+img{max-width:100%;display:block}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,p,summary,b,span{word-break:auto-phrase}
+h1,h2,h3{color:var(--ink-strong);font-weight:700;line-height:1.4;text-wrap:balance}
+a{color:inherit}
+.br{white-space:pre-line}
+.inner{max-width:var(--max);margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:4px solid var(--sun);outline-offset:4px;border-radius:var(--r-s)}
+
+/* ---------- ボタン ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:60px;padding:0 32px;border-radius:var(--r-pill);font:700 18px/1 var(--font);text-decoration:none;cursor:pointer;border:0;transition:transform .2s var(--spring),box-shadow .2s}
+.btn--primary{background:var(--primary);color:var(--cream);box-shadow:0 8px 20px rgba(56,170,207,.32)}
+.btn--white{background:#fff;color:var(--primary-deep);box-shadow:var(--shadow-float)}
+.btn:hover{transform:translateY(-4px)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn svg{width:20px;height:20px}
+.btn--sm{height:44px;padding:0 20px;font-size:16px}
+
+/* ---------- ヘッダー ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top,0px);transition:box-shadow .3s}
+.top.is-scrolled{box-shadow:0 4px 16px rgba(74,64,56,.08)}
+.top .inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+.top__logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.top__logo img{width:64px;height:auto}
+
+/* ---------- 共通の見出し ---------- */
+.eyebrow{display:inline-block;font-size:14px;font-weight:700;color:var(--primary);letter-spacing:.12em}
+.sec{padding-block:96px}
+.sec__head{display:flex;flex-direction:column;gap:12px;margin-bottom:48px}
+.sec__head h2{font-size:32px}
+.sec__head p{color:var(--ink-soft);max-width:36em}
+.sec__head--center{align-items:center;text-align:center}
+.sec__head--center p{margin-inline:auto}
+@media (min-width:880px){.sec{padding-block:128px}.sec__head h2{font-size:44px}}
+
+/* ---------- 1 ヒーロー ---------- */
+.hero{padding-block:32px 72px;overflow:hidden}
+.hero .inner{display:grid;gap:40px;align-items:center}
+.hero__copy{display:flex;flex-direction:column;gap:24px}
+.hero__badge{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:var(--primary-tint);color:var(--primary-deep);font-weight:700;font-size:14px;border-radius:var(--r-pill);padding:8px 16px}
+.hero h1{font-size:40px;line-height:1.36;letter-spacing:.02em}
+.hero h1 .mark{background:linear-gradient(transparent 64%,var(--sun) 64%,var(--sun) 92%,transparent 92%);padding-inline:4px}
+.hero h1 .blue{color:var(--primary)}
+.hero__lead{font-size:16px;color:var(--ink-soft)}
+.hero__cta{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.facts{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none}
+.facts li{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:700;color:var(--ink);background:#fff;box-shadow:var(--shadow-soft);border-radius:var(--r-pill);padding:4px 12px}
+.facts li::before{content:"";width:16px;height:16px;background:var(--primary) no-repeat center/12px;border-radius:50%;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+
+/* 2台のスマホを段々に重ねる（アプリの難しさカードと同じ見せ方） */
+.hero__art{position:relative;height:560px;max-width:440px;width:100%;margin-inline:auto}
+.phone{position:absolute;width:248px;aspect-ratio:390/844;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-float);background:#fff}
+.phone img{width:100%;height:100%;object-fit:cover}
+.hero__phone--back{right:16px;top:0;width:220px}
+.hero__phone--front{left:40px;top:56px;z-index:2}
+.float{position:absolute;z-index:4;width:88px;animation:bob 4s ease-in-out infinite;filter:drop-shadow(0 8px 12px rgba(75,64,56,.16))}
+.float--1{left:0;bottom:40px;animation-delay:-.6s}
+.float--2{right:0;top:300px;width:96px;animation-delay:-2s}
+.float--3{left:4px;top:8px;width:64px;animation-delay:-3.2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media (min-width:880px){
+  .hero{padding-block:56px 112px}
+  .hero .inner{grid-template-columns:1.05fr .95fr;gap:48px}
+  .hero h1{font-size:60px}
+  .hero__lead{font-size:18px}
+  .hero__art{height:640px}
+  .phone{width:300px}
+  .hero__phone--back{width:252px}
+  .hero__art{max-width:520px}
+}
+
+/* ---------- 2 共感と体験 ---------- */
+.empathy{background:var(--primary);color:var(--cream)}
+.empathy .inner{display:grid;gap:48px;align-items:center}
+.empathy .eyebrow{color:var(--cream);opacity:.8}
+.empathy h2{color:var(--cream);font-size:36px}
+.empathy__text{display:flex;flex-direction:column;gap:20px}
+.empathy__text p{opacity:.92}
+.scenes{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0;list-style:none}
+.scenes li{background:rgba(255,254,213,.16);border-radius:var(--r-pill);padding:4px 16px;font-size:14px;font-weight:700}
+.demo{background:#fff;color:var(--ink);border-radius:var(--r-xl);padding:24px;box-shadow:0 20px 48px rgba(27,111,142,.32);display:flex;flex-direction:column;gap:20px}
+.demo__bar{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;border-radius:var(--r-pill);background:#fff;box-shadow:var(--shadow-soft);font-size:18px}
+.demo__bar svg{width:24px;height:24px;flex:none;color:var(--ink-strong)}
+.demo__typed{color:var(--ink-strong);font-weight:700;min-height:1.5em}
+.demo__typed:empty::before{content:"あれ…どう書くんだっけ？";color:#9a8d80;font-weight:400}
+.demo__caret{width:2px;height:24px;background:var(--primary);animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.demo__card{position:relative;background:var(--primary);color:var(--cream);border-radius:var(--r-l);padding:24px 20px 48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:232px;justify-content:center}
+.demo__reading{font-size:16px;font-weight:700;letter-spacing:.28em}
+.demo__kanji{font-size:56px;font-weight:700;line-height:1.2;letter-spacing:.04em;white-space:nowrap}
+.demo__meaning{font-size:14px;opacity:.92}
+.demo__card.is-in .demo__kanji{animation:pop .5s var(--spring)}
+.demo__card.is-in .demo__reading,.demo__card.is-in .demo__meaning{animation:rise .5s ease both}
+@keyframes pop{0%{opacity:0;transform:translateY(16px) scale(.88)}100%{opacity:1;transform:none}}
+@keyframes rise{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+.demo__card.is-wait .demo__kanji,.demo__card.is-wait .demo__reading,.demo__card.is-wait .demo__meaning{opacity:0}
+.demo__pet{position:absolute;right:12px;bottom:-12px;width:64px;transition:transform .4s var(--spring)}
+.demo__card.is-wait .demo__pet{transform:translateY(-8px)}
+.demo__ex{background:var(--primary-tint);border-radius:var(--r-m);padding:12px 16px;font-size:14px;color:var(--ink)}
+.demo__ex b{background:var(--sun-tint);color:var(--ink-strong);padding:0 4px;border-radius:4px}
+.demo__ex small{display:inline-block;font-size:12px;font-weight:700;color:var(--primary-deep);background:#fff;border-radius:var(--r-pill);padding:0 8px;margin-right:8px}
+.demo__chips{display:flex;flex-wrap:wrap;gap:8px}
+.demo__chips p{width:100%;font-size:12px;color:var(--ink-soft);font-weight:700}
+.chip-btn{height:40px;padding:0 16px;border-radius:var(--r-pill);border:0;background:#f4f1ec;color:var(--ink-strong);font:700 14px/1 var(--font);cursor:pointer;transition:background .2s,color .2s,transform .2s var(--spring)}
+.chip-btn:hover{transform:translateY(-2px)}
+.chip-btn[aria-pressed="true"]{background:var(--ink-strong);color:#fff}
+@media (min-width:880px){.empathy .inner{grid-template-columns:1fr 1fr;gap:72px}.empathy h2{font-size:52px}.demo{padding:32px}.demo__kanji{font-size:88px}.demo__pet{width:80px}}
+
+/* ---------- 3 しくみ3ステップ ---------- */
+.steps{display:grid;gap:56px;padding:0;margin:0;list-style:none;counter-reset:step}
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px}
+.step__shot{position:relative;width:100%;max-width:340px;height:360px;border-radius:var(--r-xl);overflow:hidden;background:var(--primary-tint);padding:32px 40px 0}
+.step:nth-child(2) .step__shot{background:var(--sun-tint)}
+.step:nth-child(3) .step__shot{background:var(--coral-tint)}
+.step__shot img{width:100%;height:auto;border-radius:var(--r-l) var(--r-l) 0 0;box-shadow:var(--shadow-float)}
+.step__num{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:var(--primary);color:var(--cream);font-weight:700;font-size:20px;margin-top:-44px;position:relative;z-index:1;box-shadow:var(--shadow-soft)}
+.step h3{font-size:24px}
+.step p{color:var(--ink-soft);font-size:15px}
+.step__arrow{display:none}
+@media (min-width:880px){
+  .steps{grid-template-columns:1fr 1fr 1fr;gap:32px}
+}
+
+/* ---------- 4 あそぶ ---------- */
+.play{background:#f7f5f1}
+.games{display:grid;gap:24px}
+.game{position:relative;background:#fff;border-radius:var(--r-xl);box-shadow:var(--shadow-soft);overflow:hidden;display:grid;grid-template-columns:1fr;min-height:360px}
+.game__body{padding:32px 28px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.game__tag{align-self:flex-start;font-size:12px;font-weight:700;border-radius:var(--r-pill);padding:4px 12px}
+.game--write .game__tag{background:var(--tag-write);color:var(--ink-strong)}
+.game--match .game__tag{background:var(--tag-meaning);color:var(--ink-strong)}
+.game h3{font-size:28px}
+.game p{color:var(--ink-soft);font-size:15px}
+.game__shot{margin:0 auto -64px;width:240px;border-radius:var(--r-l) var(--r-l) 0 0;overflow:hidden;box-shadow:var(--shadow-float)}
+.game__helper{position:absolute;right:16px;bottom:16px;width:120px;z-index:2;animation:bob 5s ease-in-out infinite}
+@media (min-width:880px){.games{grid-template-columns:1fr 1fr}.game__body{padding:40px}}
+
+/* 難しさのカード束 */
+.levels{margin-top:72px;display:grid;gap:40px;align-items:center}
+.levels__text{display:flex;flex-direction:column;gap:16px}
+.levels__text h3{font-size:28px}
+.levels__text p{color:var(--ink-soft)}
+.levels__tabs{display:flex;gap:4px;background:#fff;border-radius:var(--r-pill);padding:4px;box-shadow:var(--shadow-soft);align-self:flex-start}
+.levels__tabs button{height:40px;padding:0 16px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--ink-strong);font:700 14px/1 var(--font);cursor:pointer;transition:background .25s,color .25s}
+.levels__tabs button[aria-checked="true"]{background:var(--primary);color:var(--cream)}
+.deck{position:relative;height:320px;max-width:400px;width:100%;margin-inline:auto;cursor:pointer;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.deck__card{position:absolute;inset:0 0 40px;border-radius:var(--r-xl);box-shadow:var(--shadow-soft);transform-origin:50% 100%;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;color:var(--cream);overflow:hidden;transition:transform .5s var(--spring),opacity .3s}
+.deck__card[data-slot="0"]{transform:none;z-index:3}
+.deck__card[data-slot="1"]{transform:translateY(24px) scale(.87);z-index:2}
+.deck__card[data-slot="2"]{transform:translateY(40px) scale(.76);z-index:1}
+.deck__card[data-slot="1"] .deck__in,.deck__card[data-slot="2"] .deck__in{opacity:0}
+.deck__in{display:flex;flex-direction:column;gap:4px;transition:opacity .2s}
+.deck__card--easy{background:var(--level-easy);color:var(--primary-deep)}
+.deck__card--normal{background:var(--level-normal)}
+.deck__card--hard{background:var(--level-hard)}
+.deck__name{font-size:36px;font-weight:700;line-height:1.3}
+.deck__desc{font-size:14px;font-weight:700;opacity:.92}
+.deck__art{position:absolute;right:20px;top:20px;width:44%;max-width:176px;transition:opacity .2s}
+.deck__card[data-slot="1"] .deck__art,.deck__card[data-slot="2"] .deck__art{opacity:0}
+.deck__hint{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:12px;font-weight:700;color:var(--ink-soft)}
+@media (min-width:880px){.levels{grid-template-columns:1fr 1fr;gap:72px}}
+
+/* ---------- 5 暮らし ---------- */
+.life{display:grid;gap:24px}
+.panel{background:#fff;border-radius:var(--r-xl);box-shadow:var(--shadow-soft);padding:28px;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.panel h3{font-size:24px}
+.panel > p{color:var(--ink-soft);font-size:15px}
+.foods{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+.food{background:var(--sun-tint);border-radius:var(--r-m);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;border:0;font:inherit;color:inherit;cursor:pointer}
+.food img{width:56px;height:56px;transition:transform .35s var(--spring)}
+.food:hover img,.food.is-hop img{transform:translateY(-8px)}
+.food b{font-size:14px;color:var(--ink-strong)}
+.food span{font-size:12px;color:var(--coral-deep);font-weight:700}
+.panel--foods{background:#fff}
+.panel--room{background:var(--primary-tint)}
+.room-mini{position:relative;border-radius:var(--r-l);overflow:hidden;aspect-ratio:4/3;background:#ddf2f9}
+.room-mini__floor{position:absolute;inset:62% 0 0;background:var(--floor)}
+.room-mini img{position:absolute}
+.rm-window{left:8%;top:10%;width:26%;transition:opacity .3s}
+.rm-garland{left:44%;top:10%;width:30%}
+.rm-shelf{right:6%;top:30%;width:22%}
+.rm-rug{left:16%;bottom:6%;width:68%}
+.rm-cushion{left:6%;bottom:14%;width:26%}
+.rm-plant{right:4%;bottom:12%;width:16%}
+.rm-dog{left:38%;bottom:12%;width:28%}
+.swap{display:flex;flex-wrap:wrap;gap:8px}
+.panel--pocket{display:grid;gap:16px}
+.pocket-shot{width:220px;margin:0 auto -48px;border-radius:var(--r-l) var(--r-l) 0 0;overflow:hidden;box-shadow:var(--shadow-float)}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tags span{font-size:12px;font-weight:700;color:var(--ink-strong);border-radius:var(--r-pill);padding:4px 12px}
+@media (min-width:880px){
+  .life{grid-template-columns:1.1fr .9fr;grid-template-rows:auto auto}
+  .panel--foods{grid-row:span 2}
+  .panel{padding:36px}
+}
+
+/* ---------- 6 安心 ---------- */
+.promise{text-align:center}
+.promise__big{font-size:40px;line-height:1.3;color:var(--ink-strong);font-weight:700}
+.promise__big em{font-style:normal;color:var(--primary)}
+.promise__list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding:0;margin:56px 0 0;list-style:none;text-align:left}
+.promise__list li{background:#fff;border-radius:var(--r-l);box-shadow:var(--shadow-soft);padding:24px;display:flex;flex-direction:column;gap:8px}
+.promise__list b{font-size:20px;color:var(--ink-strong)}
+.promise__list span{font-size:14px;color:var(--ink-soft)}
+.promise__icon{display:block;width:40px;height:40px;margin-bottom:4px}
+.promise__icon img{width:40px;height:40px}
+.promise__flop{width:200px;margin:48px auto 0}
+@media (min-width:880px){.promise__big{font-size:64px}}
+
+/* ---------- 7 よくある質問 ---------- */
+.faq{display:flex;flex-direction:column;gap:12px;max-width:760px;margin:0 auto}
+.faq details{background:#f7f5f1;border-radius:var(--r-l);overflow:hidden}
+.faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;font-weight:700;color:var(--ink-strong);font-size:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:28px;height:28px;border-radius:50%;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 6v12M6 12h12' stroke='%2338aacf' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center/16px no-repeat;transition:background-color .2s}
+.faq details[open] summary::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12h12' stroke='%2338aacf' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E")}
+.faq details p{padding:0 24px 20px;color:var(--ink-soft);font-size:15px;white-space:pre-line}
+
+/* ---------- 8 最後の誘い ---------- */
+.final{padding-block:24px 96px}
+.final__box{position:relative;background:var(--primary);color:var(--cream);border-radius:40px;padding:56px 28px 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px;overflow:hidden}
+.final__box h2{color:var(--cream);font-size:36px}
+.final__box p{opacity:.92}
+.final__dog{width:240px;margin-top:8px}
+@media (min-width:880px){.final__box{padding:80px 48px 0}.final__box h2{font-size:56px}.final__dog{width:300px}}
+
+footer{padding-block:32px calc(32px + env(safe-area-inset-bottom,0px));text-align:center;font-size:12px;color:var(--ink-soft)}
+
+/* スマホで下に出る はじめるボタン */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:12px var(--gut-r) calc(12px + env(safe-area-inset-bottom,0px)) var(--gut-l);background:linear-gradient(rgba(255,255,255,0),#fff 40%);transform:translateY(120%);transition:transform .4s var(--spring)}
+.dock.is-on{transform:none}
+.dock .btn{width:100%}
+@media (min-width:880px){.dock{display:none}}
+
+/* スクロールで出てくる（JSが動いたときだけ隠しておく） */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.js .reveal.is-in{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js')</script>
+
+<header class="top" id="top">
+  <div class="inner">
+    <a class="top__logo" href="#hero" aria-label="ページの先頭へ">
+      <img src="../assets/logo.svg" alt="漢食" width="64" height="55">
+    </a>
+    <a class="btn btn--primary btn--sm" href="../">はじめる</a>
+  </div>
+</header>
+
+<main>
+  <!-- 1 ヒーロー：気持ちの約束＋実際の画面＋はじめる -->
+  <section class="hero" id="hero">
+    <div class="inner">
+      <div class="hero__copy">
+        <span class="hero__badge">漢字を調べる×パートナーを育てる</span>
+        <h1>調べてくれる<br><span class="blue">パートナー</span>に<br><span class="mark">あそんでごちそう</span></h1>
+        <p class="hero__lead br">どう書くんだっけ？と思ったらすぐ調べられる
+短いことば遊びでごはんを手に入れて
+食いしん坊のパートナーに食べさせよう</p>
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="../">無料ではじめる
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <ul class="facts">
+          <li>会員登録なし</li>
+          <li>インストールなし</li>
+          <li>時間制限なし</li>
+        </ul>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="phone hero__phone--back"><img src="img/word.webp" alt=""></div>
+        <div class="phone hero__phone--front"><img src="img/room.webp" alt=""></div>
+        <img class="float float--1" src="../assets/food/onigiri.svg" alt="">
+        <img class="float float--2" src="../assets/food/pudding.svg" alt="">
+        <img class="float float--3" src="../assets/food/dango.svg" alt="">
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 共感：あれ…どう書くんだっけ？ その場で調べる体験 -->
+  <section class="empathy sec" id="search">
+    <div class="inner">
+      <div class="empathy__text reveal">
+        <span class="eyebrow">こんなとき</span>
+        <h2>あれ…<br>どう書くんだっけ？</h2>
+        <p class="br">レポートの締め切りもバイトの履歴書も
+読めるのに書けない字はふいにやってくる
+漢食なら文字・カメラ・声ですぐ調べられて
+読みと意味と使いかたがひと目でわかる</p>
+        <ul class="scenes" aria-label="よく調べる場面">
+          <li>大学</li><li>バイト</li><li>仕事</li><li>くらし</li>
+        </ul>
+      </div>
+
+      <div class="demo reveal" aria-label="調べるところのお試し">
+        <div class="demo__bar">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          <span class="demo__typed" id="typed"></span><span class="demo__caret" aria-hidden="true"></span>
+        </div>
+        <div class="demo__card is-wait" id="card" aria-live="polite">
+          <span class="demo__reading" id="reading"></span>
+          <span class="demo__kanji" id="kanji"></span>
+          <span class="demo__meaning" id="meaning"></span>
+          <img class="demo__pet" src="../assets/character/dog-normal.webp" alt="" aria-hidden="true">
+        </div>
+        <p class="demo__ex"><small id="scene"></small><span id="example"></span></p>
+        <div class="demo__chips" role="group" aria-label="調べることばをえらぶ">
+          <p>ためしに押してみて</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 しくみ：しらべる→あそぶ→ごちそう -->
+  <section class="sec" id="how">
+    <div class="inner">
+      <div class="sec__head sec__head--center reveal">
+        <span class="eyebrow">しくみ</span>
+        <h2>調べるほど<br>毎日がふくらむ</h2>
+      </div>
+      <ol class="steps">
+        <li class="step reveal">
+          <div class="step__shot"><img src="img/search.webp" alt="しらべる画面 文字とカメラと声で探せる"></div>
+          <span class="step__num">1</span>
+          <h3>しらべる</h3>
+          <p class="br">わからない字は文字・カメラ・声で
+パートナーがいっしょに探してくれる</p>
+        </li>
+        <li class="step reveal">
+          <div class="step__shot"><img src="img/play.webp" alt="あそぶ画面 難しさのカードがならぶ"></div>
+          <span class="step__num">2</span>
+          <h3>あそぶ</h3>
+          <p class="br">調べたことばで短いことば遊び
+1回3問で時間制限なし</p>
+        </li>
+        <li class="step reveal">
+          <div class="step__shot"><img src="img/food.webp" alt="ごはんかご おにぎりやプリンがならぶ"></div>
+          <span class="step__num">3</span>
+          <h3>ごちそうする</h3>
+          <p class="br">遊ぶとごはんが1つ必ずもらえる
+パートナーにあげるとおいしそうに食べる</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4 あそぶ：2つの遊びと 難しさのカード -->
+  <section class="sec play" id="play">
+    <div class="inner">
+      <div class="sec__head reveal">
+        <span class="eyebrow">あそぶ</span>
+        <h2>3問だけの<br>ことば遊び</h2>
+        <p>キッチンを舞台に料理をしながら遊ぶ<br>まちがえても正しい答えを見て<br>そのまま続けられる</p>
+      </div>
+      <div class="games">
+        <article class="game game--write reveal">
+          <div class="game__body">
+            <span class="game__tag">書き</span>
+            <h3>漢字を書く</h3>
+            <p class="br">読みと文から抜けた字をまな板に手書き
+下ごしらえ→煮る→盛るで料理が仕上がる
+見本と並べて自分で答え合わせ</p>
+          </div>
+          <div class="game__shot"><img src="img/write.webp" alt="漢字を書く画面 まな板に手書きする"></div>
+          <img class="game__helper" src="../assets/people/owl.webp" alt="" aria-hidden="true">
+        </article>
+        <article class="game game--match reveal">
+          <div class="game__body">
+            <span class="game__tag">読み・意味</span>
+            <h3>答えをえらぶ</h3>
+            <p class="br">読みや意味を4つの中からえらぶ
+答えるたびに料理の材料がそろっていく
+苦手なことばは少しあとでまた出てくる</p>
+          </div>
+          <div class="game__shot"><img src="img/round.webp" alt="答えをえらぶ画面 4つの読みからえらぶ"></div>
+          <img class="game__helper" src="../assets/people/hamster.webp" alt="" aria-hidden="true">
+        </article>
+      </div>
+
+      <div class="levels">
+        <div class="levels__text reveal">
+          <h3>その日の気分で<br>難しさをえらぶ</h3>
+          <p class="br">むずかしいほどおまけのごはんが出やすい
+カードを押すと次の難しさが前に出てくる</p>
+          <div class="levels__tabs" role="radiogroup" aria-label="難しさ">
+            <button type="button" role="radio" data-level="easy" aria-checked="false">やさしい</button>
+            <button type="button" role="radio" data-level="normal" aria-checked="true">ふつう</button>
+            <button type="button" role="radio" data-level="hard" aria-checked="false">むずかしい</button>
+          </div>
+        </div>
+        <div class="deck reveal" id="deck" role="button" tabindex="0" aria-label="次の難しさのカードを前に出す">
+          <div class="deck__card deck__card--normal" data-level="normal" data-slot="0">
+            <img class="deck__art" src="../assets/people/hamster-onigiri.webp" alt="">
+            <div class="deck__in"><span class="deck__name">ふつう</span><span class="deck__desc">ほどよいヒント・似た選択肢が少し出る</span></div>
+          </div>
+          <div class="deck__card deck__card--hard" data-level="hard" data-slot="1">
+            <img class="deck__art" src="../assets/people/hamster-dizzy.webp" alt="">
+            <div class="deck__in"><span class="deck__name">むずかしい</span><span class="deck__desc">ヒント少なめ・珍しいごはんが出る</span></div>
+          </div>
+          <div class="deck__card deck__card--easy" data-level="easy" data-slot="2">
+            <img class="deck__art" src="../assets/people/hamster.webp" alt="">
+            <div class="deck__in"><span class="deck__name">やさしい</span><span class="deck__desc">ヒント多め・似た選択肢は出ない</span></div>
+          </div>
+          <span class="deck__hint">押すと入れかわる</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 暮らし：ごはん・部屋・あつめた漢字 -->
+  <section class="sec" id="life">
+    <div class="inner">
+      <div class="sec__head reveal">
+        <span class="eyebrow">パートナーとの暮らし</span>
+        <h2>食べてくつろいで<br>漢字がたまっていく</h2>
+      </div>
+      <div class="life">
+        <div class="panel panel--foods reveal">
+          <h3>ごはんは6種類</h3>
+          <p class="br">食べかたもごはんごとにちがう
+押してみると少し跳ねるよ</p>
+          <div class="foods">
+            <button type="button" class="food"><img src="../assets/food/onigiri.svg" alt=""><b>おにぎり</b><span>ほおばる</span></button>
+            <button type="button" class="food"><img src="../assets/food/pudding.svg" alt=""><b>プリン</b><span>ぷるぷる</span></button>
+            <button type="button" class="food"><img src="../assets/food/soup.svg" alt=""><b>スープ</b><span>ふうふう</span></button>
+            <button type="button" class="food"><img src="../assets/food/dango.svg" alt=""><b>おだんご</b><span>ぴょんぴょん</span></button>
+            <button type="button" class="food"><img src="../assets/food/taiyaki.svg" alt=""><b>たいやき</b><span>ぴちぴち</span></button>
+            <button type="button" class="food"><img src="../assets/food/omurice.svg" alt=""><b>オムライス</b><span>じっくり</span></button>
+          </div>
+          <img src="../assets/character/dog-eat-onigiri.webp" alt="おにぎりをほおばるパートナー" style="width:200px;margin:16px auto 0">
+        </div>
+
+        <div class="panel panel--room reveal">
+          <h3>部屋を模様替え</h3>
+          <p>家具はときどきごほうびでもらえる</p>
+          <div class="room-mini" id="room" aria-label="パートナーの部屋">
+            <div class="room-mini__floor"></div>
+            <img class="rm-window" id="rmWindow" src="../assets/furniture/window-curtain.svg" alt="">
+            <img class="rm-garland" src="../assets/furniture/wall-garland.svg" alt="">
+            <img class="rm-shelf" id="rmShelf" src="../assets/furniture/shelf-books.svg" alt="">
+            <img class="rm-rug" id="rmRug" src="../assets/furniture/rug-round.svg" alt="">
+            <img class="rm-cushion" id="rmCushion" src="../assets/furniture/cushion-butter.svg" alt="">
+            <img class="rm-plant" id="rmPlant" src="../assets/furniture/plant-pothos.svg" alt="">
+            <img class="rm-dog" src="../assets/character/dog-normal.webp" alt="">
+          </div>
+          <div class="swap">
+            <button type="button" class="chip-btn" id="swapRoom">模様替えしてみる</button>
+          </div>
+        </div>
+
+        <div class="panel panel--pocket reveal">
+          <h3>あつめた漢字</h3>
+          <p class="br">気になった字はタグをつけて保存
+あとで見返したり遊びに出したりできる</p>
+          <div class="tags"><span style="background:var(--tag-read)">読み</span><span style="background:var(--tag-write)">書き</span><span style="background:var(--tag-meaning)">意味</span></div>
+          <div class="pocket-shot"><img src="img/pocket.webp" alt="あつめた漢字の画面 タグごとに色分けされたカード"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 安心：勉強させない -->
+  <section class="sec promise" id="promise" style="background:#f7f5f1">
+    <div class="inner">
+      <span class="eyebrow reveal">漢食の約束</span>
+      <p class="promise__big reveal" style="margin-top:12px">勉強させない<br><em>漢字アプリ</em></p>
+      <ul class="promise__list">
+        <li class="reveal"><span class="promise__icon"><img src="../assets/deco/magnifier.svg" alt=""></span><b>何度でも調べていい</b><span>わからなくなったら<br>いつでも調べてだいじょうぶ</span></li>
+        <li class="reveal"><span class="promise__icon" ><img src="../assets/deco/sparkle.svg" alt=""></span><b>時間制限なし</b><span>1回3問を自分のペースで</span></li>
+        <li class="reveal"><span class="promise__icon" ><img src="../assets/deco/heart.svg" alt=""></span><b>まちがえてもOK</b><span>正しい答えを見て<br>そのまま続けられる</span></li>
+        <li class="reveal"><span class="promise__icon" ><img src="../assets/deco/zzz.svg" alt=""></span><b>いなくならない</b><span>おなかがすくと<br>クッションでへにゃっとするだけ</span></li>
+      </ul>
+      <img class="promise__flop reveal" src="../assets/character/dog-flop.webp" alt="クッションでへにゃっとするパートナー">
+    </div>
+  </section>
+
+  <!-- 7 よくある質問 -->
+  <section class="sec" id="faq">
+    <div class="inner">
+      <div class="sec__head sec__head--center reveal">
+        <span class="eyebrow">よくある質問</span>
+        <h2>気になること</h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary>お金はかかる？</summary><p>無料で遊べます</p></details>
+        <details><summary>会員登録はいる？</summary><p>いりません
+記録はこの端末のブラウザに保存されます</p></details>
+        <details><summary>どんなことばを調べられる？</summary><p>いまはお試し版です
+大学・バイト・仕事・くらしでよく使う49語に対応しています</p></details>
+        <details><summary>スマホで使える？</summary><p>ブラウザで開くだけで使えます
+スマホで使いやすいように作っています</p></details>
+        <details><summary>パートナーがいなくなることはある？</summary><p>いなくなりません
+おなかがすくとクッションでへにゃっとしますがごはんをあげると元気になります</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 最後の誘い：問いかけ型 -->
+  <section class="final">
+    <div class="inner">
+      <div class="final__box reveal">
+        <h2>今日はどの字で<br>ごちそうする？</h2>
+        <p>最初のおにぎりを1つ用意して待ってるよ</p>
+        <a class="btn btn--white" href="../">漢食をはじめる
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <img class="final__dog" src="../assets/character/dog-eat-onigiri.webp" alt="おにぎりを食べるパートナー">
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>© 漢食</footer>
+
+<div class="dock" id="dock"><a class="btn btn--primary" href="../">無料ではじめる</a></div>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ヘッダーの影 と スマホ下のボタン */
+  const top = document.getElementById('top');
+  const dock = document.getElementById('dock');
+  const hero = document.getElementById('hero');
+  const final = document.querySelector('.final');
+  // ヒーローを過ぎたら出して 最後の誘いが見えたら引っこめる（ボタンが2つ並ばないように）
+  const onScroll = () => {
+    top.classList.toggle('is-scrolled', scrollY > 8);
+    const past = hero.getBoundingClientRect().bottom < 0;
+    const finalOn = final.getBoundingClientRect().top < innerHeight;
+    dock.classList.toggle('is-on', past && !finalOn);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+
+  /* スクロールで出てくる */
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+  }), { rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (i % 3) * 80 + 'ms';
+    io.observe(el);
+  });
+
+  /* 調べるお試し */
+  const WORDS = [
+    { r: 'しめきり', k: '締め切り', m: '受け付けや作業を終える最後の期限', s: '大学', ex: ['レポートの', 'は金曜の正午だ'] },
+    { r: 'りれきしょ', k: '履歴書', m: '学歴や職歴をまとめて応募のときに出す書類', s: 'バイト', ex: ['', 'を書いてバイトに応募した'] },
+    { r: 'かつあい', k: '割愛', m: '惜しいと思いながらも省くこと', s: '大学', ex: ['時間がないので細かい説明は', 'します'] },
+    { r: 'あいさつ', k: '挨拶', m: '人と会ったり別れたりするときの決まった言葉や動作', s: 'バイト', ex: ['バイト初日は明るく', 'するところから始めた'] },
+    { r: 'はんれい', k: '凡例', m: '図や表の記号の意味をまとめて示したもの', s: '大学', ex: ['グラフに', 'を入れ忘れて指摘された'] },
+  ];
+  const $ = (id) => document.getElementById(id);
+  const typed = $('typed'), card = $('card'), chips = document.querySelector('.demo__chips');
+  let auto = true, timers = [], idx = 0;
+  const clear = () => { timers.forEach(clearTimeout); timers = []; };
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const btns = WORDS.map((w, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip-btn'; b.textContent = w.r; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { auto = false; show(i); });
+    chips.append(b); return b;
+  });
+  function fill(w) {
+    $('reading').textContent = w.r; $('kanji').textContent = w.k; $('meaning').textContent = w.m;
+    $('scene').textContent = w.s;
+    const ex = $('example'); ex.textContent = '';
+    const bEl = document.createElement('b'); bEl.textContent = w.k;
+    ex.append(w.ex[0], bEl, w.ex[1]);
+  }
+  function show(i) {
+    clear(); idx = i;
+    const w = WORDS[i];
+    btns.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+    if (reduce) { typed.textContent = w.r; fill(w); card.classList.remove('is-wait'); return; }
+    card.classList.add('is-wait'); card.classList.remove('is-in');
+    typed.textContent = '';
+    [...w.r].forEach((ch, n) => later(() => { typed.textContent += ch; }, 120 + n * 110));
+    later(() => { fill(w); card.classList.remove('is-wait'); void card.offsetWidth; card.classList.add('is-in'); }, 260 + w.r.length * 110);
+    if (auto) later(() => auto && show((idx + 1) % WORDS.length), 4200);
+  }
+  fill(WORDS[0]);
+  new IntersectionObserver(([e], o) => { if (e.isIntersecting) { show(0); o.disconnect(); } }, { threshold: .4 }).observe(card);
+
+  /* 難しさのカード束（アプリと同じく 前のカードが持ち上がって後ろへ回る） */
+  const deck = $('deck');
+  const ORDER = ['easy', 'normal', 'hard'];
+  const cards = [...deck.querySelectorAll('.deck__card')];
+  const tabs = [...document.querySelectorAll('.levels__tabs button')];
+  let front = 'normal', running = null;
+  const slotOf = (lv) => (ORDER.indexOf(lv) - ORDER.indexOf(front) + 3) % 3;
+  function layout() {
+    cards.forEach((c) => (c.dataset.slot = slotOf(c.dataset.level)));
+    tabs.forEach((t) => t.setAttribute('aria-checked', String(t.dataset.level === front)));
+  }
+  function next(dir = 1) {
+    // 動きの途中で押されたら いまの動きを終わらせてから次へ（押したのに反応しないを作らない）
+    if (running) running();
+    const a = cards.find((c) => c.dataset.slot === '0');
+    front = ORDER[(ORDER.indexOf(front) + dir + 3) % 3];
+    if (reduce || dir < 0 || !a.animate) { layout(); return; }
+    const lift = Math.min(a.offsetHeight * .42, 160);
+    a.style.transition = 'none';
+    const an = a.animate([
+      { transform: 'none', zIndex: 6, opacity: 1 },
+      { transform: `translateY(${-lift}px)`, zIndex: 6, opacity: .7, offset: .42 },
+      { transform: `translateY(${-lift}px)`, zIndex: 0, opacity: .7, offset: .44 },
+      { transform: 'translateY(50px) scale(.76)', zIndex: 0, opacity: 1, offset: .84 },
+      { transform: 'translateY(40px) scale(.76)', zIndex: 0, opacity: 1 },
+    ], { duration: 640, easing: 'cubic-bezier(.3,.7,.3,1)' });
+    const t1 = setTimeout(() => cards.forEach((c) => c !== a && (c.dataset.slot = slotOf(c.dataset.level))), 120);
+    tabs.forEach((t) => t.setAttribute('aria-checked', String(t.dataset.level === front)));
+    const end = () => {
+      clearTimeout(t1); clearTimeout(t2); running = null;
+      an.cancel(); a.style.transition = 'none'; layout();
+      void a.offsetWidth; a.style.transition = '';
+    };
+    const t2 = setTimeout(end, 660);
+    running = end;
+  }
+  deck.addEventListener('click', () => next(1));
+  deck.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next(1); } });
+  tabs.forEach((t) => t.addEventListener('click', () => {
+    const d = (ORDER.indexOf(t.dataset.level) - ORDER.indexOf(front) + 3) % 3;
+    if (d === 1) next(1); else if (d === 2) { if (running) running(); front = t.dataset.level; layout(); }
+  }));
+  layout();
+
+  /* ごはんを押すと跳ねる */
+  document.querySelectorAll('.food').forEach((f) => f.addEventListener('click', () => {
+    f.classList.remove('is-hop'); void f.offsetWidth; f.classList.add('is-hop');
+    setTimeout(() => f.classList.remove('is-hop'), 400);
+  }));
+
+  /* 模様替え */
+  const A = '../assets/furniture/';
+  const SETS = [
+    { rmWindow: 'window-curtain', rmShelf: 'shelf-books', rmRug: 'rug-round', rmCushion: 'cushion-butter', rmPlant: 'plant-pothos' },
+    { rmWindow: 'window-plain', rmShelf: 'shelf-wood', rmRug: 'rug-square', rmCushion: 'cushion-cloud', rmPlant: 'plant-cactus' },
+  ];
+  let set = 0;
+  $('swapRoom').addEventListener('click', () => {
+    set = (set + 1) % SETS.length;
+    Object.entries(SETS[set]).forEach(([id, f], i) => {
+      const img = $(id);
+      setTimeout(() => {
+        img.src = A + f + '.svg';
+        if (!reduce && img.animate) img.animate([{ transform: 'translateY(-12px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 360, easing: 'cubic-bezier(.34,1.4,.5,1)' });
+      }, i * 70);
+    });
+  });
+})();
+</script>
+</body>
+</html>
