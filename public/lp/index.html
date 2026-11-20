@@ -53,8 +53,9 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .scene{position:absolute;left:0;top:0;transform-origin:0 0;width:1280px;height:832px}
 .scene img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .scene__bg{left:-260px;top:-97px;width:1875px;height:1460px}
-.kraft{position:absolute;opacity:0;pointer-events:none;background:url(img/story/kraft-pc.webp) center/cover no-repeat}
-.scene--sp .kraft{background-image:url(img/story/kraft-sp.webp)}
+/* 封筒の紙：拡大しない層に置いて いつも画面ぜんぶを覆う（拡大した絵の中に置くと端がずれて白が見えるため） */
+.kraft{position:absolute;inset:0;opacity:0;pointer-events:none;background:url(img/story/kraft-pc.webp) center/cover no-repeat}
+.is-sp .kraft{background-image:url(img/story/kraft-sp.webp)}
 .scene__line{position:absolute;overflow:visible;pointer-events:none}
 .scene__line path{fill:none;stroke:var(--ink);stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
 
@@ -84,8 +85,19 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .ell i:nth-of-type(1){left:.086em}
 .ell i:nth-of-type(2){left:.4135em}
 .ell i:nth-of-type(3){left:.741em}
+/* 「あれ…？」が画面いっぱいになったら真ん中の丸がぴょんぴょん跳ねる（高さは --hop で0〜1） */
+#dot{animation:hop 1.2s infinite}
+@keyframes hop{
+  0%{transform:translateY(0);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+  14%{transform:translateY(calc(var(--hop,0) * -.4em));animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+  28%{transform:translateY(0);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
+  40%{transform:translateY(calc(var(--hop,0) * -.24em));animation-timing-function:cubic-bezier(.6,0,.8,.4)}
+  52%,100%{transform:translateY(0)}
+}
 
 /* 丸の中から顔を出すいぬ（でっかくなった丸と同じ位置に重ねる） */
+.ghost{position:absolute;z-index:5;border-radius:50%;background:var(--ink);display:none;pointer-events:none}
+.ghost.is-on{display:block}
 .peek{position:absolute;z-index:5;border-radius:50%;background:#fff;overflow:hidden;display:none;pointer-events:none}
 .peek.is-on{display:block}
 .peek img{position:absolute;left:50%;width:64%;height:auto;margin-left:-32%;top:100%;
@@ -102,6 +114,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .next svg{width:36px;height:36px;display:block}
 .next:focus-visible{outline:4px solid var(--primary);outline-offset:4px}
 .next.is-off{opacity:0;pointer-events:none}
+.next{z-index:6}
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 8px}}
 
 /* スマホの絵（縦長） */
@@ -114,6 +127,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 @media (prefers-reduced-motion:reduce){
   .top__start{transition:none}
   .is-shaking .hand__shake{animation:none}
+  #dot{animation:none}
   .next{animation:none}
   .sweat{transform:none;transition:opacity .2s linear}
   .peek img{transition:transform .2s ease}
@@ -136,9 +150,11 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     <div class="story__stage" id="stage">
       <div class="scene" id="scene">
         <img class="scene__bg" id="bg" src="img/story/bg-pc.webp" alt="" width="1875" height="1460">
+      </div>
 
-        <div class="kraft" id="kraft" aria-hidden="true"></div>
+      <div class="kraft" id="kraft" aria-hidden="true"></div>
 
+      <div class="scene" id="scene2">
         <svg class="scene__line" id="lineSvg" aria-hidden="true">
           <g id="lineG"><path id="linePath" d="M 31.0464 0 C 31.0464 0 1.5975 18.413 0.0464 52.5 C -1.7135 91.1756 47.189 74.9561 43.5464 113.5 C 40.6925 143.699 13.7102 136.1888 12.5465 166.5 C 11.0522 205.4187 56.6899 217.0529 56.5465 256 C 56.4195 290.4589 30.5464 339.5 30.5464 339.5"/></g>
         </svg>
@@ -156,6 +172,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
       </div>
 
+      <div class="ghost" aria-hidden="true"></div>
+      <div class="ghost" aria-hidden="true"></div>
       <div class="peek" id="peek">
         <p class="say" id="say">「御中だよ！」</p>
         <img src="../assets/character/dog-normal.webp" alt="" width="257" height="252">
@@ -194,7 +212,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (id) => document.getElementById(id);
-  const story = $('story'), stage = $('stage'), scene = $('scene');
+  const story = $('story'), stage = $('stage'), scene = $('scene'), scene2 = $('scene2');
+  const scenes = [scene, scene2];   // 奥（封筒の絵）と手前（線・手・字）を同じように動かす
   const bg = $('bg'), hand = $('hand'), handImg = $('handImg');
   const lineSvg = $('lineSvg'), lineG = $('lineG'), path = $('linePath');
   const sweats = [$('sweat1'), $('sweat2')];
@@ -202,6 +221,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const fades = [...cap2.querySelectorAll('.fade')];
   const kraft = $('kraft'), dot = $('dot'), peek = $('peek'), say = $('say');
   const others = [...are.querySelectorAll('.are-t, .ell i:not(#dot)')];
+  const sideDots = [...are.querySelectorAll('.ell i:not(#dot)')];
+  const ghosts = [...document.querySelectorAll('.ghost')];   // 左右の丸を画面の大きさで描いたもの
   const len = path.getTotalLength();
   path.style.strokeDasharray = len;
 
@@ -215,7 +236,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   function setCfg(c) {
     if (cfg === c) return;
     cfg = c;
-    scene.classList.toggle('scene--sp', c === SP);
+    scenes.forEach((el) => el.classList.toggle('scene--sp', c === SP));
     stage.classList.toggle('is-sp', c === SP);
     bg.src = c.bg;
     handImg.src = c.hand; handImg.width = c.handW; handImg.height = c.handH;
@@ -254,23 +275,28 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   // 「あれ…？」と真ん中の丸の位置と大きさ（シーンの座標）を測っておく
   let M = null;
+  let nextBlocked = false;
   function measure() {
-    const keep = scene.style.transform;
-    scene.style.transform = 'none';
-    const o = scene.getBoundingClientRect();
+    const keep = scene2.style.transform;
+    scene2.style.transform = 'none';
+    const o = scene2.getBoundingClientRect();
     const a = are.getBoundingClientRect(), d = dot.getBoundingClientRect();
-    scene.style.transform = keep;
+    const sides = sideDots.map((el) => { const b = el.getBoundingClientRect(); return { x: b.left - o.left + b.width / 2, y: b.top - o.top + b.height / 2 }; });
+    scene2.style.transform = keep;
     M = {
       are: { x: a.left - o.left + a.width / 2, y: a.top - o.top + a.height / 2, w: a.width, h: a.height },
-      dot: { x: d.left - o.left + d.width / 2, y: d.top - o.top + d.height / 2, d: d.width },
+      // 真ん中の丸は跳ねていることがあるので 左右の丸のまんなかを使う
+      dot: { x: (sides[0].x + sides[1].x) / 2, y: (sides[0].y + sides[1].y) / 2, d: d.width },
+      sides,
     };
   }
 
   /* 進み方（画面いくつ分スクロールしたか）
      0〜3.1   はじまり→ペンが動く→手が震えて汗が出る
      3.4〜4.7 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える
-     5.0〜6.6 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
-     6.8〜    丸の中からいぬが顔を出して「御中だよ！」 */
+     4.7〜5.3 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
+     5.3〜6.8 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
+     7.0〜    丸の中からいぬが顔を出して「御中だよ！」 */
   const INK = [0x47, 0x43, 0x38];
 
   function update() {
@@ -296,7 +322,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     cap2.style.opacity = span(p, 0.66, 0.74);
 
     // 3 手が震えて 汗がひとつずつ出る
-    scene.classList.toggle('is-shaking', p >= 0.66 && u < 4.8);
+    scene2.classList.toggle('is-shaking', p >= 0.66 && u < 4.8);
     sweats[0].classList.toggle('is-on', p >= 0.74);
     sweats[1].classList.toggle('is-on', p >= 0.86);
 
@@ -308,12 +334,13 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     const S1 = Math.max(base.s, Math.min(vw * (cfg === SP ? 0.7 : 0.56) / F1.w, vh * 0.3 / F1.h));
 
     // 5 真ん中の丸に寄る
-    const z2 = ease(span(u, 5.0, 6.6));
+    const z2 = ease(span(u, 5.3, 6.8));
+    dot.style.setProperty('--hop', reduce ? 0 : span(u, 4.55, 4.75) * (1 - span(u, 5.3, 5.45)));   // 跳ねる高さ（寄り始めたら小さくなって止まる）
     const D0 = Math.min(vw * 0.6, vh * 0.36);               // でっかくなった丸の大きさ（まわりに余白を残す）
     const D = cfg === PC ? Math.min(D0 * 3, vh * 0.92) : D0; // パソコンは3倍（画面の高さからははみ出さない）
     const S2 = Math.max(S1, D / M.dot.d);
-    others.forEach((el) => { el.style.opacity = 1 - span(u, 5.1, 6.0); });
-    const wt = ease(span(u, 5.6, 6.5));
+    others.forEach((el) => { el.style.opacity = 1 - span(u, 5.4, 6.3); });
+    const wt = ease(span(u, 5.9, 6.7));
     const dotColor = `rgb(${INK.map((c) => Math.round(c + (255 - c) * wt)).join(',')})`;
     dot.style.background = dotColor;
 
@@ -329,10 +356,9 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
       const fx = F1.x + (M.dot.x - F1.x) * w, fy = F1.y + (M.dot.y - F1.y) * w;
       tx = vw / 2 - S * fx; ty = vh / 2 - S * fy;
     }
-    scene.style.transform = `translate(${tx}px,${ty}px) scale(${S})`;
+    scenes.forEach((el) => { el.style.transform = `translate(${tx}px,${ty}px) scale(${S})`; });
 
     // 寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
-    Object.assign(kraft.style, { left: -tx / S + 'px', top: -ty / S + 'px', width: vw / S + 'px', height: vh / S + 'px' });
     kraft.style.opacity = span(u, 3.5, 4.5);
     const deep = u > 4.8;                                     // 大きく寄ったら見えない絵は描かない
     bg.style.visibility = hand.style.visibility = lineSvg.style.visibility = deep ? 'hidden' : '';
@@ -346,9 +372,23 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
       say.style.fontSize = Math.max(20, Math.round(r * 0.1 / 4) * 4) + 'px';   // 丸の大きさに合わせる
     }
     dot.style.visibility = swap ? 'hidden' : '';
+    // 左右の丸も同じように入れかえる（拡大しすぎると四角っぽくゆがむため）
+    const sideOp = 1 - span(u, 5.4, 6.3);
+    ghosts.forEach((g, i) => {
+      const show = swap && sideOp > 0;
+      g.classList.toggle('is-on', show);
+      sideDots[i].style.visibility = swap ? 'hidden' : '';
+      if (!show) return;
+      const c = M.sides[i];
+      Object.assign(g.style, { left: tx + S * c.x - r / 2 + 'px', top: ty + S * c.y - r / 2 + 'px', width: r + 'px', height: r + 'px', opacity: sideOp });
+    });
+    // 下向きボタンが丸に重なるときは出さない
+    const nb = next.getBoundingClientRect(), sb = stage.getBoundingClientRect();
+    nextBlocked = swap && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
+    if (nextBlocked) setNext(false);
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
-    const up = z2 >= 1 && u >= 6.8;
+    const up = z2 >= 1 && u >= 7.0;
     if (up && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
     peek.classList.toggle('is-on', swap);
     peek.classList.toggle('is-up', up);
@@ -367,7 +407,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   addEventListener('scroll', () => {
     setNext(progress() <= 0.02);
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => { if (progress() < 0.995) setNext(true); }, IDLE_MS);
+    idleTimer = setTimeout(() => { if (progress() < 0.995 && !nextBlocked) setNext(true); }, IDLE_MS);
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
