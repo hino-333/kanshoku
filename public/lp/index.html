@@ -30,7 +30,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- スクロールで進むシーン ---------- */
-.story{position:relative;height:400vh;height:400svh}
+.story{position:relative;height:600vh;height:600svh}
 .story__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
 .scene{position:absolute;left:0;top:0;transform-origin:0 0;width:1280px;height:832px}
 .scene img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
@@ -57,6 +57,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
 .caption{position:absolute;margin:0;font-weight:700;color:var(--ink);line-height:1.5;letter-spacing:.04em;white-space:nowrap;opacity:0}
 .caption--pc{left:168px;top:296px;font-size:36px}
+.caption span{display:inline}
 
 .next{position:absolute;left:calc(50% - 30px);bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
   background:#fff;cursor:pointer;display:grid;place-items:center;transition:opacity .3s ease;
@@ -103,7 +104,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
         </div>
 
         <p class="caption caption--pc" id="cap1">「学校に書類<br>出さなきゃ！」</p>
-        <p class="caption caption--pc" id="cap2">「あれ…？<br>「おんちゅう」って<br>どう書くんだっけ？」</p>
+        <p class="caption caption--pc" id="cap2"><span class="fade">「</span><span id="are">あれ…？</span><br><span class="fade">「おんちゅう」って<br>どう書くんだっけ？」</span></p>
 
       </div>
       <button class="next" id="next" type="button" aria-label="つづきを見る">
@@ -143,11 +144,13 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const bg = $('bg'), hand = $('hand'), handImg = $('handImg');
   const lineSvg = $('lineSvg'), lineG = $('lineG'), path = $('linePath');
   const sweats = [$('sweat1'), $('sweat2')];
-  const cap1 = $('cap1'), cap2 = $('cap2'), next = $('next');
+  const cap1 = $('cap1'), cap2 = $('cap2'), next = $('next'), are = $('are');
+  const fades = [...cap2.querySelectorAll('.fade')];
   const len = path.getTotalLength();
   path.style.strokeDasharray = len;
 
   let cfg = null;
+  let base = { x: 0, y: 0, s: 1 };   // 画面に合わせたときの位置と倍率
 
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   const span = (p, a, b) => clamp((p - a) / (b - a));
@@ -176,7 +179,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     if (vw / s > cfg.bleed) s = vw / cfg.bleed;          // 横に広すぎる画面は幅に合わせる
     const x = (vw - cfg.w * s) / 2;
     const y = (vh - cfg.h * s) * 0.3;                     // はみ出すときは上を多めに残す
-    scene.style.transform = `translate(${x}px,${y}px) scale(${s})`;
+    base = { x, y, s };
     update();
   }
 
@@ -192,8 +195,14 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     return total > 0 ? clamp(-r.top / total) : 0;
   }
 
+  /* 進み方（スクロール全体を0〜1として）
+     0〜0.62  はじまり→ペンが動く→手が震えて汗が出る
+     0.68〜0.94 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える */
+  const STORY_END = 0.62;
+
   function update() {
-    const p = progress();
+    const pAll = progress();
+    const p = clamp(pAll / STORY_END);
     const begin = pointAt(0);
     const startTip = { x: cfg.start.x + cfg.tip.x, y: cfg.start.y + cfg.tip.y };
 
@@ -205,7 +214,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     else tip = pointAt(t2);
     hand.style.transform = `translate(${tip.x - cfg.tip.x}px,${tip.y - cfg.tip.y}px)`;
     path.style.strokeDashoffset = len * (1 - t2);
-    path.style.opacity = t2 > 0 ? 1 : 0;
+    path.style.opacity = t2 > 0 ? 1 - span(pAll, 0.7, 0.86) : 0;   // 寄っていくときは線も消える
 
     // ことば
     cap1.style.opacity = 1 - span(p, 0.06, 0.16);
@@ -216,20 +225,41 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     sweats[0].classList.toggle('is-on', p >= 0.74);
     sweats[1].classList.toggle('is-on', p >= 0.86);
 
-    next.classList.toggle('is-off', p > 0.03);
+    // 4 「あれ…？」に寄る
+    const z = ease(span(pAll, 0.68, 0.94));
+    fades.forEach((el) => { el.style.opacity = 1 - span(pAll, 0.7, 0.86); });   // まわりの字
+    const vw = stage.clientWidth, vh = stage.clientHeight;
+    const f = {                                            // 「あれ…？」のまんなか（シーンの座標）
+      x: cap2.offsetLeft + are.offsetLeft + are.offsetWidth / 2,
+      y: cap2.offsetTop + are.offsetTop + are.offsetHeight / 2,
+    };
+    const sEnd = Math.min(vw * (cfg === SP ? 0.7 : 0.56) / are.offsetWidth, vh * 0.3 / are.offsetHeight);
+    const S = base.s + (Math.max(sEnd, base.s) - base.s) * z;
+    const from = { x: base.x + base.s * f.x, y: base.y + base.s * f.y };
+    const to = { x: vw / 2, y: vh / 2 };
+    const px = from.x + (to.x - from.x) * z, py = from.y + (to.y - from.y) * z;
+    scene.style.transform = `translate(${px - S * f.x}px,${py - S * f.y}px) scale(${S})`;
   }
 
+  // 下向きボタン：スクロールが3秒止まったらまた出す（いちばん下では出さない）
+  const IDLE_MS = 3000;
+  let idleTimer = 0;
+  const setNext = (on) => next.classList.toggle('is-off', !on);
   next.addEventListener('click', () => {
-    scrollTo({ top: story.offsetTop + innerHeight, behavior: reduce ? 'auto' : 'smooth' });
+    scrollBy({ top: innerHeight, behavior: reduce ? 'auto' : 'smooth' });
   });
 
   let ticking = false;
   addEventListener('scroll', () => {
+    setNext(progress() <= 0.02);
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { if (progress() < 0.995) setNext(true); }, IDLE_MS);
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   addEventListener('resize', fit);
+  if (document.fonts) document.fonts.ready.then(update);
   fit();
 })();
 </script>
