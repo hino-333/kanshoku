@@ -49,7 +49,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
 /* ---------- スクロールで進むシーン ---------- */
 .story{position:relative;height:900vh;height:900svh}
-.story__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
+/* 舞台はスマホの下のバーが引っこんだときの高さ（lvh）まで伸ばして下に白が出ないようにする
+   絵の大きさはバーが出ているときの高さ（svh）で決めるので スクロール中に拡大縮小しない */
+.story__stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;background:var(--paper)}
+.probe{position:fixed;left:0;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none}
 .scene{position:absolute;left:0;top:0;transform-origin:0 0;width:1280px;height:832px}
 .scene img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .scene__bg{left:-260px;top:-97px;width:1875px;height:1460px}
@@ -108,7 +111,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   transition:opacity .32s ease,transform .32s ease;pointer-events:none}
 .say.is-on{opacity:1;transform:translate(0,-50%);transition-delay:.24s}
 
-.next{position:absolute;left:calc(50% - 30px);bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
+.next{position:absolute;left:calc(50% - 30px);top:calc(100vh - 84px);top:calc(100svh - 84px - env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
   background:#fff;cursor:pointer;display:grid;place-items:center;opacity:.7;transition:opacity .3s ease;
   animation:bob 1.6s ease-in-out infinite}
 .next svg{width:36px;height:36px;display:block}
@@ -122,7 +125,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .scene--sp .scene__bg{left:-160px;top:-82px;width:746px;height:1225px}
 .scene--sp .scene__line path{stroke-width:16}
 .scene--sp .caption{left:24px;top:612px;font-size:28px}
-.is-sp .next{bottom:32px;bottom:calc(32px + env(safe-area-inset-bottom))}
+.is-sp .next{top:calc(100vh - 92px);top:calc(100svh - 92px - env(safe-area-inset-bottom))}
 
 @media (prefers-reduced-motion:reduce){
   .top__start{transition:none}
@@ -142,6 +145,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   <a class="top__logo" href="#story" aria-label="ページの先頭へ"><img src="../assets/logo.svg" alt="漢食" width="64" height="55"></a>
   <a class="top__start" href="../">はじめる</a>
 </header>
+
+<div class="probe" id="probe" aria-hidden="true"></div>
 
 <main>
   <h1 class="sr-only">漢食 調べてくれるパートナーにあそんでごちそう</h1>
@@ -212,6 +217,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (id) => document.getElementById(id);
+  const probe = $('probe');
+  const viewH = () => probe.offsetHeight || innerHeight;   // バーが出ているときの画面の高さ
   const story = $('story'), stage = $('stage'), scene = $('scene'), scene2 = $('scene2');
   const scenes = [scene, scene2];   // 奥（封筒の絵）と手前（線・手・字）を同じように動かす
   const bg = $('bg'), hand = $('hand'), handImg = $('handImg');
@@ -250,7 +257,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   }
 
   function fit() {
-    const vw = stage.clientWidth, vh = stage.clientHeight;
+    const vw = stage.clientWidth, vh = viewH();
     setCfg(vw / vh < 0.85 ? SP : PC);
     let s = vh / cfg.h;
     if (vw / s > cfg.bleed) s = vw / cfg.bleed;          // 横に広すぎる画面は幅に合わせる
@@ -267,10 +274,13 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     return { x: cfg.line.x + p.x * k, y: cfg.line.y + p.y * k };
   }
 
-  function progress() {
-    const r = story.getBoundingClientRect();
+  function scrolled() {
     const total = story.offsetHeight - stage.clientHeight;
-    return total > 0 ? clamp(-r.top / total) : 0;
+    return clamp(-story.getBoundingClientRect().top, 0, Math.max(0, total));
+  }
+  function progress() {
+    const total = story.offsetHeight - stage.clientHeight;
+    return total > 0 ? scrolled() / total : 0;
   }
 
   // 「あれ…？」と真ん中の丸の位置と大きさ（シーンの座標）を測っておく
@@ -300,9 +310,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const INK = [0x47, 0x43, 0x38];
 
   function update() {
-    const vw = stage.clientWidth, vh = stage.clientHeight;
-    const pAll = progress();
-    const u = pAll * (story.offsetHeight - vh) / vh;
+    const vw = stage.clientWidth, vh = viewH();
+    const u = scrolled() / vh;                                 // 画面いくつ分スクロールしたか
     const p = clamp(u / 3.1);
     const begin = pointAt(0);
     const startTip = { x: cfg.start.x + cfg.tip.x, y: cfg.start.y + cfg.tip.y };
@@ -361,6 +370,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     // 寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
     kraft.style.opacity = span(u, 3.5, 4.5);
     const deep = u > 4.8;                                     // 大きく寄ったら見えない絵は描かない
+    // ページの外側（引っぱりすぎたときに見える所）も紙の色にそろえる
+    document.documentElement.style.background = document.body.style.background = u > 4.5 ? 'rgb(209,169,115)' : '';
     bg.style.visibility = hand.style.visibility = lineSvg.style.visibility = deep ? 'hidden' : '';
 
     // 6 丸が大きくなったら画面の大きさで描いた丸に入れかえる（拡大しすぎると丸がゆがむため）
