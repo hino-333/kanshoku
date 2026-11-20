@@ -29,6 +29,24 @@
 html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
+/* ---------- ヘッダー（絵の上に重ねる 帯は敷かない） ---------- */
+.top{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  height:72px;padding:0 20px;padding-top:env(safe-area-inset-top,0px);box-sizing:content-box;pointer-events:none}
+.top a{pointer-events:auto}
+.top__logo{display:block;line-height:0}
+.top__logo img{width:64px;height:auto}
+.top__start{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 24px;border-radius:24px;
+  background:var(--primary);color:#fffed5;font:700 16px/1 var(--font);text-decoration:none;
+  box-shadow:0 8px 20px rgba(56,170,207,.32);transition:transform .2s cubic-bezier(.34,1.4,.5,1)}
+.top__start:hover{transform:translateY(-4px)}
+.top__start:active{transform:translateY(0) scale(.97)}
+.top a:focus-visible{outline:4px solid var(--primary);outline-offset:4px;border-radius:12px}
+@media (min-width:768px){
+  .top{height:96px;padding:0 40px}
+  .top__logo img{width:80px}
+  .top__start{height:52px;padding:0 32px;font-size:18px}
+}
+
 /* ---------- スクロールで進むシーン ---------- */
 .story{position:relative;height:600vh;height:600svh}
 .story__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
@@ -76,6 +94,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .is-sp .next{bottom:32px;bottom:calc(32px + env(safe-area-inset-bottom))}
 
 @media (prefers-reduced-motion:reduce){
+  .top__start{transition:none}
   .is-shaking .hand__shake{animation:none}
   .next{animation:none}
   .sweat{transform:none;transition:opacity .2s linear}
@@ -83,6 +102,11 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 </style>
 </head>
 <body>
+
+<header class="top">
+  <a class="top__logo" href="#story" aria-label="ページの先頭へ"><img src="../assets/logo.svg" alt="漢食" width="64" height="55"></a>
+  <a class="top__start" href="../">はじめる</a>
+</header>
 
 <main>
   <h1 class="sr-only">漢食 調べてくれるパートナーにあそんでごちそう</h1>
