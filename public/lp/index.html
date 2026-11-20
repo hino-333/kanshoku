@@ -35,6 +35,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .scene{position:absolute;left:0;top:0;transform-origin:0 0;width:1280px;height:832px}
 .scene img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .scene__bg{left:-260px;top:-97px;width:1875px;height:1460px}
+.kraft{position:absolute;opacity:0;pointer-events:none;background:url(img/story/kraft-pc.webp) center/cover no-repeat}
 .scene__line{position:absolute;overflow:visible;pointer-events:none}
 .scene__line path{fill:none;stroke:var(--ink);stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
 
@@ -91,6 +92,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
       <div class="scene" id="scene">
         <img class="scene__bg" id="bg" src="img/story/bg-pc.webp" alt="" width="1875" height="1460">
 
+        <div class="kraft" id="kraft" aria-hidden="true"></div>
+
         <svg class="scene__line" id="lineSvg" aria-hidden="true">
           <g id="lineG"><path id="linePath" d="M 31.0464 0 C 31.0464 0 1.5975 18.413 0.0464 52.5 C -1.7135 91.1756 47.189 74.9561 43.5464 113.5 C 40.6925 143.699 13.7102 136.1888 12.5465 166.5 C 11.0522 205.4187 56.6899 217.0529 56.5465 256 C 56.4195 290.4589 30.5464 339.5 30.5464 339.5"/></g>
         </svg>
@@ -146,6 +149,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const sweats = [$('sweat1'), $('sweat2')];
   const cap1 = $('cap1'), cap2 = $('cap2'), next = $('next'), are = $('are');
   const fades = [...cap2.querySelectorAll('.fade')];
+  const kraft = $('kraft');
   const len = path.getTotalLength();
   path.style.strokeDasharray = len;
 
@@ -238,7 +242,14 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     const from = { x: base.x + base.s * f.x, y: base.y + base.s * f.y };
     const to = { x: vw / 2, y: vh / 2 };
     const px = from.x + (to.x - from.x) * z, py = from.y + (to.y - from.y) * z;
-    scene.style.transform = `translate(${px - S * f.x}px,${py - S * f.y}px) scale(${S})`;
+    const tx = px - S * f.x, ty = py - S * f.y;
+    scene.style.transform = `translate(${tx}px,${ty}px) scale(${S})`;
+
+    // パソコン版：寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
+    if (cfg === PC) {
+      Object.assign(kraft.style, { left: -tx / S + 'px', top: -ty / S + 'px', width: vw / S + 'px', height: vh / S + 'px' });
+      kraft.style.opacity = span(pAll, 0.7, 0.9);
+    } else kraft.style.opacity = 0;
   }
 
   // 下向きボタン：スクロールが3秒止まったらまた出す（いちばん下では出さない）
