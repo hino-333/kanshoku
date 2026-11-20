@@ -309,7 +309,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
     // 5 真ん中の丸に寄る
     const z2 = ease(span(u, 5.0, 6.6));
-    const D = Math.min(vw * 0.6, vh * 0.36);                // でっかくなった丸の大きさ（まわりに余白を残す）
+    const D0 = Math.min(vw * 0.6, vh * 0.36);               // でっかくなった丸の大きさ（まわりに余白を残す）
+    const D = cfg === PC ? Math.min(D0 * 3, vh * 0.92) : D0; // パソコンは3倍（画面の高さからははみ出さない）
     const S2 = Math.max(S1, D / M.dot.d);
     others.forEach((el) => { el.style.opacity = 1 - span(u, 5.1, 6.0); });
     const wt = ease(span(u, 5.6, 6.5));
