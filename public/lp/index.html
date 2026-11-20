@@ -48,12 +48,13 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 }
 
 /* ---------- スクロールで進むシーン ---------- */
-.story{position:relative;height:600vh;height:600svh}
+.story{position:relative;height:900vh;height:900svh}
 .story__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
 .scene{position:absolute;left:0;top:0;transform-origin:0 0;width:1280px;height:832px}
 .scene img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .scene__bg{left:-260px;top:-97px;width:1875px;height:1460px}
 .kraft{position:absolute;opacity:0;pointer-events:none;background:url(img/story/kraft-pc.webp) center/cover no-repeat}
+.scene--sp .kraft{background-image:url(img/story/kraft-sp.webp)}
 .scene__line{position:absolute;overflow:visible;pointer-events:none}
 .scene__line path{fill:none;stroke:var(--ink);stroke-width:16;stroke-linecap:round;stroke-linejoin:round}
 
@@ -77,6 +78,23 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .caption{position:absolute;margin:0;font-weight:700;color:var(--ink);line-height:1.5;letter-spacing:.04em;white-space:nowrap;opacity:0}
 .caption--pc{left:168px;top:296px;font-size:36px}
 .caption span{display:inline}
+/* 「…」はフォントと同じ位置と大きさの丸3つで描く（真ん中の丸に寄るため） */
+.caption .ell{position:relative;display:inline-block;width:1em;height:1.1em;vertical-align:-.168em;margin-right:.04em}
+.ell i{position:absolute;top:.4655em;width:.172em;height:.172em;border-radius:50%;background:var(--ink)}
+.ell i:nth-of-type(1){left:.086em}
+.ell i:nth-of-type(2){left:.4135em}
+.ell i:nth-of-type(3){left:.741em}
+
+/* 丸の中から顔を出すいぬ（でっかくなった丸と同じ位置に重ねる） */
+.peek{position:absolute;z-index:5;border-radius:50%;background:#fff;overflow:hidden;display:none;pointer-events:none}
+.peek.is-on{display:block}
+.peek img{position:absolute;left:50%;width:64%;height:auto;margin-left:-32%;top:100%;
+  transition:transform .56s cubic-bezier(.34,1.56,.64,1)}
+.peek.is-up img{transform:translateY(-76%)}
+.say{position:absolute;left:0;right:0;top:30%;margin:0;text-align:center;font-weight:700;color:var(--ink);
+  font-size:28px;line-height:1.5;letter-spacing:.04em;white-space:nowrap;opacity:0;transform:translate(0,calc(-50% + 8px));
+  transition:opacity .32s ease,transform .32s ease;pointer-events:none}
+.say.is-on{opacity:1;transform:translate(0,-50%);transition-delay:.24s}
 
 .next{position:absolute;left:calc(50% - 30px);bottom:24px;bottom:calc(24px + env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
   background:#fff;cursor:pointer;display:grid;place-items:center;opacity:.7;transition:opacity .3s ease;
@@ -98,6 +116,9 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   .is-shaking .hand__shake{animation:none}
   .next{animation:none}
   .sweat{transform:none;transition:opacity .2s linear}
+  .peek img{transition:transform .2s ease}
+  .say{transform:translate(0,-50%)}
+  .say.is-on{transition-delay:0s}
 }
 </style>
 </head>
@@ -131,9 +152,15 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
         </div>
 
         <p class="caption caption--pc" id="cap1">「学校に書類<br>出さなきゃ！」</p>
-        <p class="caption caption--pc" id="cap2"><span class="fade">「</span><span id="are">あれ…？</span><br><span class="fade">「おんちゅう」って<br>どう書くんだっけ？」</span></p>
+        <p class="caption caption--pc" id="cap2"><span class="fade">「</span><span id="are"><span class="are-t">あれ</span><span class="ell"><span class="sr-only">…</span><i></i><i id="dot"></i><i></i></span><span class="are-t">？</span></span><br><span class="fade">「おんちゅう」って<br>どう書くんだっけ？」</span></p>
 
       </div>
+
+      <div class="peek" id="peek">
+        <p class="say" id="say">「御中だよ！」</p>
+        <img src="../assets/character/dog-normal.webp" alt="" width="257" height="252">
+      </div>
+
       <button class="next" id="next" type="button" aria-label="つづきを見る">
         <svg viewBox="0 0 36 36" aria-hidden="true"><path fill="#38aacf" transform="translate(9 6)" d="M7.939 23.56L.439 16.06A1.5 1.5 0 0 1 2.56 13.94L7.5 18.879V1.5a1.5 1.5 0 0 1 3 0v17.379l4.939-4.94a1.5 1.5 0 0 1 2.121 2.121l-7.5 7.5a1.5 1.5 0 0 1-2.121 0Z"/></svg>
       </button>
@@ -173,7 +200,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const sweats = [$('sweat1'), $('sweat2')];
   const cap1 = $('cap1'), cap2 = $('cap2'), next = $('next'), are = $('are');
   const fades = [...cap2.querySelectorAll('.fade')];
-  const kraft = $('kraft');
+  const kraft = $('kraft'), dot = $('dot'), peek = $('peek'), say = $('say');
+  const others = [...are.querySelectorAll('.are-t, .ell i:not(#dot)')];
   const len = path.getTotalLength();
   path.style.strokeDasharray = len;
 
@@ -208,6 +236,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     const x = (vw - cfg.w * s) / 2;
     const y = (vh - cfg.h * s) * 0.3;                     // はみ出すときは上を多めに残す
     base = { x, y, s };
+    M = null;
     update();
   }
 
@@ -223,14 +252,32 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     return total > 0 ? clamp(-r.top / total) : 0;
   }
 
-  /* 進み方（スクロール全体を0〜1として）
-     0〜0.62  はじまり→ペンが動く→手が震えて汗が出る
-     0.68〜0.94 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える */
-  const STORY_END = 0.62;
+  // 「あれ…？」と真ん中の丸の位置と大きさ（シーンの座標）を測っておく
+  let M = null;
+  function measure() {
+    const keep = scene.style.transform;
+    scene.style.transform = 'none';
+    const o = scene.getBoundingClientRect();
+    const a = are.getBoundingClientRect(), d = dot.getBoundingClientRect();
+    scene.style.transform = keep;
+    M = {
+      are: { x: a.left - o.left + a.width / 2, y: a.top - o.top + a.height / 2, w: a.width, h: a.height },
+      dot: { x: d.left - o.left + d.width / 2, y: d.top - o.top + d.height / 2, d: d.width },
+    };
+  }
+
+  /* 進み方（画面いくつ分スクロールしたか）
+     0〜3.1   はじまり→ペンが動く→手が震えて汗が出る
+     3.4〜4.7 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える
+     5.0〜6.6 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
+     6.8〜    丸の中からいぬが顔を出して「御中だよ！」 */
+  const INK = [0x47, 0x43, 0x38];
 
   function update() {
+    const vw = stage.clientWidth, vh = stage.clientHeight;
     const pAll = progress();
-    const p = clamp(pAll / STORY_END);
+    const u = pAll * (story.offsetHeight - vh) / vh;
+    const p = clamp(u / 3.1);
     const begin = pointAt(0);
     const startTip = { x: cfg.start.x + cfg.tip.x, y: cfg.start.y + cfg.tip.y };
 
@@ -242,38 +289,69 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     else tip = pointAt(t2);
     hand.style.transform = `translate(${tip.x - cfg.tip.x}px,${tip.y - cfg.tip.y}px)`;
     path.style.strokeDashoffset = len * (1 - t2);
-    path.style.opacity = t2 > 0 ? 1 - span(pAll, 0.7, 0.86) : 0;   // 寄っていくときは線も消える
+    path.style.opacity = t2 > 0 ? 1 - span(u, 3.5, 4.3) : 0;   // 寄っていくときは線も消える
 
     // ことば
     cap1.style.opacity = 1 - span(p, 0.06, 0.16);
     cap2.style.opacity = span(p, 0.66, 0.74);
 
     // 3 手が震えて 汗がひとつずつ出る
-    scene.classList.toggle('is-shaking', p >= 0.66);
+    scene.classList.toggle('is-shaking', p >= 0.66 && u < 4.8);
     sweats[0].classList.toggle('is-on', p >= 0.74);
     sweats[1].classList.toggle('is-on', p >= 0.86);
 
     // 4 「あれ…？」に寄る
-    const z = ease(span(pAll, 0.68, 0.94));
-    fades.forEach((el) => { el.style.opacity = 1 - span(pAll, 0.7, 0.86); });   // まわりの字
-    const vw = stage.clientWidth, vh = stage.clientHeight;
-    const f = {                                            // 「あれ…？」のまんなか（シーンの座標）
-      x: cap2.offsetLeft + are.offsetLeft + are.offsetWidth / 2,
-      y: cap2.offsetTop + are.offsetTop + are.offsetHeight / 2,
-    };
-    const sEnd = Math.min(vw * (cfg === SP ? 0.7 : 0.56) / are.offsetWidth, vh * 0.3 / are.offsetHeight);
-    const S = base.s + (Math.max(sEnd, base.s) - base.s) * z;
-    const from = { x: base.x + base.s * f.x, y: base.y + base.s * f.y };
-    const to = { x: vw / 2, y: vh / 2 };
-    const px = from.x + (to.x - from.x) * z, py = from.y + (to.y - from.y) * z;
-    const tx = px - S * f.x, ty = py - S * f.y;
+    if (!M) measure();
+    const z1 = ease(span(u, 3.4, 4.7));
+    fades.forEach((el) => { el.style.opacity = 1 - span(u, 3.5, 4.3); });   // まわりの字
+    const F1 = M.are;
+    const S1 = Math.max(base.s, Math.min(vw * (cfg === SP ? 0.7 : 0.56) / F1.w, vh * 0.3 / F1.h));
+
+    // 5 真ん中の丸に寄る
+    const z2 = ease(span(u, 5.0, 6.6));
+    const D = Math.min(vw * 0.6, vh * 0.36);                // でっかくなった丸の大きさ（まわりに余白を残す）
+    const S2 = Math.max(S1, D / M.dot.d);
+    others.forEach((el) => { el.style.opacity = 1 - span(u, 5.1, 6.0); });
+    const wt = ease(span(u, 5.6, 6.5));
+    const dotColor = `rgb(${INK.map((c) => Math.round(c + (255 - c) * wt)).join(',')})`;
+    dot.style.background = dotColor;
+
+    let S, tx, ty;
+    if (z2 <= 0) {
+      S = base.s + (S1 - base.s) * z1;
+      const fx = base.x + base.s * F1.x, fy = base.y + base.s * F1.y;
+      const px = fx + (vw / 2 - fx) * z1, py = fy + (vh / 2 - fy) * z1;
+      tx = px - S * F1.x; ty = py - S * F1.y;
+    } else {
+      S = S1 * Math.pow(S2 / S1, z2);
+      const w = 1 - (1 - z2) * S1 / S;                       // 丸が画面のまんなかへまっすぐ近づくように
+      const fx = F1.x + (M.dot.x - F1.x) * w, fy = F1.y + (M.dot.y - F1.y) * w;
+      tx = vw / 2 - S * fx; ty = vh / 2 - S * fy;
+    }
     scene.style.transform = `translate(${tx}px,${ty}px) scale(${S})`;
 
-    // パソコン版：寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
-    if (cfg === PC) {
-      Object.assign(kraft.style, { left: -tx / S + 'px', top: -ty / S + 'px', width: vw / S + 'px', height: vh / S + 'px' });
-      kraft.style.opacity = span(pAll, 0.7, 0.9);
-    } else kraft.style.opacity = 0;
+    // 寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
+    Object.assign(kraft.style, { left: -tx / S + 'px', top: -ty / S + 'px', width: vw / S + 'px', height: vh / S + 'px' });
+    kraft.style.opacity = span(u, 3.5, 4.5);
+    const deep = u > 4.8;                                     // 大きく寄ったら見えない絵は描かない
+    bg.style.visibility = hand.style.visibility = lineSvg.style.visibility = deep ? 'hidden' : '';
+
+    // 6 丸が大きくなったら画面の大きさで描いた丸に入れかえる（拡大しすぎると丸がゆがむため）
+    const r = M.dot.d * S;
+    const swap = z2 > 0 && r > 24;
+    if (swap) {
+      const cx = tx + S * M.dot.x, cy = ty + S * M.dot.y;
+      Object.assign(peek.style, { left: cx - r / 2 + 'px', top: cy - r / 2 + 'px', width: r + 'px', height: r + 'px', background: dotColor });
+      say.style.fontSize = Math.max(20, Math.round(r * 0.1 / 4) * 4) + 'px';   // 丸の大きさに合わせる
+    }
+    dot.style.visibility = swap ? 'hidden' : '';
+
+    // 7 丸の中からいぬが顔を出して「御中だよ！」
+    const up = z2 >= 1 && u >= 6.8;
+    if (up && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
+    peek.classList.toggle('is-on', swap);
+    peek.classList.toggle('is-up', up);
+    say.classList.toggle('is-on', up);
   }
 
   // 下向きボタン：スクロールが3秒止まったらまた出す（いちばん下では出さない）
@@ -294,7 +372,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   addEventListener('resize', fit);
-  if (document.fonts) document.fonts.ready.then(update);
+  if (document.fonts) document.fonts.ready.then(() => { M = null; update(); });
   fit();
 })();
 </script>
