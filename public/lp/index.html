@@ -130,7 +130,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .hero__screen img{position:absolute;left:0;top:6%;width:100%;height:auto;display:block}
 .hero__island{position:absolute;left:50%;top:12px;width:84px;height:24px;margin-left:-42px;border-radius:12px;background:#1d1d1f}
 .hero__dog{position:absolute;left:1000px;top:410px;width:220px;height:auto}
-.hero__wave{position:absolute;left:-3000px;top:0;width:7300px;height:3000px;overflow:visible}
+.hero__wave{position:absolute;left:-3000px;top:0;width:7300px;height:3000px;overflow:visible;
+  transform:translateY(480px);transition:transform .3s cubic-bezier(.6,-.5,.7,.2)}
+/* 青い波は丸が広がりきってから下からポンと上がってくる */
+.hero.is-dog .hero__wave{transform:none;transition:transform .6s cubic-bezier(.34,1.56,.64,1)}
 .hero__wave path{fill:var(--primary)}
 .hero__dl{position:absolute;left:865px;top:236px;width:306px;text-align:center}
 .hero__dl-label{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 16px;font-weight:700;font-size:24px;line-height:32px;color:var(--primary)}
@@ -161,7 +164,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .hero.is-in .hero__phone{transition-delay:.08s}
 .hero.is-in .hero__dl{transition-delay:.16s}
 .hero__dog{transform:translateY(90%);transition:transform .3s cubic-bezier(.6,-.5,.7,.2)}
-.hero.is-dog .hero__dog{transform:none;transition:transform .56s cubic-bezier(.34,1.56,.64,1) .12s}
+.hero.is-dog .hero__dog{transform:none;transition:transform .56s cubic-bezier(.34,1.56,.64,1) .42s}
 
 .next{position:absolute;left:calc(50% - 30px);top:calc(100vh - 84px);top:calc(100svh - 84px - env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
   background:#fff;cursor:pointer;display:grid;place-items:center;opacity:.7;transition:opacity .3s ease;
@@ -188,7 +191,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   .peek img{transition:transform .2s ease}
   .say{transform:translate(0,-50%)}
   .say.is-on{transition-delay:0s}
-  .hero__logo,.hero__phone,.hero__dl,.hero__dog{transform:none!important}
+  .hero__logo,.hero__phone,.hero__dl,.hero__dog,.hero__wave{transform:none!important}
   .hero__dog{opacity:0;transition:opacity .2s}
   .hero.is-dog .hero__dog{opacity:1}
 }
@@ -388,7 +391,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
      4.7〜5.3 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
      5.3〜6.8 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
      7.0〜7.45 丸の中からいぬが顔を出して「御中だよ！」 そのあと台詞はポンと消えて いぬもポンと下がる
-     7.7〜8.7 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったらいぬが波の後ろから出てくる */
+     7.7〜8.7 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったら青い波が上がって いぬが波の後ろから出てくる */
   const INK = [0x47, 0x43, 0x38];
 
   function update() {
@@ -478,7 +481,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     // 下向きボタンが丸に重なるときは出さない
     const nb = next.getBoundingClientRect(), sb = stage.getBoundingClientRect();
     const E = span(u, 7.7, 8.7);                               // 丸が広がってヒーローになる進み具合
-    nextBlocked = swap && E <= 0 && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
+    nextBlocked = swap && E < 1 && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
     if (nextBlocked) setNext(false);
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
