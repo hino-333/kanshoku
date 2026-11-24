@@ -32,7 +32,13 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 /* ---------- ヘッダー（絵の上に重ねる 帯は敷かない） ---------- */
 .top{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;
   height:72px;padding:0 20px;padding-top:env(safe-area-inset-top,0px);box-sizing:content-box;pointer-events:none}
-.top a{pointer-events:auto}
+.top a,.top button{pointer-events:auto}
+.top{align-items:flex-start;height:auto;padding-top:12px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.top__right{display:flex;flex-direction:column;align-items:center;gap:4px}
+.top__skip{height:32px;padding:0 12px;border:0;border-radius:12px;background:transparent;color:var(--primary);font:700 14px/1 var(--font);text-shadow:0 0 8px rgba(255,255,255,.9);cursor:pointer;transition:opacity .3s ease}
+.top__skip:hover{opacity:.7}
+.top__skip.is-off{opacity:0;pointer-events:none}
+.top__skip:focus-visible{outline:4px solid var(--primary);outline-offset:2px}
 .top__logo{display:block;line-height:0}
 .top__logo img{width:64px;height:auto}
 .top__start{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 24px;border-radius:24px;
@@ -42,9 +48,11 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .top__start:active{transform:translateY(0) scale(.97)}
 .top a:focus-visible{outline:4px solid var(--primary);outline-offset:4px;border-radius:12px}
 @media (min-width:768px){
-  .top{height:96px;padding:0 40px}
+  .top{padding:0 40px}
   .top__logo img{width:80px}
   .top__start{height:52px;padding:0 32px;font-size:18px}
+  .top{padding-top:20px}
+  .top__skip{height:36px;font-size:16px}
 }
 
 /* ---------- スクロールで進むシーン ---------- */
@@ -143,7 +151,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
 <header class="top">
   <a class="top__logo" href="#story" aria-label="ページの先頭へ"><img src="../assets/logo.svg" alt="漢食" width="64" height="55"></a>
-  <a class="top__start" href="../">はじめる</a>
+  <div class="top__right">
+    <a class="top__start" href="../">はじめる</a>
+    <button class="top__skip" id="skip" type="button">スキップする</button>
+  </div>
 </header>
 
 <div class="probe" id="probe" aria-hidden="true"></div>
@@ -400,6 +411,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
     const up = z2 >= 1 && u >= 7.0;
+    skip.classList.toggle('is-off', up);                     // 最後まで来たらスキップは消す
     if (up && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
     peek.classList.toggle('is-on', swap);
     peek.classList.toggle('is-up', up);
@@ -410,6 +422,12 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const IDLE_MS = 3000;
   let idleTimer = 0;
   const setNext = (on) => next.classList.toggle('is-off', !on);
+  // スキップ：はじまりの場面をとばして最後（いぬの場面）まで進む
+  const skip = $('skip');
+  skip.addEventListener('click', () => {
+    const total = story.offsetHeight - stage.clientHeight;
+    scrollTo({ top: story.offsetTop + total, behavior: 'auto' });
+  });
   next.addEventListener('click', () => {
     scrollBy({ top: innerHeight, behavior: reduce ? 'auto' : 'smooth' });
   });
