@@ -391,8 +391,21 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
      4.7〜5.3 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
      5.3〜6.8 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
      6.8〜    （ここから先はスクロールしなくても自動で進む 時間は秒）
-       0〜1.8秒   丸の中からいぬが顔を出して「御中だよ！」 そのあと台詞はポンと消えて いぬもポンと下がる
-       2.1〜3.0秒 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったら青い波が上がって いぬが波の後ろから出てくる */
+       0〜0.85秒  丸の中からいぬが顔を出して「御中だよ！」 そのあと台詞はポンと消えて いぬもポンと下がる
+       1.1〜2.0秒 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったら青い波が上がって いぬが波の後ろから出てくる */
+  // 画面の固定：自動で進んでいる間はスクロールを止める
+  let locked = false, lockY = 0;
+  function setLock(on) {
+    if (on === locked) return;
+    locked = on;
+    if (on) lockY = scrollY;
+  }
+  const block = (e) => { if (locked) e.preventDefault(); };
+  addEventListener('wheel', block, { passive: false });
+  addEventListener('touchmove', block, { passive: false });
+  addEventListener('keydown', (e) => {
+    if (locked && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
+  });
   let autoStart = null;                                        // 自動で進み始めた時刻
   let autoRaf = 0;
   function autoTick() {
@@ -493,13 +506,14 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     if (atEnd && autoStart === null) { autoStart = performance.now(); if (!autoRaf) autoRaf = requestAnimationFrame(autoTick); }
     if (!atEnd) autoStart = null;
     const T = autoStart === null ? -1 : (performance.now() - autoStart) / 1000;
-    const E = T < 0 ? 0 : span(T, 2.1, 3.0);                   // 丸が広がってヒーローになる進み具合
+    const E = T < 0 ? 0 : span(T, 1.1, 2.0);                   // 丸が広がってヒーローになる進み具合
     nextBlocked = swap && E < 1 && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
     if (nextBlocked) setNext(false);
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
     const up = T >= 0;
-    const talk = up && T < 1.8;                              // 1.8秒で「御中だよ！」がポンと消えて いぬもポンと下がる
+    const talk = up && T < 0.85;                             // 0.85秒で「御中だよ！」がポンと消えて いぬもポンと下がる
+    setLock(T >= 0 && T < 3.0);                              // 自動で進んでいる間は画面を固定する
     skip.classList.toggle('is-off', up);                     // 最後まで来たらスキップは消す
     if (talk && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
     peek.classList.toggle('is-on', swap && E <= 0);
@@ -543,6 +557,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   let ticking = false;
   addEventListener('scroll', () => {
+    if (locked) { if (scrollY !== lockY) scrollTo(0, lockY); return; }   // 固定中は元の位置に戻す
     setNext(progress() <= 0.02);
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => { if (progress() < 0.995 && !nextBlocked) setNext(true); }, IDLE_MS);
