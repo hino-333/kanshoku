@@ -56,7 +56,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 }
 
 /* ---------- スクロールで進むシーン ---------- */
-.story{position:relative;height:900vh;height:900svh}
+.story{position:relative;height:1050vh;height:1050svh}
 /* 舞台はスマホの下のバーが引っこんだときの高さ（lvh）まで伸ばして下に白が出ないようにする
    絵の大きさはバーが出ているときの高さ（svh）で決めるので スクロール中に拡大縮小しない */
 .story__stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;background:var(--paper)}
@@ -112,12 +112,56 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .peek{position:absolute;z-index:5;border-radius:50%;background:#fff;overflow:hidden;display:none;pointer-events:none}
 .peek.is-on{display:block}
 .peek img{position:absolute;left:50%;width:64%;height:auto;margin-left:-32%;top:100%;
-  transition:transform .56s cubic-bezier(.34,1.56,.64,1)}
-.peek.is-up img{transform:translateY(-76%)}
+  transition:transform .32s cubic-bezier(.6,-.5,.7,.2)}
+.peek.is-up img{transform:translateY(-76%);transition:transform .56s cubic-bezier(.34,1.56,.64,1)}
 .say{position:absolute;left:0;right:0;top:30%;margin:0;text-align:center;font-weight:700;color:var(--ink);
-  font-size:28px;line-height:1.5;letter-spacing:.04em;white-space:nowrap;opacity:0;transform:translate(0,calc(-50% + 8px));
-  transition:opacity .32s ease,transform .32s ease;pointer-events:none}
-.say.is-on{opacity:1;transform:translate(0,-50%);transition-delay:.24s}
+  font-size:28px;line-height:1.5;letter-spacing:.04em;white-space:nowrap;opacity:0;transform:translate(0,-50%) scale(.4);
+  transition:opacity .16s ease .08s,transform .26s cubic-bezier(.6,-.6,.7,.2);pointer-events:none}
+.say.is-on{opacity:1;transform:translate(0,-50%);transition:opacity .2s ease .24s,transform .5s cubic-bezier(.34,1.56,.64,1) .24s}
+
+/* ---------- ヒーロー（白い丸が広がってこの画面になる） ---------- */
+.hero{position:absolute;inset:0;z-index:7;background:#fff;display:none;overflow:hidden}
+.hero.is-on{display:block}
+.hero__box{position:absolute;left:0;top:0;width:1280px;height:832px;transform-origin:0 0}
+.hero__logo{position:absolute;left:97px;top:158px;width:330px;height:auto}
+.hero__phone{position:absolute;left:505px;top:120px;width:270px;height:561px;padding:10px;border-radius:44px;background:#1d1d1f;
+  box-shadow:0 24px 48px rgba(29,29,31,.18)}
+.hero__screen{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;background:rgb(220,242,248)}
+.hero__screen img{position:absolute;left:0;top:6%;width:100%;height:auto;display:block}
+.hero__island{position:absolute;left:50%;top:12px;width:84px;height:24px;margin-left:-42px;border-radius:12px;background:#1d1d1f}
+.hero__dog{position:absolute;left:1000px;top:410px;width:220px;height:auto}
+.hero__wave{position:absolute;left:-3000px;top:0;width:7300px;height:3000px;overflow:visible}
+.hero__wave path{fill:var(--primary)}
+.hero__dl{position:absolute;left:865px;top:236px;width:306px;text-align:center}
+.hero__dl-label{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 16px;font-weight:700;font-size:24px;line-height:32px;color:var(--primary)}
+.hero__dl-label svg{width:12px;height:28px;flex:none}
+.hero__dl-label path{fill:none;stroke:var(--primary);stroke-width:4;stroke-linecap:round}
+.hero__badges{display:flex;justify-content:center;align-items:center;gap:12px}
+.hero__badges a{display:block;line-height:0;border-radius:8px}
+.hero__badges a:focus-visible{outline:4px solid var(--primary);outline-offset:4px}
+.hero__badges img{height:48px;width:auto;display:block}
+
+/* スマホのヒーロー */
+.is-sp .hero__box{width:390px;height:844px}
+.is-sp .hero__logo{left:95px;top:96px;width:200px}
+.is-sp .hero__phone{left:40px;top:384px;width:190px;height:395px;padding:7px;border-radius:32px}
+.is-sp .hero__screen{border-radius:25px}
+.is-sp .hero__island{top:8px;width:58px;height:17px;margin-left:-29px;border-radius:9px}
+.is-sp .hero__dog{left:252px;top:540px;width:124px}
+.is-sp .hero__dl{left:20px;top:282px;width:350px}
+.is-sp .hero__dl-label{font-size:20px;line-height:28px;margin-bottom:12px;gap:8px}
+.is-sp .hero__dl-label svg{width:10px;height:24px}
+.is-sp .hero__badges{gap:10px}
+.is-sp .hero__badges img{height:40px}
+
+/* ポップに出てくる（大きさは縦横そろえて変える 傾けない） */
+.hero__logo,.hero__phone,.hero__dl{opacity:0;transform:scale(.5);transition:opacity .2s ease,transform .3s cubic-bezier(.6,-.5,.7,.2)}
+.hero__phone{transform:translateY(96px)}
+.hero.is-in .hero__logo,.hero.is-in .hero__phone,.hero.is-in .hero__dl{opacity:1;transform:none;transition:opacity .2s ease,transform .6s cubic-bezier(.34,1.56,.64,1)}
+.hero.is-in .hero__phone{transition-delay:.08s}
+.hero.is-in .hero__dl{transition-delay:.16s}
+.hero__dog{transform:translateY(90%);transition:transform .3s cubic-bezier(.6,-.5,.7,.2)}
+.hero.is-dog .hero__dog{transform:none;transition:transform .56s cubic-bezier(.34,1.56,.64,1) .12s}
 
 .next{position:absolute;left:calc(50% - 30px);top:calc(100vh - 84px);top:calc(100svh - 84px - env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
   background:#fff;cursor:pointer;display:grid;place-items:center;opacity:.7;transition:opacity .3s ease;
@@ -125,7 +169,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .next svg{width:36px;height:36px;display:block}
 .next:focus-visible{outline:4px solid var(--primary);outline-offset:4px}
 .next.is-off{opacity:0;pointer-events:none}
-.next{z-index:6}
+.next{z-index:8}
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 8px}}
 
 /* スマホの絵（縦長） */
@@ -144,6 +188,9 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   .peek img{transition:transform .2s ease}
   .say{transform:translate(0,-50%)}
   .say.is-on{transition-delay:0s}
+  .hero__logo,.hero__phone,.hero__dl,.hero__dog{transform:none!important}
+  .hero__dog{opacity:0;transition:opacity .2s}
+  .hero.is-dog .hero__dog{opacity:1}
 }
 </style>
 </head>
@@ -195,6 +242,22 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
         <img src="../assets/character/dog-normal.webp" alt="" width="257" height="252">
       </div>
 
+      <div class="hero" id="hero">
+        <div class="hero__box" id="heroBox">
+          <div class="hero__phone"><div class="hero__screen"><img src="img/room.webp" alt="漢食のお部屋の画面" width="780" height="1688"><span class="hero__island"></span></div></div>
+          <img class="hero__dog" src="../assets/character/dog-normal.webp" alt="" width="257" height="252">
+          <svg class="hero__wave" id="heroWave" viewBox="-3000 0 7300 3000" aria-hidden="true"><path id="heroWavePath" d=""/></svg>
+          <img class="hero__logo" src="../assets/logo.svg" alt="漢食 KANSHOKU" width="650" height="560">
+          <div class="hero__dl">
+            <p class="hero__dl-label"><svg viewBox="0 0 12 28" aria-hidden="true"><path d="M2 2L10 26"/></svg>漢食をダウンロード！<svg viewBox="0 0 12 28" aria-hidden="true"><path d="M10 2L2 26"/></svg></p>
+            <div class="hero__badges">
+              <a href="../" aria-label="App Storeからダウンロード"><img src="img/hero/appstore-ja.svg" alt="App Storeからダウンロード" width="109" height="40"></a>
+              <a href="../" aria-label="Google Playで手に入れよう"><img src="img/hero/googleplay-ja.png" alt="Google Playで手に入れよう" width="646" height="192"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <button class="next" id="next" type="button" aria-label="つづきを見る">
         <svg viewBox="0 0 36 36" aria-hidden="true"><path fill="#38aacf" transform="translate(9 6)" d="M7.939 23.56L.439 16.06A1.5 1.5 0 0 1 2.56 13.94L7.5 18.879V1.5a1.5 1.5 0 0 1 3 0v17.379l4.939-4.94a1.5 1.5 0 0 1 2.121 2.121l-7.5 7.5a1.5 1.5 0 0 1-2.121 0Z"/></svg>
       </button>
@@ -226,6 +289,11 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     sweat: [{ x: 190, y: 192, w: 44, h: 52 }, { x: 136, y: 116, w: 40, h: 48 }],
   };
 
+  // ヒーローの大きさと青い波の形（ヒーローの座標）
+  const HERO = {
+    pc: { w: 1280, h: 832, wave: 'M -3000 610 L -200 610 C 0 610 120 548 300 548 C 520 548 600 640 820 640 C 1020 640 1100 520 1300 520 C 1500 520 1600 560 4300 560 L 4300 3000 L -3000 3000 Z' },
+    sp: { w: 390, h: 844, wave: 'M -3000 700 L 0 700 C 90 700 150 722 230 704 C 300 688 330 630 420 630 L 4300 630 L 4300 3000 L -3000 3000 Z' },
+  };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (id) => document.getElementById(id);
   const probe = $('probe');
@@ -241,6 +309,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const others = [...are.querySelectorAll('.are-t, .ell i:not(#dot)')];
   const sideDots = [...are.querySelectorAll('.ell i:not(#dot)')];
   const ghosts = [...document.querySelectorAll('.ghost')];   // 左右の丸を画面の大きさで描いたもの
+  const hero = $('hero'), heroBox = $('heroBox'), heroWavePath = $('heroWavePath');
   const len = path.getTotalLength();
   path.style.strokeDasharray = len;
 
@@ -264,6 +333,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     Object.assign(lineSvg.style, { left: c.line.x + 'px', top: c.line.y + 'px' });
     lineSvg.setAttribute('width', 57 * k); lineSvg.setAttribute('height', 340 * k);
     lineG.setAttribute('transform', `scale(${k})`);
+    heroWavePath.setAttribute('d', (c === SP ? HERO.sp : HERO.pc).wave);
     path.style.strokeWidth = 16;
   }
 
@@ -317,7 +387,8 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
      3.4〜4.7 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える
      4.7〜5.3 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
      5.3〜6.8 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
-     7.0〜    丸の中からいぬが顔を出して「御中だよ！」 */
+     7.0〜7.45 丸の中からいぬが顔を出して「御中だよ！」 そのあと台詞はポンと消えて いぬもポンと下がる
+     7.7〜8.7 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったらいぬが波の後ろから出てくる */
   const INK = [0x47, 0x43, 0x38];
 
   function update() {
@@ -406,16 +477,38 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     });
     // 下向きボタンが丸に重なるときは出さない
     const nb = next.getBoundingClientRect(), sb = stage.getBoundingClientRect();
-    nextBlocked = swap && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
+    const E = span(u, 7.7, 8.7);                               // 丸が広がってヒーローになる進み具合
+    nextBlocked = swap && E <= 0 && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
     if (nextBlocked) setNext(false);
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
     const up = z2 >= 1 && u >= 7.0;
+    const talk = up && u < 7.45;                             // 7.45で「御中だよ！」がポンと消えて いぬもポンと下がる
     skip.classList.toggle('is-off', up);                     // 最後まで来たらスキップは消す
-    if (up && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
-    peek.classList.toggle('is-on', swap);
-    peek.classList.toggle('is-up', up);
-    say.classList.toggle('is-on', up);
+    if (talk && !peek.classList.contains('is-on')) { peek.classList.add('is-on'); void peek.offsetWidth; }
+    peek.classList.toggle('is-on', swap && E <= 0);
+    peek.classList.toggle('is-up', talk);
+    say.classList.toggle('is-on', talk);
+
+    // 8 白い丸が広がってヒーローになる（はじめに少し縮んでからポンと広がる）
+    hero.classList.toggle('is-on', E > 0);
+    if (E > 0) {
+      const sh = stage.clientHeight;
+      const cx = tx + S * M.dot.x, cy = ty + S * M.dot.y;
+      const r0 = M.dot.d * S / 2;
+      const R = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, sh - cy)) + 8;
+      const c1 = 1.70158, c3 = c1 + 1;
+      const k = c3 * E * E * E - c1 * E * E;                  // 少し引いてから一気に広がる
+      const rad = Math.max(0, r0 + (R - r0) * k);
+      hero.style.clipPath = E >= 1 ? 'none' : `circle(${rad}px at ${cx}px ${cy}px)`;
+      // ヒーローの中身は画面に収まるように縮める
+      const HB = cfg === SP ? HERO.sp : HERO.pc;
+      const hs = Math.min(vw / HB.w, vh / HB.h);
+      heroBox.style.transform = `translate(${(vw - HB.w * hs) / 2}px,${(vh - HB.h * hs) / 2}px) scale(${hs})`;
+    }
+    hero.classList.toggle('is-in', E >= 0.45);
+    hero.classList.toggle('is-dog', E >= 1);
+    if (E > 0) document.documentElement.style.background = document.body.style.background = 'rgb(56,170,207)';
   }
 
   // 下向きボタン：スクロールが3秒止まったらまた出す（いちばん下では出さない）
