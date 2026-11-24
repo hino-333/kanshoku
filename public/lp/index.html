@@ -56,7 +56,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 }
 
 /* ---------- スクロールで進むシーン ---------- */
-.story{position:relative;height:800vh;height:800svh}
+.story{position:relative;height:750vh;height:750svh}
 /* 舞台はスマホの下のバーが引っこんだときの高さ（lvh）まで伸ばして下に白が出ないようにする
    絵の大きさはバーが出ているときの高さ（svh）で決めるので スクロール中に拡大縮小しない */
 .story__stage{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden;background:var(--paper)}
@@ -96,15 +96,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .ell i:nth-of-type(1){left:.086em}
 .ell i:nth-of-type(2){left:.4135em}
 .ell i:nth-of-type(3){left:.741em}
-/* 「あれ…？」が画面いっぱいになったら真ん中の丸がぴょんぴょん跳ねる（高さは --hop で0〜1） */
-#dot{animation:hop 1.2s infinite}
-@keyframes hop{
-  0%{transform:translateY(0);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
-  14%{transform:translateY(calc(var(--hop,0) * -.4em));animation-timing-function:cubic-bezier(.6,0,.8,.4)}
-  28%{transform:translateY(0);animation-timing-function:cubic-bezier(.2,.6,.4,1)}
-  40%{transform:translateY(calc(var(--hop,0) * -.24em));animation-timing-function:cubic-bezier(.6,0,.8,.4)}
-  52%,100%{transform:translateY(0)}
-}
 
 /* 丸の中から顔を出すいぬ（でっかくなった丸と同じ位置に重ねる） */
 .ghost{position:absolute;z-index:5;border-radius:50%;background:var(--ink);display:none;pointer-events:none}
@@ -185,7 +176,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 @media (prefers-reduced-motion:reduce){
   .top__start{transition:none}
   .is-shaking .hand__shake{animation:none}
-  #dot{animation:none}
   .next{animation:none}
   .sweat{transform:none;transition:opacity .2s linear}
   .peek img{transition:transform .2s ease}
@@ -387,10 +377,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   /* 進み方（画面いくつ分スクロールしたか）
      0〜3.1   はじまり→ペンが動く→手が震えて汗が出る
-     3.4〜4.7 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える
-     4.7〜5.3 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
-     5.3〜6.8 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
-     6.8〜    （ここから先はスクロールしなくても自動で進む 時間は秒）
+     2.9〜4.2 「あれ…？」に寄っていく まわりの字とうねうねはじわじわ消える
+     4.2〜4.8 「あれ…？」が画面いっぱい 真ん中の丸がぴょんぴょん跳ねる
+     4.8〜6.3 「…」の真ん中の丸に寄っていく 丸はだんだん白くなる ほかの字は消える
+     6.3〜    （ここから先はスクロールしなくても自動で進む 時間は秒）
        0〜0.85秒  丸の中からいぬが顔を出して「御中だよ！」 そのあと台詞はポンと消えて いぬもポンと下がる
        1.1〜2.0秒 白い丸が広がってヒーローになる 中身がポンと出て 広がりきったら青い波が上がって いぬが波の後ろから出てくる */
   // 画面の固定：自動で進んでいる間はスクロールを止める
@@ -406,6 +396,21 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   addEventListener('keydown', (e) => {
     if (locked && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
   });
+  // 真ん中の丸のぴょんぴょん（時間で動かす 高さは hopAmp で0〜1）
+  let hopAmp = 0, hopRaf = 0;
+  const easeOut = (t) => 1 - (1 - t) * (1 - t), easeIn = (t) => t * t;
+  function hopTick(now) {
+    hopRaf = 0;
+    if (hopAmp <= 0) { dot.style.transform = ''; return; }
+    const t = (now / 1200) % 1;                                // 1.2秒でひとまわり ぴょん ぴょん 休む
+    let v = 0;
+    if (t < .14) v = .4 * easeOut(t / .14);
+    else if (t < .28) v = .4 * (1 - easeIn((t - .14) / .14));
+    else if (t < .40) v = .24 * easeOut((t - .28) / .12);
+    else if (t < .52) v = .24 * (1 - easeIn((t - .40) / .12));
+    dot.style.transform = `translateY(${-v * hopAmp}em)`;
+    hopRaf = requestAnimationFrame(hopTick);
+  }
   let autoStart = null;                                        // 自動で進み始めた時刻
   let autoRaf = 0;
   function autoTick() {
@@ -430,32 +435,34 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     else tip = pointAt(t2);
     hand.style.transform = `translate(${tip.x - cfg.tip.x}px,${tip.y - cfg.tip.y}px)`;
     path.style.strokeDashoffset = len * (1 - t2);
-    path.style.opacity = t2 > 0 ? 1 - span(u, 3.5, 4.3) : 0;   // 寄っていくときは線も消える
+    path.style.opacity = t2 > 0 ? 1 - span(u, 3.0, 3.8) : 0;   // 寄っていくときは線も消える
 
     // ことば
     cap1.style.opacity = 1 - span(p, 0.06, 0.16);
     cap2.style.opacity = span(p, 0.66, 0.74);
 
     // 3 手が震えて 汗がひとつずつ出る
-    scene2.classList.toggle('is-shaking', p >= 0.66 && u < 4.8);
+    scene2.classList.toggle('is-shaking', p >= 0.66 && u < 4.3);
     sweats[0].classList.toggle('is-on', p >= 0.74);
     sweats[1].classList.toggle('is-on', p >= 0.86);
 
     // 4 「あれ…？」に寄る
     if (!M) measure();
-    const z1 = ease(span(u, 3.4, 4.7));
-    fades.forEach((el) => { el.style.opacity = 1 - span(u, 3.5, 4.3); });   // まわりの字
+    const z1 = ease(span(u, 2.9, 4.2));
+    fades.forEach((el) => { el.style.opacity = 1 - span(u, 3.0, 3.8); });   // まわりの字
     const F1 = M.are;
     const S1 = Math.max(base.s, Math.min(vw * (cfg === SP ? 0.7 : 0.56) / F1.w, vh * 0.3 / F1.h));
 
     // 5 真ん中の丸に寄る
-    const z2 = ease(span(u, 5.3, 6.8));
-    dot.style.setProperty('--hop', reduce ? 0 : span(u, 4.55, 4.75) * (1 - span(u, 5.3, 5.45)));   // 跳ねる高さ（寄り始めたら小さくなって止まる）
+    const z2 = ease(span(u, 4.8, 6.3));
+    hopAmp = reduce ? 0 : span(u, 4.05, 4.25) * (1 - span(u, 4.8, 4.95));   // 跳ねる高さ（寄り始めたら小さくなって止まる）
+    if (hopAmp > 0 && !hopRaf) hopRaf = requestAnimationFrame(hopTick);
+    if (hopAmp <= 0) dot.style.transform = '';
     const D0 = Math.min(vw * 0.6, vh * 0.36);               // でっかくなった丸の大きさ（まわりに余白を残す）
     const D = cfg === PC ? Math.min(D0 * 3, vh * 0.92) : D0; // パソコンは3倍（画面の高さからははみ出さない）
     const S2 = Math.max(S1, D / M.dot.d);
-    others.forEach((el) => { el.style.opacity = 1 - span(u, 5.4, 6.3); });
-    const wt = ease(span(u, 5.9, 6.7));
+    others.forEach((el) => { el.style.opacity = 1 - span(u, 4.9, 5.8); });
+    const wt = ease(span(u, 5.4, 6.2));
     const dotColor = `rgb(${INK.map((c) => Math.round(c + (255 - c) * wt)).join(',')})`;
     dot.style.background = dotColor;
 
@@ -474,10 +481,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     scenes.forEach((el) => { el.style.transform = `translate(${tx}px,${ty}px) scale(${S})`; });
 
     // 寄るにつれて画面いっぱいを封筒の紙にする（紙のふちと白い机を消す）
-    kraft.style.opacity = span(u, 3.5, 4.5);
-    const deep = u > 4.8;                                     // 大きく寄ったら見えない絵は描かない
+    kraft.style.opacity = span(u, 3.0, 4.0);
+    const deep = u > 4.3;                                     // 大きく寄ったら見えない絵は描かない
     // ページの外側（引っぱりすぎたときに見える所）も紙の色にそろえる
-    document.documentElement.style.background = document.body.style.background = u > 4.5 ? 'rgb(209,169,115)' : '';
+    document.documentElement.style.background = document.body.style.background = u > 4.0 ? 'rgb(209,169,115)' : '';
     bg.style.visibility = hand.style.visibility = lineSvg.style.visibility = deep ? 'hidden' : '';
 
     // 6 丸が大きくなったら画面の大きさで描いた丸に入れかえる（拡大しすぎると丸がゆがむため）
@@ -490,7 +497,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     }
     dot.style.visibility = swap ? 'hidden' : '';
     // 左右の丸も同じように入れかえる（拡大しすぎると四角っぽくゆがむため）
-    const sideOp = 1 - span(u, 5.4, 6.3);
+    const sideOp = 1 - span(u, 4.9, 5.8);
     ghosts.forEach((g, i) => {
       const show = swap && sideOp > 0;
       g.classList.toggle('is-on', show);
@@ -502,7 +509,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     // 下向きボタンが丸に重なるときは出さない
     const nb = next.getBoundingClientRect(), sb = stage.getBoundingClientRect();
     // 真ん中の丸に寄りきったら 自動で進める（上にスクロールして戻ったら最初からやり直す）
-    const atEnd = z2 >= 1 && u >= 6.82;
+    const atEnd = z2 >= 1 && u >= 6.32;
     if (atEnd && autoStart === null) { autoStart = performance.now(); if (!autoRaf) autoRaf = requestAnimationFrame(autoTick); }
     if (!atEnd) autoStart = null;
     const T = autoStart === null ? -1 : (performance.now() - autoStart) / 1000;
