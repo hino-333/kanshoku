@@ -67,7 +67,7 @@
   color: var(--primary-deep);
 }
 
-/* アイコン（Bootstrap Icons 色は文字色） */
+/* アイコン（Fluent UI の塗り・角丸 色は文字色） */
 .icon {
   display: inline-block;
   flex: none;

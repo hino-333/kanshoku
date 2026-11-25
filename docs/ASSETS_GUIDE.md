@@ -209,28 +209,29 @@
 
 ### 5-6. アイコン（イラストではなく 1つのアイコンセットで管理）
 
-アイコンは絵の差し替えの対象から外し、**Bootstrap Icons（1.11.3・MIT License・https://icons.getbootstrap.com/）** に統一しました。
-設定は `src/ui/icons.ts` の1ファイルだけです（16×16 の形をそのまま入れてある）。
+アイコンは絵の差し替えの対象から外し、**Fluent UI System Icons の Filled（24×24・MIT License・https://github.com/microsoft/fluentui-system-icons）** に統一しました。
+設定は `src/ui/icons.ts` の1ファイルだけです。
 
-- 1つの意味に1つのアイコン（例：ごはん＝`basket-fill` を ナビ以外のすべての「ごはん」で使う）
+- **いちばん大事なのは「全部塗り」と「角が丸い」**。新しく足すときも `*_24_filled` の中から 角の丸いものを選ぶ（別のアイコンセットは混ぜない）
+- 線になりやすいもの（とじる・すすむ）は 丸の中に形が入った塗りの版（`dismiss_circle`・`arrow_circle_right`）を使う
+- 1つの意味に1つのアイコン（例：ごはん＝`bowl_chopsticks` を ナビ以外のすべての「ごはん」で使う）
 - 色は1色。押せる所や現在地は主色 #38AACF、それ以外は文字色 #4B4038。ただし「ごはん」のアイコンは青と合わないので暖色 #E8735A
-- 新しいアイコンが必要なときは 同じ Bootstrap Icons から選ぶ（なるべく `-fill` の塗りの版 別のアイコンセットは混ぜない）
 
-| 意味 | 名前（icons.ts） | Bootstrap Icons |
+| 意味 | 名前（icons.ts） | Fluent（_24_filled） |
 |---|---|---|
-| おへや | room | house-door-fill |
+| おへや | room | home |
 | しらべる／入力欄の虫めがね | search／searchLine | search |
-| あそぶ | play | controller |
-| あつめた漢字 | pocket | bookmark-fill |
-| ごはん | food | basket-fill |
-| 模様替え | decor | palette-fill |
-| プロフィール | profile | person-fill |
-| カメラ／声／写真 | camera／voice／image | camera-fill／mic-fill／image-fill |
-| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | pen-fill／grid-fill |
-| もどる／すすむ／ひらく | back／chevron／down | caret-left-fill／caret-right-fill／caret-down-fill |
-| とじる／できた | close／check | x-lg／check-circle-fill |
-| ヒント／見本 | hint／eye | lightbulb-fill／eye-fill |
-| 1画戻す／消す／へんしゅう | undo／erase／edit | arrow-counterclockwise／trash-fill／pencil-fill |
+| あそぶ | play | games |
+| あつめた漢字 | pocket | bookmark |
+| ごはん | food | bowl_chopsticks |
+| 模様替え | decor | color |
+| プロフィール | profile | person |
+| カメラ／声／写真 | camera／voice／image | camera／mic／image |
+| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | calligraphy_pen／grid |
+| もどる／ひらく／すすむ | back／chevron／down／arrow | caret_left／caret_right／caret_down／arrow_circle_right |
+| とじる／できた | close／check | dismiss_circle／checkmark_circle |
+| ヒント／見本 | hint／eye | lightbulb／eye |
+| 1画戻す／消す／へんしゅう | undo／erase／edit | arrow_undo／delete／edit |
 
 ### 5-7. 差し替え不要な部分
 

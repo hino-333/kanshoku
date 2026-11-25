@@ -41,7 +41,7 @@
 
 ## アイコン
 
-- Bootstrap Icons 1.11.3（MIT License・https://github.com/twbs/icons）の形を `src/ui/icons.ts` に収録
+- Fluent UI System Icons の Filled 版（Microsoft・MIT License・https://github.com/microsoft/fluentui-system-icons）の形を `src/ui/icons.ts` に収録
 
 ## イラスト
 
