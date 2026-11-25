@@ -197,7 +197,7 @@ export const ASSETS = {
       cushion: { x: 24.1, bottom: 27.8, width: 32.5, z: 3 },
       table: { x: 80.4, bottom: 10.5, width: 37.5, z: 6 },
       bone: { x: 76.8, bottom: 33, width: 10, z: 3 },
-      bowl: { x: 87.4, bottom: 24.6, width: 11.5, z: 3 },
+      bowl: { x: 87.4, bottom: 28.5, width: 11.5, z: 3 }, // 見本より少し上（水玉のテーブルと重なって見えにくいため）
       onigiri: { x: 19.5, bottom: 12.2, width: 8.5, z: 6 },
       carrot: { x: 77.5, bottom: 3.1, width: 13.5, z: 6 },
     } as Record<string, Placement>,
