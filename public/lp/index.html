@@ -390,11 +390,12 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     locked = on;
     if (on) lockY = scrollY;
   }
-  const block = (e) => { if (locked) e.preventDefault(); };
+  let playing = false;                                         // 下向きボタンを押して全自動で進んでいる間
+  const block = (e) => { if (locked || playing) e.preventDefault(); };
   addEventListener('wheel', block, { passive: false });
   addEventListener('touchmove', block, { passive: false });
   addEventListener('keydown', (e) => {
-    if (locked && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
+    if ((locked || playing) && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
   });
   // 真ん中の丸のぴょんぴょん（時間で動かす 高さは hopAmp で0〜1）
   let hopAmp = 0, hopRaf = 0;
@@ -555,16 +556,53 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   // スキップ：はじまりの場面をとばして最後（いぬの場面）まで進む
   const skip = $('skip');
   skip.addEventListener('click', () => {
+    stopPlay();
     const total = story.offsetHeight - stage.clientHeight;
     scrollTo({ top: story.offsetTop + total, behavior: 'auto' });
   });
+
+  // 下向きボタン：押したら最後まで全自動で進む（時間 秒 → 画面いくつ分）
+  const PLAY = [[0, 0], [4.6, 3.1], [6.2, 4.25], [7.8, 4.8], [10, 6.4]];
+  let playRaf = 0, playT0 = 0;
+  const uAt = (t) => {
+    for (let i = 1; i < PLAY.length; i++) {
+      const [t0, u0] = PLAY[i - 1], [t1, u1] = PLAY[i];
+      if (t <= t1) return u0 + (u1 - u0) * clamp((t - t0) / (t1 - t0));
+    }
+    return PLAY[PLAY.length - 1][1];
+  };
+  const tAt = (u) => {                                          // 今いる場所から続きを始める
+    for (let i = 1; i < PLAY.length; i++) {
+      const [t0, u0] = PLAY[i - 1], [t1, u1] = PLAY[i];
+      if (u <= u1) return t0 + (t1 - t0) * clamp((u - u0) / (u1 - u0));
+    }
+    return PLAY[PLAY.length - 1][0];
+  };
+  function stopPlay() { playing = false; if (playRaf) cancelAnimationFrame(playRaf); playRaf = 0; }
+  function playTick(now) {
+    playRaf = 0;
+    if (!playing) return;
+    const total = story.offsetHeight - stage.clientHeight;
+    const t = (now - playT0) / 1000;
+    const y = Math.min(total, uAt(t) * viewH());
+    scrollTo(0, story.offsetTop + y);
+    update();
+    if (y >= total || t >= PLAY[PLAY.length - 1][0]) { stopPlay(); return; }   // ここからはいつもの自動
+    playRaf = requestAnimationFrame(playTick);
+  }
   next.addEventListener('click', () => {
-    scrollBy({ top: innerHeight, behavior: reduce ? 'auto' : 'smooth' });
+    if (playing) return;
+    playing = true;
+    setNext(false);
+    clearTimeout(idleTimer);
+    playT0 = performance.now() - tAt(scrolled() / viewH()) * 1000;
+    playRaf = requestAnimationFrame(playTick);
   });
 
   let ticking = false;
   addEventListener('scroll', () => {
     if (locked) { if (scrollY !== lockY) scrollTo(0, lockY); return; }   // 固定中は元の位置に戻す
+    if (playing) return;                                       // 全自動の間はボタンを出さない
     setNext(progress() <= 0.02);
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => { if (progress() < 0.995 && !nextBlocked) setNext(true); }, IDLE_MS);
