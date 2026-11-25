@@ -376,12 +376,16 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     locked = on;
     if (on) lockY = scrollY;
   }
-  let playing = false;                                         // 下向きボタンを押して全自動で進んでいる間
-  const block = (e) => { if (locked || playing) e.preventDefault(); };
+  let playing = false;                                         // 全自動で進んでいる間
+  // ヒーローまで来たら もう最初のアニメーションには戻れない（読み込み直すと最初から）
+  let heroDone = false;
+  const endY = () => story.offsetTop + Math.max(0, story.offsetHeight - stage.clientHeight);
+  const block = (e) => { if (locked || playing || heroDone) e.preventDefault(); };
   addEventListener('wheel', block, { passive: false });
-  addEventListener('touchmove', block, { passive: false });
+  // 指2本のときは止めない（ヒーローを拡大して見られるように）
+  addEventListener('touchmove', (e) => { if ((locked || playing || heroDone) && e.touches.length < 2) e.preventDefault(); }, { passive: false });
   addEventListener('keydown', (e) => {
-    if ((locked || playing) && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
+    if ((locked || playing || heroDone) && [' ', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) e.preventDefault();
   });
   // 真ん中の丸のぴょんぴょん（時間で動かす 高さは hopAmp で0〜1）
   let hopAmp = 0, hopRaf = 0;
@@ -528,6 +532,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     }
     hero.classList.toggle('is-in', E >= 0.45);
     hero.classList.toggle('is-dog', E >= 1);
+    if (E >= 1) heroDone = true;
     if (E > 0) document.documentElement.style.background = document.body.style.background = 'rgb(56,170,207)';
   }
 
@@ -571,8 +576,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   }
   function startPlay() {
     if (playing) return;
-    const total = story.offsetHeight - stage.clientHeight;
-    if (scrolled() >= total - 1) return;                      // 最後（ヒーロー）で開き直したときはそのまま
     playing = true;
     const u0 = scrolled() / viewH();
     playT0 = performance.now() - (u0 > 0 ? tAt(u0) : 0) * 1000;
@@ -581,16 +584,20 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   let ticking = false;
   addEventListener('scroll', () => {
+    if (heroDone) { const y = endY(); if (Math.abs(scrollY - y) > 1) scrollTo(0, y); return; }   // ヒーローからは上に戻さない
     if (locked) { if (scrollY !== lockY) scrollTo(0, lockY); return; }   // 固定中は元の位置に戻す
     if (playing) return;                                       // 全自動の間は動かしている側にまかせる
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
-  addEventListener('resize', fit);
+  addEventListener('resize', () => { fit(); if (heroDone) scrollTo(0, endY()); });
+  // 読み込み直したら いつも最初のアニメーションから（ブラウザがスクロール位置を戻さないようにする）
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  scrollTo(0, 0);
   fit();
   // 字の形がそろってから測り直して 全自動を始める
-  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { M = null; update(); startPlay(); });
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { scrollTo(0, 0); M = null; update(); startPlay(); });
 })();
 </script>
 </body>
