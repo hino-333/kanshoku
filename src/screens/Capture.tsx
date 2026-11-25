@@ -4,7 +4,16 @@ import { OcrLoadError, recognizeJapanese } from '../lib/ocr';
 import { navigate } from '../lib/router';
 import { petEvent } from '../lib/ui';
 import { EmptyState, Header, Icon, Notice } from '../ui/parts';
+import { dispatch } from '../store/store';
+import { canSearchNow } from './HungryGate';
 import { runSearch } from './Search';
+
+/** 読み取れた中の収録語を開く（新しい検索として数える） */
+function openFound(wordId: string, surface: string) {
+  if (!canSearchNow(surface)) return;
+  dispatch({ type: 'searched', query: surface, wordId, at: Date.now(), charge: true });
+  navigate(`/word/${wordId}?from=search`);
+}
 
 /* ============================================================ 確認・修正してから検索 */
 function ConfirmText({ initial, source, onRetry }: { initial: string; source: 'camera' | 'voice'; onRetry: () => void }) {
@@ -52,7 +61,7 @@ function ConfirmText({ initial, source, onRetry }: { initial: string; source: 'c
           <span className="caption">この中に収録語がありました</span>
           <div className="row row--wrap">
             {found.map((h) => (
-              <button key={h.word.id} type="button" className="chip chip--word" onClick={() => navigate(`/word/${h.word.id}?from=search`)}>
+              <button key={h.word.id} type="button" className="chip chip--word" onClick={() => openFound(h.word.id, h.word.surface)}>
                 <span className="kanji">{h.word.surface}</span>
               </button>
             ))}

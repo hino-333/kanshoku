@@ -7,6 +7,7 @@ import { BottomNav, type Tab } from './ui/BottomNav';
 import { Dialog, ToastHost } from './ui/parts';
 import { CameraSearch, VoiceSearch } from './screens/Capture';
 import { Onboarding } from './screens/Onboarding';
+import { PlanScreen } from './screens/Plan';
 import { PlayScreen } from './screens/Play';
 import { PocketScreen } from './screens/Pocket';
 import { ProfileScreen } from './screens/Profile';
@@ -31,6 +32,8 @@ function useScreen() {
       } else if (b === 'voice') {
         el = <VoiceSearch />;
         nav = false;
+      } else if (b === 'plan') {
+        el = <PlanScreen />;
       } else el = <SearchScreen />;
       break;
     case 'word':

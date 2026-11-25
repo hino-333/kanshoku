@@ -11,6 +11,7 @@ import {
 } from '../data/catalog';
 import { WORD_BY_ID } from '../data/words';
 import { fullnessOf } from '../game/pet';
+import { searchAccess } from '../game/searchGate';
 import { computeReward } from '../game/rewards';
 import type { Action, ActiveRound, Answer, GameState, Tag, WordStat } from './types';
 import { TAGS } from './types';
@@ -45,6 +46,8 @@ export function createInitialState(now: number): GameState {
       lastDifficulty: 'normal',
     },
     settings: { sound: true, soundChosen: false, reduceMotion: 'system' },
+    searchTickets: 0,
+    plan: { unlimited: false, since: null },
   };
 }
 
@@ -105,8 +108,14 @@ export function reducer(state: GameState, action: Action): GameState {
         ...state.history.filter((h) => h.query !== action.query && (!action.wordId || h.wordId !== action.wordId)),
       ].slice(0, GAME.limits.history);
       const recentSearches = [...state.recentSearches, action.at].slice(-GAME.limits.recentSearches);
-      return { ...state, history, recentSearches };
+      // おなかが0のときは しらべる回数を1つ使う（しらべ放題プランなら使わない）
+      const useTicket = action.charge === true && searchAccess(state, action.at) === 'ticket';
+      return { ...state, history, recentSearches, searchTickets: useTicket ? state.searchTickets - 1 : state.searchTickets };
     }
+    case 'earnTicket':
+      return { ...state, searchTickets: Math.min(GAME.hungrySearch.maxTickets, state.searchTickets + GAME.hungrySearch.ticketsPerAnswer) };
+    case 'setPlan':
+      return { ...state, plan: action.unlimited ? { unlimited: true, since: state.plan.since ?? action.at } : { unlimited: false, since: null } };
     case 'clearHistory':
       return { ...state, history: [] };
     case 'saveWord': {
@@ -321,6 +330,8 @@ export function sanitize(raw: unknown, now: number): GameState {
       reduceMotion: raw.settings.reduceMotion === 'on' || raw.settings.reduceMotion === 'off' ? raw.settings.reduceMotion : 'system',
     };
   }
+  s.searchTickets = Math.max(0, Math.min(GAME.hungrySearch.maxTickets, Math.floor(num(raw.searchTickets, 0))));
+  if (isObj(raw.plan) && raw.plan.unlimited === true) s.plan = { unlimited: true, since: typeof raw.plan.since === 'number' ? raw.plan.since : now };
   return s;
 }
 

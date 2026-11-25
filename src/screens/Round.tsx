@@ -273,7 +273,7 @@ function Pot({ round }: { round: ActiveRound }) {
 }
 
 /* ============================================================ ことばあわせ */
-function MatchQuestion({ question, word, answer, onAnswer }: { question: Extract<Question, { kind: 'reading' | 'meaning' }>; word: Word; answer: Answer | null; onAnswer: (a: Answer) => void }) {
+export function MatchQuestion({ question, word, answer, onAnswer }: { question: Extract<Question, { kind: 'reading' | 'meaning' }>; word: Word; answer: Answer | null; onAnswer: (a: Answer) => void }) {
   const chosen = answer?.kind === 'choice' ? answer.choice : null;
   return (
     <div className="stack question">

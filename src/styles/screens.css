@@ -2626,3 +2626,96 @@
   z-index: 4;
   margin-top: -24px;
 }
+
+/* ============================================================ おなかが0のときの検索 */
+/* おなかがぺこぺこのカード（1問こたえると1回しらべられる） */
+.hungry-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: var(--r-l);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  white-space: pre-line;
+}
+.hungry-gate__title {
+  color: var(--coral-deep);
+}
+.hungry-gate__lead {
+  color: var(--ink-strong);
+  line-height: 1.6;
+}
+.hungry-gate__hold {
+  margin-top: -4px;
+}
+.hungry-gate__plan {
+  align-self: center;
+  margin-top: 4px;
+}
+.hungry-gate--quiz {
+  text-align: left;
+}
+.hungry-gate--quiz .hungry-gate__lead {
+  text-align: center;
+  font-weight: 700;
+}
+.hungry-gate__done {
+  text-align: center;
+  font-weight: 700;
+  color: var(--primary-deep);
+}
+/* 1問こたえてもらった回数が残っているとき */
+.ticket-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: pre-line;
+  color: var(--coral-deep);
+}
+.ticket-note__icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* しらべ放題プラン（デモ） */
+.plan-card {
+  text-align: center;
+}
+.plan-card__title {
+  color: var(--primary-deep);
+}
+.plan-card__price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.plan-card__yen {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+.plan-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.plan-card__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  white-space: pre-line;
+  line-height: 1.5;
+}
+.plan-card__mark {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--primary);
+}

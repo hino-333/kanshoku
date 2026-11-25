@@ -4,6 +4,8 @@ import { FOODS, FOOD_IDS, isFoodId } from '../data/catalog';
 import { ArtBox } from '../art/AssetImage';
 import { PetSprite } from '../art/PetSprite';
 import { favoriteFood } from '../game/pet';
+import { GAME } from '../config/game.config';
+import { navigate } from '../lib/router';
 import { dispatch, store, useGame } from '../store/store';
 import { Dialog, Header, Icon } from '../ui/parts';
 import { toast } from '../lib/ui';
@@ -17,6 +19,7 @@ export function ProfileScreen() {
   const pet = useGame((s) => s.pet);
   const meals = useGame((s) => s.meals);
   const settings = useGame((s) => s.settings);
+  const unlimited = useGame((s) => s.plan.unlimited);
   const pocketCount = useGame((s) => Object.keys(s.pocket).length);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(pet.name);
@@ -136,6 +139,15 @@ export function ProfileScreen() {
               onChange={(e) => dispatch({ type: 'setSetting', key: 'reduceMotion', value: e.target.checked ? 'on' : 'system' })}
             />
           </label>
+          <button type="button" className="go-card setting-go" onClick={() => navigate('/search/plan')}>
+            <span className="go-card__title grow">
+              {GAME.plan.name}
+              <span className="caption setting__desc">{unlimited ? '利用中（デモ）' : 'おなかが0でも何回でも調べられる（デモ）'}</span>
+            </span>
+            <span className="go-card__strip go-card__strip--meaning" aria-hidden="true">
+              <Icon name="arrow" />
+            </span>
+          </button>
           <button type="button" className="go-card setting-go" onClick={() => dispatch({ type: 'resetOnboarding' })}>
             <span className="go-card__title grow">はじめの案内をもう一度見る</span>
             <span className="go-card__strip go-card__strip--meaning" aria-hidden="true">

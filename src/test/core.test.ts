@@ -5,6 +5,7 @@ import { KANJI, WORDS, isKanji } from '../data/words';
 import { buildRound, writeBlanks } from '../game/questions';
 import { seeded } from '../game/rng';
 import { hungerOf, fatigueOf, fullnessOf } from '../game/pet';
+import { searchAccess } from '../game/searchGate';
 import { createInitialState, reducer } from '../store/reducer';
 import { createStore, loadState, STORAGE_KEY, type KeyValueStorage } from '../store/store';
 import type { Answer, GameState } from '../store/types';
@@ -284,5 +285,55 @@ describe('相棒のようす', () => {
     expect(fatigueOf(s, T0 + 6000).resting).toBe(true);
     expect(fatigueOf(s, T0 + GAME.pet.restMs + 6000).resting).toBe(false);
     expect(s.foods).toEqual(createInitialState(T0).foods);
+  });
+});
+
+describe('おなかが0のときの検索', () => {
+  // おなかが0になるまで時間をすすめた状態
+  const LATER = T0 + 30 * 3_600_000;
+  const hungry = () => ({ ...createInitialState(T0), onboarded: true });
+
+  it('おなかが残っていれば いつもどおり調べられて 回数も減らない', () => {
+    const s = reducer({ ...hungry(), searchTickets: 1 }, { type: 'searched', query: 'もくひょう', wordId: null, at: T0, charge: true });
+    expect(searchAccess(s, T0)).toBe('free');
+    expect(s.searchTickets).toBe(1);
+  });
+  it('おなかが0で回数がなければ 調べられない', () => {
+    expect(fullnessOf(hungry(), LATER)).toBe(0);
+    expect(searchAccess(hungry(), LATER)).toBe('locked');
+  });
+  it('1問こたえると1回しらべられて 調べると回数が減る', () => {
+    let s = reducer(hungry(), { type: 'earnTicket', at: LATER });
+    expect(searchAccess(s, LATER)).toBe('ticket');
+    // 候補の一覧から選び直すだけ（charge なし）では減らない
+    s = reducer(s, { type: 'searched', query: 'もくひょう', wordId: 'w_mokuhyou', at: LATER });
+    expect(s.searchTickets).toBe(1);
+    s = reducer(s, { type: 'searched', query: 'もくひょう', wordId: null, at: LATER, charge: true });
+    expect(s.searchTickets).toBe(0);
+    expect(searchAccess(s, LATER)).toBe('locked');
+  });
+  it('ためておける回数には上限がある', () => {
+    let s = hungry();
+    for (let i = 0; i < GAME.hungrySearch.maxTickets + 3; i++) s = reducer(s, { type: 'earnTicket', at: LATER });
+    expect(s.searchTickets).toBe(GAME.hungrySearch.maxTickets);
+  });
+  it('しらべ放題プランなら おなかが0でも回数を使わずに調べられる', () => {
+    let s = reducer({ ...hungry(), searchTickets: 1 }, { type: 'setPlan', unlimited: true, at: LATER });
+    expect(searchAccess(s, LATER)).toBe('plan');
+    s = reducer(s, { type: 'searched', query: 'もくひょう', wordId: null, at: LATER, charge: true });
+    expect(s.searchTickets).toBe(1);
+    s = reducer(s, { type: 'setPlan', unlimited: false, at: LATER });
+    expect(s.plan).toEqual({ unlimited: false, since: null });
+    expect(searchAccess(s, LATER)).toBe('ticket');
+  });
+  it('回数とプランは保存して読み戻せる', () => {
+    const storage = new MemStorage();
+    const a = createStore(storage, T0);
+    a.dispatch({ type: 'onboard', name: 'もち', at: T0 });
+    a.dispatch({ type: 'earnTicket', at: T0 });
+    a.dispatch({ type: 'setPlan', unlimited: true, at: T0 + 5 });
+    const b = createStore(storage, T0 + 1000);
+    expect(b.getState().searchTickets).toBe(1);
+    expect(b.getState().plan).toEqual({ unlimited: true, since: T0 + 5 });
   });
 });

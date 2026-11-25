@@ -7,15 +7,18 @@ import { dispatch, useGame } from '../store/store';
 import { EmptyState, Header, Icon, Notice } from '../ui/parts';
 import { ASSETS } from '../config/assets.config';
 import { ArtBox } from '../art/AssetImage';
+import { canSearchNow, HungryGate, useSearchAccess } from './HungryGate';
 
 type Status = 'idle' | 'loading' | 'done' | 'error';
 
 /** 検索して 候補が1つなら結果へ 複数なら候補一覧を出す */
+/** おなかが0で しらべる回数もないときは 検索せずに しらべる画面のカードへ */
 export async function runSearch(q: string, opts: { replace?: boolean } = {}): Promise<SearchResult | null> {
+  if (!canSearchNow(q)) return null;
   petEvent({ kind: 'searching' });
   const res = await dictionary.search(q);
   const single = res.hits.length === 1 || (res.hits.filter((h) => h.kind === 'exact').length === 1 && res.hits[0].kind === 'exact');
-  dispatch({ type: 'searched', query: q, wordId: single ? res.hits[0].word.id : null, at: Date.now() });
+  dispatch({ type: 'searched', query: q, wordId: single ? res.hits[0].word.id : null, at: Date.now(), charge: true });
   navigate(`/search?q=${encodeURIComponent(q)}`, { replace: opts.replace ?? true });
   if (single) {
     navigate(`/word/${res.hits[0].word.id}?from=search`);
@@ -27,7 +30,11 @@ export async function runSearch(q: string, opts: { replace?: boolean } = {}): Pr
 export function SearchScreen() {
   const route = useRoute();
   const q = route.query.get('q') ?? '';
+  const hold = route.query.get('hold') ?? '';
   const focus = route.query.get('focus') === '1';
+  const access = useSearchAccess();
+  // 1問クイズの途中は 回数が増えてもカードを出したままにする（答えを見せてから検索へ）
+  const [quizOpen, setQuizOpen] = useState(false);
   const history = useGame((s) => s.history);
   const [value, setValue] = useState(q);
   const [status, setStatus] = useState<Status>(q ? 'loading' : 'idle');
@@ -40,7 +47,7 @@ export function SearchScreen() {
 
   // 戻る・再読み込みで来たときは 候補一覧を表示するだけ（自動で結果へは飛ばない）
   useEffect(() => {
-    setValue(q);
+    setValue(q || hold);
     if (!q) {
       setStatus('idle');
       setResult(null);
@@ -56,11 +63,11 @@ export function SearchScreen() {
       },
       () => id === reqId.current && setStatus('error'),
     );
-  }, [q]);
+  }, [q, hold]);
 
   useEffect(() => {
-    if (focus) inputRef.current?.focus();
-  }, [focus]);
+    if (focus && access !== 'locked') inputRef.current?.focus();
+  }, [focus, access]);
 
   const submit = async (raw = value) => {
     const query = raw.trim();
@@ -70,6 +77,7 @@ export function SearchScreen() {
     }
     inputRef.current?.blur();
     const id = ++reqId.current;
+    if (!canSearchNow(query)) return;
     setStatus('loading');
     try {
       const r = await runSearch(query, { replace: true });
@@ -83,8 +91,15 @@ export function SearchScreen() {
     }
   };
 
+  // 候補の一覧から選び直すだけなら 新しい検索としては数えない
   const openWord = (w: Word) => {
     dispatch({ type: 'searched', query: q || w.surface, wordId: w.id, at: Date.now() });
+    navigate(`/word/${w.id}?from=search`);
+  };
+  // 収録語の一覧から開くのは 新しい検索として数える
+  const openListed = (w: Word) => {
+    if (!canSearchNow(w.surface)) return;
+    dispatch({ type: 'searched', query: w.surface, wordId: w.id, at: Date.now(), charge: true });
     navigate(`/word/${w.id}?from=search`);
   };
 
@@ -96,6 +111,19 @@ export function SearchScreen() {
     <div className="screen search-screen">
       <Header title="しらべる" pet={{ motion: petMotion, key: `${status}-${q}` }} />
       <div className="screen__body stack">
+        {(access === 'locked' || quizOpen) && (
+          <HungryGate
+            key={hold}
+            hold={hold}
+            onStart={() => setQuizOpen(true)}
+            onEarned={() => {
+              setQuizOpen(false);
+              if (hold) void submit(hold);
+              else inputRef.current?.focus();
+            }}
+          />
+        )}
+        {access === 'ticket' && !quizOpen && <TicketNote />}
         <form
           className="search-form"
           role="search"
@@ -228,9 +256,21 @@ export function SearchScreen() {
           </section>
         )}
 
-        <DemoNote open={showAll} onToggle={() => setShowAll((v) => !v)} onPick={(w) => openWord(w)} />
+        <DemoNote open={showAll} onToggle={() => setShowAll((v) => !v)} onPick={(w) => openListed(w)} />
       </div>
     </div>
+  );
+}
+
+/** おなかが0でも 1問こたえてもらった回数があるとき */
+function TicketNote() {
+  const n = useGame((s) => s.searchTickets);
+  return (
+    <p className="ticket-note caption" role="status">
+      <Icon name="food" className="ticket-note__icon" />
+      {`おなかがぺこぺこ
+あと${n}回しらべられるよ`}
+    </p>
   );
 }
 

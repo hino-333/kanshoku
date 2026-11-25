@@ -49,6 +49,21 @@ export const GAME = {
     happyMs: 6_000,
   },
 
+  /** おなかが0のときの検索（1問こたえると1回しらべられる） */
+  hungrySearch: {
+    /** 1問こたえるともらえる しらべる回数 */
+    ticketsPerAnswer: 1,
+    /** ためておける しらべる回数の上限 */
+    maxTickets: 3,
+  },
+
+  /** おなかが0でも何回でも調べられるプラン（デモ：実際のお金のやりとりはしない） */
+  plan: {
+    name: 'しらべ放題プラン',
+    priceYen: 300,
+    per: '月',
+  },
+
   /** 保存する履歴などの上限 */
   limits: { history: 20, meals: 300, claimedRounds: 60, recentSearches: 12 },
 } as const;

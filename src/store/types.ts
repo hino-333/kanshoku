@@ -97,13 +97,20 @@ export interface GameState {
     lastDifficulty: Difficulty;
   };
   settings: { sound: boolean; soundChosen: boolean; reduceMotion: 'system' | 'on' | 'off' };
+  /** おなかが0のときに使える しらべる回数（1問こたえると増える） */
+  searchTickets: number;
+  /** しらべ放題プラン（デモ）。入っていると おなかが0でも何回でも調べられる */
+  plan: { unlimited: boolean; since: number | null };
 }
 
 export type Action =
   | { type: 'onboard'; name?: string; at: number }
   | { type: 'resetOnboarding' }
   | { type: 'rename'; name: string }
-  | { type: 'searched'; query: string; wordId: string | null; at: number }
+  /** charge：新しく調べたとき true（候補の一覧から選び直しただけのときは数えない） */
+  | { type: 'searched'; query: string; wordId: string | null; at: number; charge?: boolean }
+  | { type: 'earnTicket'; at: number }
+  | { type: 'setPlan'; unlimited: boolean; at: number }
   | { type: 'clearHistory' }
   | { type: 'saveWord'; wordId: string; tags: Tag[]; at: number }
   | { type: 'removeWord'; wordId: string }
