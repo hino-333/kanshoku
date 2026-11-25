@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent } from 'react';
 import { ASSETS } from '../config/assets.config';
-import { FOODS, FOOD_IDS, FURNITURE, FURNITURE_IDS, SLOT_IDS, SLOT_LABEL, type FoodId, type SlotId } from '../data/catalog';
+import { DECOR_GROUPS, FOODS, FOOD_IDS, FURNITURE, FURNITURE_IDS, SLOT_IDS, type FoodId, type FurnitureId, type SlotId } from '../data/catalog';
 import { ArtBox } from '../art/AssetImage';
 import { RoomStage } from '../art/RoomStage';
 import { usePetDisplay } from '../art/usePetDisplay';
@@ -269,12 +269,12 @@ function DragHint({ food, from, to }: { food: FoodId; from: DOMRect; to: DOMRect
 /* ============================================================ 模様替え */
 
 function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
-  const [slot, setSlot] = useState<SlotId>('rug');
+  const [group, setGroup] = useState<(typeof DECOR_GROUPS)[number]['id']>('wall');
   const owned = useGame((s) => s.furniture);
   const room = useGame((s) => s.room);
-  const tabSlide = useSlide(slot, 'fill');
-  const itemSlide = useSlide(`${slot}:${room[slot] ?? 'none'}`, 'ring');
-  const items = useMemo(() => FURNITURE_IDS.filter((id) => FURNITURE[id].slot === slot), [slot]);
+  const tabSlide = useSlide(group, 'fill');
+  const slots = DECOR_GROUPS.find((g) => g.id === group)!.slots;
+  const items = useMemo(() => FURNITURE_IDS.filter((id) => (slots as readonly SlotId[]).includes(FURNITURE[id].slot)), [slots]);
   const initial = useRef(room).current;
   const { closing, close, ref: drawerRef } = useDrawerClose();
 
@@ -284,14 +284,12 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
     close();
   };
 
-  const place = (id: (typeof FURNITURE_IDS)[number] | null) => {
-    // 選んでいる家具をもう一度押すと 選択を外す（何も置かない）
-    if (room[slot] === id) {
-      if (id === null) return;
-      id = null;
-    }
-    dispatch({ type: 'place', slot, furnitureId: id });
-    if (id) onPlaced(slot);
+  // 家具はそれぞれ決まった場所に置く 押すたびに 置く／しまう が入れかわる
+  const toggle = (id: FurnitureId) => {
+    const slot = FURNITURE[id].slot;
+    const next = room[slot] === id ? null : id;
+    dispatch({ type: 'place', slot, furnitureId: next });
+    if (next) onPlaced(slot);
     sfx('pop');
   };
 
@@ -310,25 +308,20 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
       </div>
       <div className="tabs" role="tablist" aria-label="置く場所" ref={tabSlide.ref} {...tabSlide.groupProps}>
         {tabSlide.indicator}
-        {SLOT_IDS.map((s) => (
-          <button key={s} type="button" role="tab" aria-selected={slot === s} className="tabs__tab" data-slide-key={s} onClick={() => setSlot(s)} {...mochi}>
-            {SLOT_LABEL[s]}
+        {DECOR_GROUPS.map((g) => (
+          <button key={g.id} type="button" role="tab" aria-selected={group === g.id} className="tabs__tab" data-slide-key={g.id} onClick={() => setGroup(g.id)} {...mochi}>
+            {g.label}
           </button>
         ))}
       </div>
-      <div className="decor-grid" role="tabpanel" aria-label={SLOT_LABEL[slot]} ref={itemSlide.ref} {...itemSlide.groupProps}>
-        {itemSlide.indicator}
-        {/* どの場所も 何も置かないことを選べる */}
-        <button type="button" className="decor-item" aria-pressed={room[slot] === null} data-slide-key={`${slot}:none`} onClick={() => place(null)} {...mochi}>
-          <span className="decor-item__none">なし</span>
-          <span className="decor-item__name">置かない</span>
-        </button>
-        {items.map((id) =>
-          owned.includes(id) ? (
-            <button key={id} type="button" className="decor-item" aria-pressed={room[slot] === id} data-slide-key={`${slot}:${id}`} onClick={() => place(id)} {...mochi}>
+      <div className="decor-grid" role="tabpanel" aria-label={DECOR_GROUPS.find((g) => g.id === group)!.label}>
+        {items.map((id) => {
+          const on = room[FURNITURE[id].slot] === id;
+          return owned.includes(id) ? (
+            <button key={id} type="button" className="decor-item" aria-pressed={on} onClick={() => toggle(id)} {...mochi}>
               <ArtBox def={ASSETS.furniture[id]} className="decor-item__art" />
               <span className="decor-item__name">{FURNITURE[id].name}</span>
-              {room[slot] === id && (
+              {on && (
                 <span className="decor-item__check" aria-hidden="true">
                   <Icon name="check" />
                 </span>
@@ -339,8 +332,8 @@ function DecorPanel({ onPlaced }: { onPlaced: (slot: SlotId) => void }) {
               <ArtBox def={ASSETS.furniture[id]} className="decor-item__art decor-item__art--locked" />
               <span className="decor-item__name">あそぶと見つかるかも</span>
             </div>
-          ),
-        )}
+          );
+        })}
       </div>
     </section>
   );

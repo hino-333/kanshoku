@@ -105,7 +105,7 @@ describe('保存と復元', () => {
     a.dispatch({ type: 'searched', query: '目標', wordId: 'w_mokuhyou', at: T0 + 1 });
     a.dispatch({ type: 'saveWord', wordId: 'w_mokuhyou', tags: ['write'], at: T0 + 2 });
     a.dispatch({ type: 'feed', foodId: 'onigiri', mealId: 'm1', at: T0 + 3 });
-    a.dispatch({ type: 'place', slot: 'rug', furnitureId: 'rug_round' });
+    a.dispatch({ type: 'place', slot: 'rug', furnitureId: null });
     const b = createStore(storage, T0 + 1000);
     expect(b.getState()).toEqual(a.getState());
     expect(b.getState().pet.name).toBe('だいふく');

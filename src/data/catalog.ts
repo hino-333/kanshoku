@@ -79,32 +79,48 @@ export const FOODS: Record<FoodId, FoodDef> = {
   },
 };
 
-export const SLOT_IDS = ['window', 'wall', 'shelf', 'rug', 'cushion', 'plant'] as const;
+// 家具はひとつずつ決まった場所に置く（置き場所＝家具ひとつ）
+// 絵は 1080×1920 の見本の部屋から切り出したもので 位置は assets.config.ts の layout.slots
+export const SLOT_IDS = ['window', 'poster', 'clock', 'shelf', 'chest', 'plant', 'rug', 'cushion', 'table', 'bone', 'bowl', 'onigiri', 'carrot'] as const;
 export type SlotId = (typeof SLOT_IDS)[number];
 
 export const SLOT_LABEL: Record<SlotId, string> = {
   window: 'まど',
-  wall: 'かべ',
-  shelf: 'たな',
+  poster: 'ポスター',
+  clock: '時計',
+  shelf: '本だな',
+  chest: '引き出し',
+  plant: 'はちうえ',
   rug: 'ラグ',
   cushion: 'クッション',
-  plant: 'グリーン',
+  table: 'テーブル',
+  bone: 'ほね',
+  bowl: 'ごはん',
+  onigiri: 'おにぎり',
+  carrot: 'にんじん',
 };
 
+/** 模様替えのタブ（場所のまとまり） */
+export const DECOR_GROUPS = [
+  { id: 'wall', label: 'かべ', slots: ['window', 'poster', 'clock'] },
+  { id: 'furniture', label: '家具', slots: ['shelf', 'chest', 'plant', 'cushion', 'table'] },
+  { id: 'floor', label: 'ゆか', slots: ['rug', 'bone', 'bowl', 'onigiri', 'carrot'] },
+] as const satisfies readonly { id: string; label: string; slots: readonly SlotId[] }[];
 
 export const FURNITURE_IDS = [
-  'window_plain',
-  'window_curtain',
-  'wall_garland',
-  'wall_clock',
-  'shelf_wood',
+  'window_white',
+  'poster_kanshoku',
+  'clock_flower',
   'shelf_books',
+  'chest_wood',
+  'plant_pot',
   'rug_round',
-  'rug_square',
-  'cushion_butter',
-  'cushion_cloud',
-  'plant_pothos',
-  'plant_cactus',
+  'cushion_bean',
+  'table_dots',
+  'toy_bone',
+  'bowl_rice',
+  'onigiri_floor',
+  'carrot_floor',
 ] as const;
 export type FurnitureId = (typeof FURNITURE_IDS)[number];
 
@@ -117,18 +133,19 @@ export interface FurnitureDef {
 }
 
 export const FURNITURE: Record<FurnitureId, FurnitureDef> = {
-  window_plain: { id: 'window_plain', slot: 'window', name: 'まどべ', starter: true },
-  window_curtain: { id: 'window_curtain', slot: 'window', name: 'ミントのカーテン' },
-  wall_garland: { id: 'wall_garland', slot: 'wall', name: 'ガーランド' },
-  wall_clock: { id: 'wall_clock', slot: 'wall', name: 'まるい時計' },
-  shelf_wood: { id: 'shelf_wood', slot: 'shelf', name: '木のたな', starter: true },
+  window_white: { id: 'window_white', slot: 'window', name: 'しろいまど' },
+  poster_kanshoku: { id: 'poster_kanshoku', slot: 'poster', name: '漢食のポスター' },
+  clock_flower: { id: 'clock_flower', slot: 'clock', name: 'お花の時計' },
   shelf_books: { id: 'shelf_books', slot: 'shelf', name: '本だな' },
+  chest_wood: { id: 'chest_wood', slot: 'chest', name: '引き出し' },
+  plant_pot: { id: 'plant_pot', slot: 'plant', name: 'はちうえ' },
   rug_round: { id: 'rug_round', slot: 'rug', name: 'まるいラグ', starter: true },
-  rug_square: { id: 'rug_square', slot: 'rug', name: 'チェックのラグ' },
-  cushion_butter: { id: 'cushion_butter', slot: 'cushion', name: 'バタークッション', starter: true },
-  cushion_cloud: { id: 'cushion_cloud', slot: 'cushion', name: 'くもクッション' },
-  plant_pothos: { id: 'plant_pothos', slot: 'plant', name: 'ポトス' },
-  plant_cactus: { id: 'plant_cactus', slot: 'plant', name: 'サボテン' },
+  cushion_bean: { id: 'cushion_bean', slot: 'cushion', name: 'ビーズクッション', starter: true },
+  table_dots: { id: 'table_dots', slot: 'table', name: '水玉のテーブル' },
+  toy_bone: { id: 'toy_bone', slot: 'bone', name: 'ほねのおもちゃ' },
+  bowl_rice: { id: 'bowl_rice', slot: 'bowl', name: 'ごはん茶わん' },
+  onigiri_floor: { id: 'onigiri_floor', slot: 'onigiri', name: 'おにぎり' },
+  carrot_floor: { id: 'carrot_floor', slot: 'carrot', name: 'にんじん' },
 };
 
 export const STARTER_FURNITURE = FURNITURE_IDS.filter((id) => FURNITURE[id].starter);

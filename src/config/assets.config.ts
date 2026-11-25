@@ -58,6 +58,7 @@ export interface Placement {
 }
 
 const A = 'assets/';
+const R = A + 'room2/';
 
 export const ASSETS = {
   // ---------------------------------------------------------- 相棒
@@ -102,25 +103,27 @@ export const ASSETS = {
   } as Partial<Record<FoodId, AssetDef>>,
 
   // ---------------------------------------------------------- 家具
+  // 部屋の絵（1080×1920 の見本の部屋から切り出し 余白なし）
   furniture: {
-    window_plain: { src: A + 'furniture/window-plain.svg', aspect: 1, alt: 'まど' },
-    window_curtain: { src: A + 'furniture/window-curtain.svg', aspect: 1, alt: 'カーテンのまど' },
-    wall_garland: { src: A + 'furniture/wall-garland.svg', aspect: 2, alt: 'ガーランド' },
-    wall_clock: { src: A + 'furniture/wall-clock.svg', aspect: 1, alt: '時計' },
-    shelf_wood: { src: A + 'furniture/shelf-wood.svg', aspect: 0.8, alt: '木のたな' },
-    shelf_books: { src: A + 'furniture/shelf-books.svg', aspect: 0.8, alt: '本だな' },
-    rug_round: { src: A + 'furniture/rug-round.svg', aspect: 3, alt: 'まるいラグ' },
-    rug_square: { src: A + 'furniture/rug-square.svg', aspect: 3, alt: 'チェックのラグ' },
-    cushion_butter: { src: A + 'furniture/cushion-butter.svg', aspect: 1.6, alt: 'クッション' },
-    cushion_cloud: { src: A + 'furniture/cushion-cloud.svg', aspect: 1.6, alt: 'くもクッション' },
-    plant_pothos: { src: A + 'furniture/plant-pothos.svg', aspect: 0.7, alt: 'ポトス' },
-    plant_cactus: { src: A + 'furniture/plant-cactus.svg', aspect: 0.7, alt: 'サボテン' },
+    window_white: { src: R + 'window.webp', aspect: 310 / 307, alt: 'しろいまど' },
+    poster_kanshoku: { src: R + 'poster.webp', aspect: 252 / 238, alt: '漢食のポスター' },
+    clock_flower: { src: R + 'clock.webp', aspect: 161 / 152, alt: 'お花の時計' },
+    shelf_books: { src: R + 'shelf.webp', aspect: 463 / 224, alt: '本だな' },
+    chest_wood: { src: R + 'chest.webp', aspect: 262 / 352, alt: '引き出し' },
+    plant_pot: { src: R + 'plant.webp', aspect: 76 / 172, alt: 'はちうえ' },
+    rug_round: { src: R + 'rug.webp', aspect: 883 / 346, alt: 'まるいラグ' },
+    cushion_bean: { src: R + 'cushion.webp', aspect: 351 / 210, alt: 'ビーズクッション' },
+    table_dots: { src: R + 'table.webp', aspect: 405 / 241, alt: '水玉のテーブル' },
+    toy_bone: { src: R + 'bone.webp', aspect: 108 / 59, alt: 'ほねのおもちゃ' },
+    bowl_rice: { src: R + 'bowl.webp', aspect: 124 / 120, alt: 'ごはん茶わん' },
+    onigiri_floor: { src: R + 'onigiri.webp', aspect: 92 / 82, alt: 'おにぎり' },
+    carrot_floor: { src: R + 'carrot.webp', aspect: 146 / 65, alt: 'にんじん' },
   } satisfies Record<FurnitureId, AssetDef>,
 
   // ---------------------------------------------------------- 部屋・小物
   room: {
-    /** 壁と床の背景（透過なしでOK・縦長 3:4） */
-    background: { src: A + 'room/background.svg', aspect: 3 / 4, alt: '' },
+    /** 壁と床の背景（透過なし・縦長 9:16 の 1080×1920） */
+    background: { src: R + 'background.webp', aspect: 9 / 16, alt: '' },
     /** 小腹がすいたときに抱えるお皿 */
     plate: { src: A + 'room/prop-plate.svg', aspect: 1.6, alt: 'からっぽのお皿' },
     /** おなかがすいたときにのぞく冷蔵庫 */
@@ -175,32 +178,40 @@ export const ASSETS = {
   ] as AssetDef[],
 
   // ---------------------------------------------------------- 部屋の配置
-  // 部屋（ステージ）は 横3:縦4。数値はステージに対する % です。
+  // 部屋（ステージ）は 横9:縦16。数値はステージに対する % です。
   layout: {
-    stageAspect: 3 / 4,
+    stageAspect: 9 / 16,
     /** 画面が縦長で部屋の上にすき間ができたときの壁の色（背景画像の上端の色に合わせる） */
-    stageFill: '#DDF2F9',
+    stageFill: '#D6F0FA',
     /** 部屋の下の床の色（ナビの下まで床をのばす） */
-    floorFill: '#F3E7CF',
+    floorFill: '#EBE0D6',
+    // 見本の部屋（1080×1920）と同じ位置
     slots: {
-      window: { x: 30, bottom: 55, width: 38, z: 1 },
-      wall: { x: 75, bottom: 74, width: 26, z: 1 },
-      shelf: { x: 80, bottom: 33, width: 30, z: 2 },
-      rug: { x: 50, bottom: 6, width: 84, z: 2 },
-      cushion: { x: 21, bottom: 13, width: 30, z: 3 },
-      plant: { x: 88, bottom: 9, width: 18, z: 8 },
+      window: { x: 30, bottom: 64.9, width: 28.7, z: 1 },
+      poster: { x: 81.6, bottom: 73.6, width: 23.3, z: 1 },
+      clock: { x: 52.8, bottom: 86.6, width: 14.9, z: 1 },
+      shelf: { x: 24.6, bottom: 40.2, width: 42.9, z: 2 },
+      chest: { x: 76.9, bottom: 39.9, width: 24.3, z: 2 },
+      plant: { x: 83, bottom: 58, width: 7, z: 3 },
+      rug: { x: 49.6, bottom: 16, width: 81.8, z: 2 },
+      cushion: { x: 24.1, bottom: 27.8, width: 32.5, z: 3 },
+      table: { x: 80.4, bottom: 10.5, width: 37.5, z: 6 },
+      bone: { x: 76.8, bottom: 33, width: 10, z: 3 },
+      bowl: { x: 87.4, bottom: 24.6, width: 11.5, z: 3 },
+      onigiri: { x: 19.5, bottom: 12.2, width: 8.5, z: 6 },
+      carrot: { x: 77.5, bottom: 3.1, width: 13.5, z: 6 },
     } as Record<string, Placement>,
     /** 相棒の立ち位置（状態によって移動します） */
     pet: {
-      default: { x: 54, bottom: 14, width: 40, z: 5 },
-      fridge: { x: 36, bottom: 22, width: 36, z: 5 },
-      cushion: { x: 24, bottom: 15, width: 38, z: 5 },
+      default: { x: 50, bottom: 24, width: 22, z: 5 },
+      fridge: { x: 36, bottom: 26, width: 22, z: 5 },
+      cushion: { x: 25, bottom: 28, width: 24, z: 5 },
     } as Record<'default' | 'fridge' | 'cushion', Placement>,
     /** 食べているごはんの位置（相棒の立ち位置からのずれ） */
-    eatingFood: { dx: 13, dbottom: 4, width: 15 },
+    eatingFood: { dx: 7, dbottom: 2, width: 8 },
     /** お皿・冷蔵庫 */
-    plate: { dx: 2, dbottom: 1, width: 17 },
-    fridge: { x: 12, bottom: 30, width: 20, z: 3 } as Placement,
+    plate: { dx: 1, dbottom: 0.5, width: 9 },
+    fridge: { x: 12, bottom: 36, width: 18, z: 3 } as Placement,
     /** ほっぺのシール（相棒の枠に対する %） */
     cheek: { x: 70, y: 69, width: 12 },
   },

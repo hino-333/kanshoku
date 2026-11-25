@@ -29,14 +29,8 @@ export function createInitialState(now: number): GameState {
     meals: [],
     foods,
     furniture: [...STARTER_FURNITURE],
-    room: {
-      window: 'window_plain',
-      wall: null,
-      shelf: 'shelf_wood',
-      rug: 'rug_round',
-      cushion: 'cushion_butter',
-      plant: null,
-    },
+    // 最初はがらんとした部屋（ラグとクッションだけ） ほかの家具は遊ぶと少しずつ見つかる
+    room: Object.fromEntries(SLOT_IDS.map((slot) => [slot, STARTER_FURNITURE.find((id) => FURNITURE[id].slot === slot) ?? null])) as GameState['room'],
     history: [],
     pocket: {},
     stats: {},
