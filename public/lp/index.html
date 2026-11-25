@@ -157,26 +157,16 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 .hero__dog{transform:translateY(90%);transition:transform .3s cubic-bezier(.6,-.5,.7,.2)}
 .hero.is-dog .hero__dog{transform:none;transition:transform .56s cubic-bezier(.34,1.56,.64,1) .42s}
 
-.next{position:absolute;left:calc(50% - 30px);top:calc(100vh - 84px);top:calc(100svh - 84px - env(safe-area-inset-bottom));width:60px;height:60px;border:0;padding:0;border-radius:50%;
-  background:#fff;cursor:pointer;display:grid;place-items:center;opacity:.7;transition:opacity .3s ease;
-  animation:bob 1.6s ease-in-out infinite}
-.next svg{width:36px;height:36px;display:block}
-.next:focus-visible{outline:4px solid var(--primary);outline-offset:4px}
-.next.is-off{opacity:0;pointer-events:none}
-.next{z-index:8}
-@keyframes bob{0%,100%{translate:0 0}50%{translate:0 8px}}
 
 /* スマホの絵（縦長） */
 .scene--sp{width:402px;height:874px}
 .scene--sp .scene__bg{left:-160px;top:-82px;width:746px;height:1225px}
 .scene--sp .scene__line path{stroke-width:16}
 .scene--sp .caption{left:24px;top:612px;font-size:28px}
-.is-sp .next{top:calc(100vh - 92px);top:calc(100svh - 92px - env(safe-area-inset-bottom))}
 
 @media (prefers-reduced-motion:reduce){
   .top__start{transition:none}
   .is-shaking .hand__shake{animation:none}
-  .next{animation:none}
   .sweat{transform:none;transition:opacity .2s linear}
   .peek img{transition:transform .2s ease}
   .say{transform:translate(0,-50%)}
@@ -251,9 +241,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
         </div>
       </div>
 
-      <button class="next" id="next" type="button" aria-label="つづきを見る">
-        <svg viewBox="0 0 36 36" aria-hidden="true"><path fill="#38aacf" transform="translate(9 6)" d="M7.939 23.56L.439 16.06A1.5 1.5 0 0 1 2.56 13.94L7.5 18.879V1.5a1.5 1.5 0 0 1 3 0v17.379l4.939-4.94a1.5 1.5 0 0 1 2.121 2.121l-7.5 7.5a1.5 1.5 0 0 1-2.121 0Z"/></svg>
-      </button>
     </div>
   </section>
 </main>
@@ -296,7 +283,7 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
   const bg = $('bg'), hand = $('hand'), handImg = $('handImg');
   const lineSvg = $('lineSvg'), lineG = $('lineG'), path = $('linePath');
   const sweats = [$('sweat1'), $('sweat2')];
-  const cap1 = $('cap1'), cap2 = $('cap2'), next = $('next'), are = $('are');
+  const cap1 = $('cap1'), cap2 = $('cap2'), are = $('are');
   const fades = [...cap2.querySelectorAll('.fade')];
   const kraft = $('kraft'), dot = $('dot'), peek = $('peek'), say = $('say');
   const others = [...are.querySelectorAll('.are-t, .ell i:not(#dot)')];
@@ -359,7 +346,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
 
   // 「あれ…？」と真ん中の丸の位置と大きさ（シーンの座標）を測っておく
   let M = null;
-  let nextBlocked = false;
   function measure() {
     const keep = scene2.style.transform;
     scene2.style.transform = 'none';
@@ -507,16 +493,12 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
       const c = M.sides[i];
       Object.assign(g.style, { left: tx + S * c.x - r / 2 + 'px', top: ty + S * c.y - r / 2 + 'px', width: r + 'px', height: r + 'px', opacity: sideOp });
     });
-    // 下向きボタンが丸に重なるときは出さない
-    const nb = next.getBoundingClientRect(), sb = stage.getBoundingClientRect();
     // 真ん中の丸に寄りきったら 自動で進める（上にスクロールして戻ったら最初からやり直す）
     const atEnd = z2 >= 1 && u >= 6.32;
     if (atEnd && autoStart === null) { autoStart = performance.now(); if (!autoRaf) autoRaf = requestAnimationFrame(autoTick); }
     if (!atEnd) autoStart = null;
     const T = autoStart === null ? -1 : (performance.now() - autoStart) / 1000;
     const E = T < 0 ? 0 : span(T, 1.1, 2.0);                   // 丸が広がってヒーローになる進み具合
-    nextBlocked = swap && E < 1 && (ty + S * M.dot.y + r / 2) > (nb.top - sb.top) - 8;
-    if (nextBlocked) setNext(false);
 
     // 7 丸の中からいぬが顔を出して「御中だよ！」
     const up = T >= 0;
@@ -549,10 +531,6 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     if (E > 0) document.documentElement.style.background = document.body.style.background = 'rgb(56,170,207)';
   }
 
-  // 下向きボタン：スクロールが3秒止まったらまた出す（いちばん下では出さない）
-  const IDLE_MS = 3000;
-  let idleTimer = 0;
-  const setNext = (on) => next.classList.toggle('is-off', !on);
   // スキップ：はじまりの場面をとばして最後（いぬの場面）まで進む
   const skip = $('skip');
   skip.addEventListener('click', () => {
@@ -561,8 +539,9 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     scrollTo({ top: story.offsetTop + total, behavior: 'auto' });
   });
 
-  // 下向きボタン：押したら最後まで全自動で進む（時間 秒 → 画面いくつ分）
-  const PLAY = [[0, 0], [2.3, 3.1], [3.1, 4.25], [3.9, 4.8], [5, 6.4]];
+  // ひらいたら最後まで全自動で進む（時間 秒 → 画面いくつ分）
+  // はじめの1秒は最初のことばを読めるように止めておく
+  const PLAY = [[0, 0], [1, 0], [3.3, 3.1], [4.1, 4.25], [4.9, 4.8], [6, 6.4]];
   let playRaf = 0, playT0 = 0;
   const uAt = (t) => {
     for (let i = 1; i < PLAY.length; i++) {
@@ -590,29 +569,28 @@ html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fo
     if (y >= total || t >= PLAY[PLAY.length - 1][0]) { stopPlay(); return; }   // ここからはいつもの自動
     playRaf = requestAnimationFrame(playTick);
   }
-  next.addEventListener('click', () => {
+  function startPlay() {
     if (playing) return;
+    const total = story.offsetHeight - stage.clientHeight;
+    if (scrolled() >= total - 1) return;                      // 最後（ヒーロー）で開き直したときはそのまま
     playing = true;
-    setNext(false);
-    clearTimeout(idleTimer);
-    playT0 = performance.now() - tAt(scrolled() / viewH()) * 1000;
+    const u0 = scrolled() / viewH();
+    playT0 = performance.now() - (u0 > 0 ? tAt(u0) : 0) * 1000;
     playRaf = requestAnimationFrame(playTick);
-  });
+  }
 
   let ticking = false;
   addEventListener('scroll', () => {
     if (locked) { if (scrollY !== lockY) scrollTo(0, lockY); return; }   // 固定中は元の位置に戻す
-    if (playing) return;                                       // 全自動の間はボタンを出さない
-    setNext(progress() <= 0.02);
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => { if (progress() < 0.995 && !nextBlocked) setNext(true); }, IDLE_MS);
+    if (playing) return;                                       // 全自動の間は動かしている側にまかせる
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; update(); });
   }, { passive: true });
   addEventListener('resize', fit);
-  if (document.fonts) document.fonts.ready.then(() => { M = null; update(); });
   fit();
+  // 字の形がそろってから測り直して 全自動を始める
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { M = null; update(); startPlay(); });
 })();
 </script>
 </body>
