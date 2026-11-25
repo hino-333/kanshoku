@@ -5,7 +5,7 @@ import type { PetMotion } from '../art/PetSprite';
 import { goBack } from '../lib/router';
 import { useUi } from '../lib/ui';
 
-/* ------------------------------------------------ アイコン（Flowbite の塗り・1色） */
+/* ------------------------------------------------ アイコン（Bootstrap Icons・1色） */
 /** 同じ意味の別名（新しいアイコンは増やさない） */
 const ALIAS = { trash: 'erase', retry: 'undo', mic: 'voice' } as const;
 export type Glyph = IconName | keyof typeof ALIAS;
@@ -14,7 +14,7 @@ export function Icon({ name, className, title }: { name: Glyph; className?: stri
   const key: IconName = name in ALIAS ? ALIAS[name as keyof typeof ALIAS] : (name as IconName);
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       className={`icon ${className ?? ''}`}
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}

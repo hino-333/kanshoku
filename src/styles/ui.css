@@ -67,7 +67,7 @@
   color: var(--primary-deep);
 }
 
-/* アイコン（Flowbite の塗り 色は文字色） */
+/* アイコン（Bootstrap Icons 色は文字色） */
 .icon {
   display: inline-block;
   flex: none;

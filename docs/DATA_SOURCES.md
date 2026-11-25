@@ -41,9 +41,7 @@
 
 ## アイコン
 
-- Flowbite Icons（MIT License・https://github.com/themesberg/flowbite-icons）の solid 版を `src/ui/icons.ts` に収録
-- 「とじる」の×だけは Flowbite の x-solid が X（旧Twitter）のロゴのため 自作の形
-- 入力欄の中の虫めがねだけ Flowbite の search-outline
+- Bootstrap Icons 1.11.3（MIT License・https://github.com/twbs/icons）の形を `src/ui/icons.ts` に収録
 
 ## イラスト
 

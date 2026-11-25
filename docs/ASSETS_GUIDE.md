@@ -209,26 +209,28 @@
 
 ### 5-6. アイコン（イラストではなく 1つのアイコンセットで管理）
 
-アイコンは絵の差し替えの対象から外し、**Flowbite Icons（塗りの solid 版・MIT License）** に統一しました。
-設定は `src/ui/icons.ts` の1ファイルだけです。
+アイコンは絵の差し替えの対象から外し、**Bootstrap Icons（1.11.3・MIT License・https://icons.getbootstrap.com/）** に統一しました。
+設定は `src/ui/icons.ts` の1ファイルだけです（16×16 の形をそのまま入れてある）。
 
-- 1つの意味に1つのアイコン（例：ごはん＝`bowl-food` を ナビ以外のすべての「ごはん」で使う）
+- 1つの意味に1つのアイコン（例：ごはん＝`basket-fill` を ナビ以外のすべての「ごはん」で使う）
 - 色は1色。押せる所や現在地は主色 #38AACF、それ以外は文字色 #4B4038。ただし「ごはん」のアイコンは青と合わないので暖色 #E8735A
-- 新しいアイコンが必要なときは 同じ Flowbite の solid 版から選ぶ（別のアイコンセットは混ぜない）
-- 例外：入力欄の中の虫めがねだけは 塗りだとぼってり見えるので outline 版（`searchLine`）
+- 新しいアイコンが必要なときは 同じ Bootstrap Icons から選ぶ（なるべく `-fill` の塗りの版 別のアイコンセットは混ぜない）
 
-| 意味 | 名前（icons.ts） | Flowbite |
+| 意味 | 名前（icons.ts） | Bootstrap Icons |
 |---|---|---|
-| おへや | room | home-solid |
-| しらべる | search | search-solid |
-| 入力欄の虫めがね | searchLine | search-outline |
-| あそぶ | play | shapes-solid |
-| あつめた漢字 | pocket | bookmark-solid |
-| ごはん | food | bowl-food-solid |
-| 模様替え | decor | palette-solid |
-| プロフィール | profile | user-solid |
-| カメラ／声／写真 | camera／voice／image | camera-photo／microphone／image |
-| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | file-pen／grid |
+| おへや | room | house-door-fill |
+| しらべる／入力欄の虫めがね | search／searchLine | search |
+| あそぶ | play | controller |
+| あつめた漢字 | pocket | bookmark-fill |
+| ごはん | food | basket-fill |
+| 模様替え | decor | palette-fill |
+| プロフィール | profile | person-fill |
+| カメラ／声／写真 | camera／voice／image | camera-fill／mic-fill／image-fill |
+| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | pen-fill／grid-fill |
+| もどる／すすむ／ひらく | back／chevron／down | caret-left-fill／caret-right-fill／caret-down-fill |
+| とじる／できた | close／check | x-lg／check-circle-fill |
+| ヒント／見本 | hint／eye | lightbulb-fill／eye-fill |
+| 1画戻す／消す／へんしゅう | undo／erase／edit | arrow-counterclockwise／trash-fill／pencil-fill |
 
 ### 5-7. 差し替え不要な部分
 
