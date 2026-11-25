@@ -2418,6 +2418,8 @@
   border-top: 16px solid var(--counter-edge);
   background: var(--counter);
   overflow-y: auto;
+  /* まな板の大きさを台の高さに合わせるための入れもの */
+  container-type: size;
 }
 .counter__sheet {
   width: 100%;
@@ -2431,7 +2433,10 @@
 .board {
   position: relative;
   flex: none;
-  width: min(354px, calc(100% - 8px));
+  /* 台の高さに収まる大きさにする（はみ出すと台がスクロールして 上のヒントが切れるため）
+     212px＝上のあき16＋下の道具とボタン（20＋56＋20＋56）＋影10＋まな板の内側の余白32
+     まな板の高さ＝(幅−32)÷1.08＋32 */
+  width: min(354px, calc(100% - 8px), calc((100cqh - 212px) * 1.08 + 32px));
   padding: 16px;
   border-radius: 24px;
   background: var(--grain) center / 100% 100% no-repeat, #e8c08a;
@@ -2439,6 +2444,8 @@
     inset 0 2px 0 #f6ddb4,
     0 8px 0 #bd8d51,
     0 10px 0 #a9783f;
+  /* 上にはみ出すヒント（.recipe）が台のふちで切れないように 上をあけておく */
+  margin-top: 16px;
   margin-bottom: 10px;
 }
 .board::before {
