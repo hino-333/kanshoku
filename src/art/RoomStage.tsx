@@ -70,7 +70,9 @@ export function RoomStage({ room, pet, onPetTap, petLabel, landed, petRef, child
   return (
     <div className={`stage-wrap ${compact ? 'stage-wrap--compact' : ''}`} style={{ '--stage-aspect': L.stageAspect, '--stage-fill': L.stageFill, '--floor-fill': L.floorFill } as CSSProperties}>
       <div className="stage-frame">
-      <div className="stage" style={{ aspectRatio: String(L.stageAspect) }}>
+      {/* 部屋の箱の高さは幅から決める（aspect-ratio だけだと iPhone の Safari で縦につぶれ 背景と家具がずれるため） */}
+      {/* cqw が使えない古い端末では aspect-ratio で代わりに決まる */}
+      <div className="stage" style={{ aspectRatio: String(L.stageAspect), height: `calc(100cqw / ${L.stageAspect})` }}>
         <div className="stage__layer stage__bg">
           <AssetImage def={ASSETS.room.background} cover decorative />
         </div>
