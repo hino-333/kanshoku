@@ -227,7 +227,7 @@
 | 模様替え | decor | color |
 | プロフィール | profile | person |
 | カメラ／声／写真 | camera／voice／image | camera／mic／image |
-| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | calligraphy_pen／grid |
+| 漢字を書く／答えをえらぶ | gameWrite／gameMatch | pen／grid |
 | もどる／ひらく／すすむ | back／chevron／down／arrow | caret_left／caret_right／caret_down／arrow_circle_right |
 | とじる／できた | close／check | dismiss_circle／checkmark_circle |
 | ヒント／見本 | hint／eye | lightbulb／eye |
