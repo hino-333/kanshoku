@@ -15,7 +15,7 @@ export function Icon({ name, className, title }: { name: Glyph; className?: stri
   return (
     <svg
       viewBox="0 0 24 24"
-      className={`icon ${className ?? ''}`}
+      className={`icon icon--${key} ${className ?? ''}`}
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}
       fill="currentColor"

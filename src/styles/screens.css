@@ -131,7 +131,7 @@
 .name-tag__chev {
   width: 16px;
   height: 16px;
-  color: var(--ink-soft);
+  color: var(--primary-deep);
 }
 .room-tools {
   position: absolute;
@@ -700,7 +700,7 @@
   width: 20px;
   height: 20px;
   margin-left: auto;
-  color: var(--ink-soft);
+  color: var(--primary-deep);
   transition: transform var(--t-mid);
 }
 .more-card[open] .more-card__chev {

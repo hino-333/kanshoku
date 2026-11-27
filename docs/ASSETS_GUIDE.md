@@ -228,7 +228,7 @@
 | プロフィール | profile | person |
 | カメラ／声／写真 | camera／voice／image | camera／mic／image |
 | 漢字を書く／答えをえらぶ | gameWrite／gameMatch | pen／grid |
-| もどる／ひらく／すすむ | back／chevron／down／arrow | caret_left／caret_right／caret_down／arrow_circle_right |
+| もどる／ひらく／すすむ | back／chevron／down／arrow | arrow_circle_left／arrow_circle_right／arrow_circle_down／arrow_circle_right（三角は使わず 丸の中の矢印にそろえる） |
 | とじる／できた | close／check | dismiss_circle／checkmark_circle |
 | ヒント／見本 | hint／eye | lightbulb／eye |
 | 1画戻す／消す／へんしゅう | undo／erase／edit | arrow_undo／delete／edit |
